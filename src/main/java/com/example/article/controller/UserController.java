@@ -76,12 +76,11 @@ public class UserController {
     }
 
 
-    @PostMapping("/edit/{id}")
-    public HttpEntity<ApiResponse> edit(@CurrentUser User user, @RequestBody SignUp userDto) {
-        ApiResponse apiResponse = userService.edit(user, userDto);
-        return ResponseEntity.status(apiResponse.isSuccess() ? apiResponse.getMessage()
-                        .equals("Edit") ? 201 : 202 : 409)
-                .body(apiResponse);
+    @PostMapping("/edit")
+    public HttpEntity<ApiResponse> edit( @RequestBody SignUp userDto) {
+        ApiResponse apiResponse = userService.edit(userDto);
+        return ResponseEntity.status(apiResponse.isSuccess() ? 202 : 409).body(apiResponse);
+
     }
 
     @PostMapping("/login")
@@ -102,12 +101,10 @@ public class UserController {
         return ResponseEntity.status(user != null ? 200 : 409).body(user1);
     }
 
-    @PostMapping("/eddEmployee")
+    @PostMapping("/addEmployee")
     public HttpEntity<ApiResponse> eddEmployee(@RequestBody UserDto userDto) {
         ApiResponse apiResponse = userService.saveAndEditUser(userDto);
-        return ResponseEntity.status(apiResponse.isSuccess() ? apiResponse.getMessage()
-                        .equals("Saved") ? 201 : 202 : 409)
-                .body(apiResponse);
+        return ResponseEntity.status(apiResponse.isSuccess() ? 202 : 409).body(apiResponse);
     }
 
 //    @PostMapping("/changeUserActive/{id}")
@@ -144,34 +141,34 @@ public class UserController {
     }
 
 
-//    @GetMapping("/getNewReviewer")
-//    public ApiResponse getNewReviewer() {
-//        return new ApiResponse("Yangi qo'shilgan reviewrlar", true, userService.getNewReviewer());
-//    }
+    @GetMapping("/getNewReviewer")
+    public ApiResponse getNewReviewer() {
+        return new ApiResponse("Yangi qo'shilgan reviewerlar", true, userService.getNewReviewer());
+    }
 
-//    @GetMapping("/getNewReviewerCount")
-//    public Integer getNewReviewerCount() {
-//        return userService.getNewReviewerCount();
-//    }
+    @GetMapping("/getNewReviewerCount")
+    public Integer getNewReviewerCount() {
+        return userService.getNewReviewerCount();
+    }
 
 
-//    @PostMapping("/acceptedUser")
-//    public ApiResponse acceptedUser(@CurrentUser User user, @RequestBody ReviewerDto reviewerDto) {
-//        return new ApiResponse("Reviewer avtivation", true, userService.acceptedUser(user, reviewerDto));
-//    }
+    @PostMapping("/acceptedUser")
+    public ApiResponse acceptedUser(@CurrentUser User user, @RequestBody ReviewerDto reviewerDto) {
+        return new ApiResponse("Reviewer avtivation", true, userService.acceptedUser(user, reviewerDto));
+    }
 
-    //MA'LUM VAQT ORALIG'IDAGI RO`YXATDAN O`TGAN USERLARNI OLIB KELISH UCHUN
-//    @GetMapping("/numberOfRegistredUsersBetween")
-//    public Integer numberOfUsersBetween(@RequestParam Long start, @RequestParam Long end ){
-//        return userService.numberOfRegistredUsers(start, end);
-//    }
+//    MA'LUM VAQT ORALIG'IDAGI RO`YXATDAN O`TGAN USERLARNI OLIB KELISH UCHUN
+    @GetMapping("/numberOfRegistredUsersBetween")
+    public Integer numberOfUsersBetween(@RequestParam Long start, @RequestParam Long end ){
+        return userService.numberOfRegistredUsers(start, end);
+    }
 
     //DASHBOARD UCHUN
-//    @GetMapping("/dashboard")
-//    public HttpEntity<?> dashboard(){
-//        ApiResponse apiResponse = userService.dashboard();
-//        return ResponseEntity.status(apiResponse.isSuccess()?200:409).body(apiResponse);
-//    }
+    @GetMapping("/dashboard")
+    public HttpEntity<?> dashboard(){
+        ApiResponse apiResponse = userService.dashboard();
+        return ResponseEntity.status(apiResponse.isSuccess()?200:409).body(apiResponse);
+    }
 
 
 }

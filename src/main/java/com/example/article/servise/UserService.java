@@ -132,15 +132,17 @@ public class UserService {
                 user = userRepository.getById(userDto.getId());
             }
             if (userOptional.isEmpty()) {
-                user.setLastName(userDto.getLastName());
-                user.setFirstName(userDto.getFirstName());
-                user.setPassword(passwordEncoder.encode(userDto.getPassword()));
-                user.setPhoneNumber(userDto.getPhoneNumber());
+                user.setLastName(userDto.getLastName() == null ? user.getLastName() : userDto.getLastName());
+                user.setFirstName(userDto.getFirstName() == null ? user.getFirstName() : userDto.getFirstName());
+                user.setPassword(passwordEncoder.encode(userDto.getPassword() == null ? user.getPassword() : userDto.getPassword()));
+                user.setPhoneNumber(userDto.getPhoneNumber() == null ? user.getPhoneNumber() : userDto.getPhoneNumber());
                 user.setEnabled(userDto.isActive());
-                user.setRoles(roleRepository.findAllByIdIn(userDto.getRole()));
-                user.setCategories(categoryRepository.findAllById(userDto.getCategoryId()));
+                if (userDto.getRole().size() != 0 && userDto.getCategoryId().size() != 0) {
+                    user.setRoles(roleRepository.findAllByIdIn(userDto.getRole()));
+                    user.setCategories(categoryRepository.findAllByIdIn(userDto.getCategoryId()));
+                }
                 userRepository.save(user);
-                return new ApiResponse("Saved user ", true);
+                return new ApiResponse("Saved", true);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -172,23 +174,26 @@ public class UserService {
         return jwtProvider.generateJwtToken(principal);
     }
 
-    public ApiResponse edit(User user, SignUp signUp) {
-        user.setPassword(signUp.getPassword());
-        user.setEmail(signUp.getEmail());
-        user.setLastName(signUp.getLastName());
-        user.setPhoneNumber(signUp.getPhoneNumber());
-//        user.setPhotos(Collections.singletonList(attachmentRepository.getById(signUp.getPhotoId())));
+    public ApiResponse edit(SignUp signUp) {
+        boolean exists = userRepository.existsById(signUp.getUserId());
+        if (!exists)
+            return new ApiResponse("User topilmadi", false);
+        System.out.println(signUp.getPhoneNumber() + signUp.getLastName() + signUp.getFirstName() + signUp.getEmail() + signUp.getFatherName());
+
+        User user = userRepository.getById(signUp.getUserId());
+        user.setPassword(signUp.getPassword() == null ? user.getPassword() : signUp.getPassword());
+        user.setEmail(signUp.getEmail() == null ? user.getEmail() : signUp.getEmail());
+        user.setLastName(signUp.getLastName() == null ? user.getLastName() : signUp.getLastName());
+        user.setFirstName(signUp.getFirstName() == null ? user.getFirstName() : signUp.getFirstName());
+        user.setPhoneNumber(signUp.getPhoneNumber() == null ? user.getPhoneNumber() : signUp.getPhoneNumber());
         userRepository.save(user);
         return new ApiResponse("Successfully edited", true);
     }
 
-    public ApiResponse delete( UUID id) {
+    public ApiResponse delete(UUID id) {
         userRepository.deleteById(id);
-//        informationUserRepository.save(new InformationUser(user, user1, new Date(), UserStatus.ACCEPTED));
         return new ApiResponse("Successfully deleted", true);
     }
-
-
 
     public ApiResponse searchUser(String search, Integer roles_id, boolean enabled, Integer categoryId, Integer page, Integer size)
             throws IllegalAccessException {
@@ -217,17 +222,16 @@ public class UserService {
             users = userRepository.findAllByRolesIdAndCategoriesIdInAndEnabledAndFirstNameContainingIgnoringCaseOrLastNameContainingIgnoringCaseOrFatherNameContainingIgnoringCaseOrEmailContainingIgnoringCaseOrPhoneNumberContainingIgnoringCase(roles_id, Collections.singleton(categoryId), enabled, search, search, search, search, search, CommonUtills.simplePageable(page, size));
 
             // role bn search
-        }else if (categoryId==null && roles_id !=null && !search.equals("777")  ){
+        } else if (categoryId == null && roles_id != null && !search.equals("777")) {
 
-        users=userRepository.findAllByRolesIdAndEnabledAndFirstNameContainingIgnoringCaseOrLastNameContainingIgnoringCaseOrFatherNameContainingIgnoringCaseOrEmailContainingIgnoringCaseOrPhoneNumberContainingIgnoringCase(roles_id,  enabled, search, search, search, search, search, CommonUtills.simplePageable(page, size));
+            users = userRepository.findAllByRolesIdAndEnabledAndFirstNameContainingIgnoringCaseOrLastNameContainingIgnoringCaseOrFatherNameContainingIgnoringCaseOrEmailContainingIgnoringCaseOrPhoneNumberContainingIgnoringCase(roles_id, enabled, search, search, search, search, search, CommonUtills.simplePageable(page, size));
 
-        //  category bn search
-        }else if (roles_id==null && categoryId!=null && !search.equals("777")){
-            users=userRepository.findAllByCategoriesIdInAndEnabledAndFirstNameContainingIgnoringCaseOrLastNameContainingIgnoringCaseOrFatherNameContainingIgnoringCaseOrEmailContainingIgnoringCaseOrPhoneNumberContainingIgnoringCase( Collections.singleton((categoryId)), enabled, search, search, search, search, search, CommonUtills.simplePageable(page, size));
+            //  category bn search
+        } else if (roles_id == null && categoryId != null && !search.equals("777")) {
+            users = userRepository.findAllByCategoriesIdInAndEnabledAndFirstNameContainingIgnoringCaseOrLastNameContainingIgnoringCaseOrFatherNameContainingIgnoringCaseOrEmailContainingIgnoringCaseOrPhoneNumberContainingIgnoringCase(Collections.singleton((categoryId)), enabled, search, search, search, search, search, CommonUtills.simplePageable(page, size));
         }
         return new ApiResponse("All user ", true, users);
     }
-//
 
 
     public ApiResponse search(SearchUser searchUser) throws IllegalAccessException {
@@ -285,10 +289,7 @@ public class UserService {
     }
 
 
-
-
-
-// bu yangi qo'shilgan reviewrlarni get qilib beradi
+    // bu yangi qo'shilgan reviewrlarni get qilib beradi
     public ApiResponse getNewReviewer() {
         List<User> users = userRepository.findAllByEnabledFalseAndActiveFalseAndRolesId(3);
         if (users == null) {
@@ -315,37 +316,35 @@ public class UserService {
     }
 
     /**
-     * MA'LUM VAQT ORALIG'IDAGI RO`YXATDAN O`TGAN USERLARNI SONI
+     * MA'LUM VAQT ORALIG'IDAGI RO`YXATDAN O`TGAN USERLAR SONI
      */
     public Integer numberOfRegistredUsers(long startTime, long endTime) {
-        Timestamp start=new Timestamp(startTime);
-        Timestamp end=new Timestamp(endTime);
+        Timestamp start = new Timestamp(startTime);
+        Timestamp end = new Timestamp(endTime);
         return userRepository.countAllByCreatedAtBetween(start, end);
     }
 
     /**
      * DASHBOARD UCHUN
      */
-    public ApiResponse dashboard(){
+    public ApiResponse dashboard() {
         try {
             ForDashboard forDashboard = new ForDashboard();
-            forDashboard.setNumberOfUsers(userRepository.countAllByRolesId(4));
-            forDashboard.setNumberOfReviewers(userRepository.countAllByRolesId(3));
-            forDashboard.setNumberOfRedactors(userRepository.countAllByRolesId(2));
-            forDashboard.setNumberOfNewArticles(articleRepository.countAllByPayTrueAndConfirmFalse());
-            forDashboard.setNumberOfInReviewArticles(articleRepository.countAllByArticleStatusName(ArticleStatusName.BEGIN_CHECK));
-            forDashboard.setNumberOfIsBeingEditedArticles(articleRepository.countAllByArticleStatusName(ArticleStatusName.PREPARING_FOR_PUBLICATION));
-            forDashboard.setNumberOfReadyOfPublicationArticles(articleRepository.countAllByArticleStatusName(ArticleStatusName.PREPARED_FOR_PUBLICATION));
-            forDashboard.setNumberOfPublishedArticles(articleRepository.countAllByArticleStatusName(ArticleStatusName.PUBLISHED));
-//            forDashboard.setNumberOfPaidAndPublishedArticles(articleRepository.countAllByPublicAndPrivateTrueAndArticleStatusName(ArticleStatusName.PUBLISHED));
-            return new ApiResponse("Bajarildi", true,forDashboard );
-        }catch (Exception e){
+            forDashboard.setNumberOfUsers(userRepository.countAllByRolesId(4));         //userlar soni
+            forDashboard.setNumberOfReviewers(userRepository.countAllByRolesId(3));     //reviewerlar soni
+            forDashboard.setNumberOfRedactors(userRepository.countAllByRolesId(2));     //redactorlar soni
+            forDashboard.setNumberOfNewArticles(articleRepository.countAllByPayTrueAndConfirmFalse());      //tasdiqlanadigan maqolalar soni
+            forDashboard.setNumberOfInReviewArticles(articleRepository.countAllByArticleStatusName(ArticleStatusName.BEGIN_CHECK));     //tahrirdagi maqolalar soni
+            forDashboard.setNumberOfIsBeingEditedArticles(articleRepository.countAllByArticleStatusName(ArticleStatusName.PREPARING_FOR_PUBLICATION));      //nashrga tayyorlanayotgan  maqolalar soni
+            forDashboard.setNumberOfReadyOfPublicationArticles(articleRepository.countAllByArticleStatusName(ArticleStatusName.PREPARED_FOR_PUBLICATION));      //nashrga tayyor maqolalar soni
+            forDashboard.setNumberOfFreeAndPublishedArticles(articleRepository.countAllByArticleStatusName(ArticleStatusName.PUBLISHED, false));        //nashr qilingan va bepul maqolalar soni
+            forDashboard.setNumberOfPaidAndPublishedArticles(articleRepository.countAllByPublicAndPrivateTrueAndArticleStatusName(ArticleStatusName.PUBLISHED));           //nashr qilingan va pullik maqolalar soni
+            forDashboard.setNumberOfNewAndPayFalse(articleRepository.countAllByPayFalse());         //hali puli to`lanmagan maqolalar soni
+            return new ApiResponse("Bajarildi", true, forDashboard);
+        } catch (Exception e) {
             return new ApiResponse("Xatolik Yuz berdi", false);
         }
     }
-
-
-
 
 
 }

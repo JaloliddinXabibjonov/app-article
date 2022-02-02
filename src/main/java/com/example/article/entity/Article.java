@@ -39,7 +39,7 @@ public class Article extends AbsEntity {
     //    @JsonIgnore
     private boolean confirm = false; //admin qabul qilganini bildiradi keyin bu maqolami edit qilib bo'lmaydi
 
-//    private boolean rejected; // qayta ishlashga berildi adminlarning tasdiqlashi uchun
+    private boolean rejected; // qayta ishlashga berildi adminlarning tasdiqlashi uchun
 
 
     public Article(Category category, String title, boolean pay,String description) {

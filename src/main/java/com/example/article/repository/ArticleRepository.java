@@ -42,7 +42,12 @@ List<Article>findAllByIdIn(Collection<UUID> id);
 
     Integer countAllByPayTrueAndConfirmFalse();
     Integer countAllByArticleStatusName(ArticleStatusName articleStatusName);
-//    Integer countAllByPublicAndPrivateTrueAndArticleStatusName(ArticleStatusName articleStatusName);
+    @Query(value = "select count(*) from article where article_status_name=?1 and public_and_private=false",nativeQuery = true)
+    Integer countAllByArticleStatusName(ArticleStatusName articleStatusName, boolean publicAndPrivate);
 
+    @Query(value = "select count(*) from article where public_and_private=true and article_status_name=?1",nativeQuery = true)
+    Integer countAllByPublicAndPrivateTrueAndArticleStatusName(ArticleStatusName articleStatusName);
+
+    Integer countAllByPayFalse();
 
 }
