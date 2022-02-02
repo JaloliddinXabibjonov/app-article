@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Data
@@ -21,5 +22,5 @@ public class UserDto {
     private List<Integer> role;
     private boolean active;
     private UUID photoId;
-    private List<Integer> categoryId;
+    private Set<Integer> categoryId;
 }
