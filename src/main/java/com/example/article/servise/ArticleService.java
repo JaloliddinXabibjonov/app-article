@@ -66,6 +66,7 @@ public class ArticleService {
             article.setUser(userRepository.getById(userId));
 //            article.setPrice();
             article.setPay(true);
+            article.setViews(0);
             article.setFile(attachmentService.upload1(file));
             articleRepository.save(article);
             return new ApiResponse("Saved", true);
@@ -533,10 +534,32 @@ public class ArticleService {
         return new ApiResponse("Article", true, article);
     }
 
-// count bu articldi necha marta korganini ko'rsatadi
-    public ApiResponse viewsArticle(UUID articleId) {
-        return null;
+    /**articleni necha marta korganini sanaydi*/
+    public void viewsArticle(UUID articleId) {
+        Article article = articleRepository.getById(articleId);
+        article.setViews(article.getViews()+1);
+        articleRepository.save(article);
     }
+
+    /**MAQOLANI NECHA MARTA KO`RILGANINI QAYTARADI*/
+    public Integer numberOfViews(UUID articleId){
+        Optional<Article> articleOptional = articleRepository.findById(articleId);
+        if (articleOptional.isPresent())
+            return articleOptional.get().getViews();
+        return 0;
+    }
+
+    /**MAQOLANI ADMIN TOMONIDAN STATUSINI O`ZGARTIRISH*/
+    public ApiResponse giveStatus(User user, UUID articleId, ArticleStatusName statusName){
+        Optional<Article> optionalArticle = articleRepository.findById(articleId);
+        if (optionalArticle.isEmpty())
+            return new ApiResponse("Maqola topilmadi", false);
+        Article article = optionalArticle.get();
+        article.setArticleStatusName(statusName);
+        articleRepository.save(article);
+        return new ApiResponse("Maqolaning statusi "+statusName+" ga o`zgartirldi", true);
+    }
+
 
 
 }

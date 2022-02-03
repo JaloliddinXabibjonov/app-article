@@ -1,5 +1,6 @@
 package com.example.article.controller;
 
+import com.example.article.entity.Article;
 import com.example.article.entity.User;
 import com.example.article.entity.UserStorage;
 import com.example.article.payload.*;
@@ -18,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.telegram.telegrambots.meta.api.objects.passport.dataerror.PassportElementErrorUnspecified;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -77,7 +79,7 @@ public class UserController {
 
 
     @PostMapping("/edit")
-    public HttpEntity<ApiResponse> edit( @RequestBody SignUp userDto) {
+    public HttpEntity<ApiResponse> edit(@RequestBody SignUp userDto) {
         ApiResponse apiResponse = userService.edit(userDto);
         return ResponseEntity.status(apiResponse.isSuccess() ? 202 : 409).body(apiResponse);
 
@@ -136,8 +138,9 @@ public class UserController {
 
 
     @PostMapping("/search")
-    public ApiResponse search(@RequestBody SearchUser searchUser) throws IllegalAccessException {
-        return new ApiResponse("User", true, userService.search(searchUser));
+    public HttpEntity<?> search(@RequestBody SearchUser searchUser) throws IllegalAccessException {
+        ApiResponse apiResponse = userService.search(searchUser);
+        return ResponseEntity.status(apiResponse.isSuccess() ? 200 : 409).body(apiResponse);
     }
 
 
@@ -157,18 +160,19 @@ public class UserController {
         return new ApiResponse("Reviewer avtivation", true, userService.acceptedUser(user, reviewerDto));
     }
 
-//    MA'LUM VAQT ORALIG'IDAGI RO`YXATDAN O`TGAN USERLARNI OLIB KELISH UCHUN
+    //    MA'LUM VAQT ORALIG'IDAGI RO`YXATDAN O`TGAN USERLARNI OLIB KELISH UCHUN
     @GetMapping("/numberOfRegistredUsersBetween")
-    public Integer numberOfUsersBetween(@RequestParam Long start, @RequestParam Long end ){
+    public Integer numberOfUsersBetween(@RequestParam Long start, @RequestParam Long end) {
         return userService.numberOfRegistredUsers(start, end);
     }
 
     //DASHBOARD UCHUN
     @GetMapping("/dashboard")
-    public HttpEntity<?> dashboard(){
+    public HttpEntity<?> dashboard() {
         ApiResponse apiResponse = userService.dashboard();
-        return ResponseEntity.status(apiResponse.isSuccess()?200:409).body(apiResponse);
+        return ResponseEntity.status(apiResponse.isSuccess() ? 200 : 409).body(apiResponse);
     }
 
-
+//    /**USERNI BERILGAN VAQT ORALIG'IDAGI QABUL QILGAN MAQOLALARI*/
+//    public List<Article> getAcceptedArticles
 }

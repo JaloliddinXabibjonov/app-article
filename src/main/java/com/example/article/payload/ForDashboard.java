@@ -17,8 +17,8 @@ public class ForDashboard {
     private Integer numberOfNewArticles;                        //yangi puli to`langan maqolalar soni
     private Integer numberOfIsBeingEditedArticles;              //tahrirlanayotgan maqolalar soni
     private Integer numberOfInReviewArticles;                   //nashrga tayyorlanayotgan maqolalar soni
-    private Integer numberOfFreeAndPublishedArticles;                  //nashr qilingan bepul maqolalar soni
+    private Integer numberOfFreeAndPublishedArticles;           //nashr qilingan bepul maqolalar soni
     private Integer numberOfReadyOfPublicationArticles;         //nashrga tayyor maqolalar soni
     private Integer numberOfPaidAndPublishedArticles;           //nashr qilingan va pullik maqolalar soni
-    private Integer numberOfNewAndPayFalse;
+    private Integer numberOfNewAndPayFalse;                     //hali puli to`lanmagan maqolalar
 }
