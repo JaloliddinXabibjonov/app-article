@@ -86,4 +86,6 @@ public interface InformationArticleRepository extends JpaRepository<InformationA
 
     @Query(value = "select a.* from article a inner join information_article ia on a.id = ia.article_id and ia.article_status_name=:status and ia.redactor_id=:redactorId where ia.created_at between :start and :end",nativeQuery = true)
     List<Article> findAllByCreatedAtBetweenAndArticleStatusNameAndRedactorId(Timestamp start, Timestamp end, ArticleStatusName status, UUID redactorId);
+
+    Integer countAllByArticleStatusNameAndRedactorId(ArticleStatusName articleStatusName, UUID redactor_id);
  }

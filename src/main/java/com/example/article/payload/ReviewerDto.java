@@ -13,7 +13,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class ReviewerDto {
 
-    private UUID reviewerId;
+    private UUID userId;
     private  boolean active;
 
 }

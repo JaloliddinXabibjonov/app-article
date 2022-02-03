@@ -34,13 +34,13 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
 //    List<User> findAllByRolesIdAndCategoriesId(Integer roles_id, Integer categories_id);
 
-    Page<User> findAllByRolesIdAndCategoriesIdInAndEnabledAndFirstNameContainingIgnoringCaseOrLastNameContainingIgnoringCaseOrFatherNameContainingIgnoringCaseOrEmailContainingIgnoringCaseOrPhoneNumberContainingIgnoringCase(Integer roles_id, Collection<Integer> categories_id, boolean enabled, String firstName, String lastName, String fatherName, String email, String phoneNumber, Pageable pageable);
+    Page<User> findAllByRolesIdAndCategoriesIdInAndEnabledAndFirstNameContainingIgnoringCaseOrRolesIdAndCategoriesIdInAndEnabledAndLastNameContainingIgnoringCaseOrRolesIdAndCategoriesIdInAndEnabledAndFatherNameContainingIgnoringCaseOrRolesIdAndCategoriesIdInAndEnabledAndEmailContainingIgnoringCaseOrRolesIdAndCategoriesIdInAndEnabledAndPhoneNumberContainingIgnoringCase(Integer roles_id, Collection<Integer> categories_id, boolean enabled, String firstName, Integer roles_id2, Collection<Integer> categories_id2, boolean enabled2, String lastName, Integer roles_id3, Collection<Integer> categories_id3, boolean enabled3, String fatherName, Integer roles_id4, Collection<Integer> categories_id4, boolean enabled4, String email, Integer roles_id5, Collection<Integer> categories_id5, boolean enabled5, String phoneNumber, Pageable pageable);
 
     Page<User> findAllByEnabledAndFirstNameContainingIgnoringCaseOrEnabledAndLastNameContainingIgnoringCaseOrEnabledAndFatherNameContainingIgnoringCaseOrEnabledAndEmailContainingIgnoringCaseOrEnabledAndPhoneNumberContainingIgnoringCase(boolean enabled, String firstName,boolean enabled1,  String lastName, boolean enabled2, String fatherName, boolean enabled3, String email, boolean enabled4, String phoneNumber, Pageable pageable);
 
-    Page<User> findAllByRolesIdAndEnabledAndFirstNameContainingIgnoringCaseOrLastNameContainingIgnoringCaseOrFatherNameContainingIgnoringCaseOrEmailContainingIgnoringCaseOrPhoneNumberContainingIgnoringCase(Integer roles_id, boolean enabled, String firstName, String lastName, String fatherName, String email, String phoneNumber, Pageable pageable);
+    Page<User> findAllByRolesIdAndEnabledAndFirstNameContainingIgnoringCaseOrRolesIdAndEnabledAndLastNameContainingIgnoringCaseOrRolesIdAndEnabledAndFatherNameContainingIgnoringCaseOrRolesIdAndEnabledAndEmailContainingIgnoringCaseOrRolesIdAndEnabledAndPhoneNumberContainingIgnoringCase(Integer roles_id, boolean enabled, String firstName, Integer roles_id2, boolean enabled2, String lastName, Integer roles_id3, boolean enabled3, String fatherName, Integer roles_id4, boolean enabled4, String email, Integer roles_id5, boolean enabled5, String phoneNumber, Pageable pageable);
 
-    Page<User> findAllByCategoriesIdInAndEnabledAndFirstNameContainingIgnoringCaseOrLastNameContainingIgnoringCaseOrFatherNameContainingIgnoringCaseOrEmailContainingIgnoringCaseOrPhoneNumberContainingIgnoringCase(Collection<Integer> categories_id, boolean enabled, String firstName, String lastName, String fatherName, String email, String phoneNumber, Pageable pageable);
+    Page<User> findAllByCategoriesIdInAndEnabledAndFirstNameContainingIgnoringCaseOrCategoriesIdInAndEnabledAndLastNameContainingIgnoringCaseOrCategoriesIdInAndEnabledAndFatherNameContainingIgnoringCaseOrCategoriesIdInAndEnabledAndEmailContainingIgnoringCaseOrCategoriesIdInAndEnabledAndPhoneNumberContainingIgnoringCase(Collection<Integer> categories_id, boolean enabled, String firstName, Collection<Integer> categories_id2, boolean enabled2, String lastName, Collection<Integer> categories_id3, boolean enabled3, String fatherName, Collection<Integer> categories_id4, boolean enabled4, String email, Collection<Integer> categories_id5, boolean enabled5, String phoneNumber, Pageable pageable);
 
 
     Page<User> findAllByEnabledAndRolesId(boolean enabled, Integer roles_id, Pageable pageable);
@@ -65,5 +65,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     Integer countAllByRolesId(Integer roleId);
 
 
+    boolean existsByEnabledAndId(boolean enabled, UUID id);
 
 }

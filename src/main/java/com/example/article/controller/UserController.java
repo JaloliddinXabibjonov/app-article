@@ -149,31 +149,32 @@ public class UserController {
         return new ApiResponse("Yangi qo'shilgan reviewerlar", true, userService.getNewReviewer());
     }
 
+    /***/
     @GetMapping("/getNewReviewerCount")
     public Integer getNewReviewerCount() {
         return userService.getNewReviewerCount();
     }
 
-
+    /**USERNI TIZIMDA ISHLASHI UCHUN RUXSAT BERISH*/
     @PostMapping("/acceptedUser")
     public ApiResponse acceptedUser(@CurrentUser User user, @RequestBody ReviewerDto reviewerDto) {
-        return new ApiResponse("Reviewer avtivation", true, userService.acceptedUser(user, reviewerDto));
+        return new ApiResponse("Reviewer activation", true, userService.acceptedUser(user, reviewerDto));
     }
 
-    //    MA'LUM VAQT ORALIG'IDAGI RO`YXATDAN O`TGAN USERLARNI OLIB KELISH UCHUN
+    /**    MA'LUM VAQT ORALIG'IDAGI RO`YXATDAN O`TGAN USERLARNI OLIB KELISH UCHUN*/
     @GetMapping("/numberOfRegistredUsersBetween")
     public Integer numberOfUsersBetween(@RequestParam Long start, @RequestParam Long end) {
         return userService.numberOfRegistredUsers(start, end);
     }
 
-    //DASHBOARD UCHUN
+    /**DASHBOARD UCHUN*/
     @GetMapping("/dashboard")
     public HttpEntity<?> dashboard() {
         ApiResponse apiResponse = userService.dashboard();
         return ResponseEntity.status(apiResponse.isSuccess() ? 200 : 409).body(apiResponse);
     }
 
-    // method adminstratorlar defoult dedline beradi
+    /** method adminstratorlar defoult deadline beradi*/
     @PostMapping("/defaultDeadlineAddAdministrator")
     public HttpEntity<?> defaultDeadlineAddAdministrator(@RequestBody DeadlineAdministratorDto defaultDeadlineAddAdministrator) {
         ApiResponse apiResponse = userService.defaultDeadlineAddAdministrator(defaultDeadlineAddAdministrator);
@@ -181,6 +182,16 @@ public class UserController {
     }
 
 
-//    /**USERNI BERILGAN VAQT ORALIG'IDAGI QABUL QILGAN MAQOLALARI*/
-//    public List<Article> getAcceptedArticles
+    /**USERNI BERILGAN VAQT ORALIG'IDAGI QABUL QILGAN MAQOLALARI*/
+    @GetMapping("/getAcceptedArticlesByUsersBetween")
+    public List<Article> getAcceptedArticlesByUsersBetween(@RequestBody TimeBetween timeBetween){
+        return userService.getAcceptedArticlesByUsersBetween(timeBetween);
+    }
+
+    /**USERNING MAQOLALAR BO`YICHA STATISTIKASI*/
+    @GetMapping("/statisticsArticlesForUsers/{id}")
+    public StatisticsArticlesForUsersDto getStatisticsArticlesForUsers(@PathVariable UUID id){
+        return userService.getStatisticsArticlesForUsers(id);
+    }
+
 }
