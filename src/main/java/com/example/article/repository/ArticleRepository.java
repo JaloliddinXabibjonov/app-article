@@ -18,6 +18,7 @@ List<Article>findAllByIdIn(Collection<UUID> id);
     Page<Article> findByPayTrue(Pageable simplePageable);
 
 
+
 //    Page<Article>findAllByChecked(String checked, Pageable pageable);
 
     Page<Article> findByActiveTrue(Pageable simplePageable);

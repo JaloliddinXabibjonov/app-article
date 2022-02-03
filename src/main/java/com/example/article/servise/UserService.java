@@ -9,6 +9,7 @@ import com.example.article.entity.enums.Watdou;
 import com.example.article.payload.*;
 import com.example.article.repository.*;
 import com.example.article.secret.JwtProvider;
+import com.example.article.utils.AppConstants;
 import com.example.article.utils.CommonUtills;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -195,98 +196,95 @@ public class UserService {
         return new ApiResponse("Successfully deleted", true);
     }
 
-    public ApiResponse searchUser(String search, Integer roles_id, boolean enabled, Integer categoryId, Integer page, Integer size)
-            throws IllegalAccessException {
-        Page<User> users = null;
-        System.out.println(search);
-
-// search ishlidi
-        if (roles_id == 10 && categoryId == null && !search.equals("777")) {
-            users = userRepository.findAllByEnabledAndFirstNameContainingIgnoringCaseOrLastNameContainingIgnoringCaseOrFatherNameContainingIgnoringCaseOrEmailContainingIgnoringCaseOrPhoneNumberContainingIgnoringCase
-                    (enabled, search, search, search, search, search, CommonUtills.simplePageable(page, size));
-        } else if
-            //  role ishlidi
-        (categoryId == null && search.equals("777") && roles_id != null) {
-            users = userRepository.findAllByEnabledAndRolesId(enabled, roles_id, CommonUtills.simplePageable(page, size));
-
-//             categorya ishlidi
-        } else if (roles_id == null && search.equals("777") && categoryId != null) {
-            users = userRepository.findAllByEnabledAndCategoriesIdIn(enabled, singleton(categoryId), CommonUtills.simplePageable(page, size));
-
-            // categorya bn role ishlidi
-        } else if (roles_id != null && categoryId != null && search.equals("777")) {
-            users = userRepository.findAllByEnabledAndCategoriesIdInAndRolesId(enabled, singleton(categoryId), roles_id, CommonUtills.simplePageable(page, size));
-
-            // categorya va role search ham ishlidi
-        } else if (roles_id != null && categoryId != null && !search.equals("777")) {
-            users = userRepository.findAllByRolesIdAndCategoriesIdInAndEnabledAndFirstNameContainingIgnoringCaseOrLastNameContainingIgnoringCaseOrFatherNameContainingIgnoringCaseOrEmailContainingIgnoringCaseOrPhoneNumberContainingIgnoringCase(roles_id, Collections.singleton(categoryId), enabled, search, search, search, search, search, CommonUtills.simplePageable(page, size));
-
-            // role bn search
-        } else if (categoryId == null && roles_id != null && !search.equals("777")) {
-
-            users = userRepository.findAllByRolesIdAndEnabledAndFirstNameContainingIgnoringCaseOrLastNameContainingIgnoringCaseOrFatherNameContainingIgnoringCaseOrEmailContainingIgnoringCaseOrPhoneNumberContainingIgnoringCase(roles_id, enabled, search, search, search, search, search, CommonUtills.simplePageable(page, size));
-
-            //  category bn search
-        } else if (roles_id == null && categoryId != null && !search.equals("777")) {
-            users = userRepository.findAllByCategoriesIdInAndEnabledAndFirstNameContainingIgnoringCaseOrLastNameContainingIgnoringCaseOrFatherNameContainingIgnoringCaseOrEmailContainingIgnoringCaseOrPhoneNumberContainingIgnoringCase(Collections.singleton((categoryId)), enabled, search, search, search, search, search, CommonUtills.simplePageable(page, size));
-        }
-        return new ApiResponse("All user ", true, users);
-    }
+//    public ApiResponse searchUser(String search, Integer roles_id, boolean enabled, Integer categoryId, Integer page, Integer size)
+//            throws IllegalAccessException {
+//        Page<User> users = null;
+//        System.out.println(search);
+//
+//// search ishlidi
+//        if (roles_id == 10 && categoryId == null && !search.equals("777")) {
+//            users = userRepository.findAllByEnabledAndFirstNameContainingIgnoringCaseOrLastNameContainingIgnoringCaseOrFatherNameContainingIgnoringCaseOrEmailContainingIgnoringCaseOrPhoneNumberContainingIgnoringCase
+//                    (enabled, search, search, search, search, search, CommonUtills.simplePageable(page, size));
+//        } else if
+//            //  role ishlidi
+//        (categoryId == null && search.equals("777") && roles_id != null) {
+//            users = userRepository.findAllByEnabledAndRolesId(enabled, roles_id, CommonUtills.simplePageable(page, size));
+//
+////             categorya ishlidi
+//        } else if (roles_id == null && search.equals("777") && categoryId != null) {
+//            users = userRepository.findAllByEnabledAndCategoriesIdIn(enabled, singleton(categoryId), CommonUtills.simplePageable(page, size));
+//
+//            // categorya bn role ishlidi
+//        } else if (roles_id != null && categoryId != null && search.equals("777")) {
+//            users = userRepository.findAllByEnabledAndCategoriesIdInAndRolesId(enabled, singleton(categoryId), roles_id, CommonUtills.simplePageable(page, size));
+//
+//            // categorya va role search ham ishlidi
+//        } else if (roles_id != null && categoryId != null && !search.equals("777")) {
+//            users = userRepository.findAllByRolesIdAndCategoriesIdInAndEnabledAndFirstNameContainingIgnoringCaseOrLastNameContainingIgnoringCaseOrFatherNameContainingIgnoringCaseOrEmailContainingIgnoringCaseOrPhoneNumberContainingIgnoringCase(roles_id, Collections.singleton(categoryId), enabled, search, search, search, search, search, CommonUtills.simplePageable(page, size));
+//
+//            // role bn search
+//        } else if (categoryId == null && roles_id != null && !search.equals("777")) {
+//
+//            users = userRepository.findAllByRolesIdAndEnabledAndFirstNameContainingIgnoringCaseOrLastNameContainingIgnoringCaseOrFatherNameContainingIgnoringCaseOrEmailContainingIgnoringCaseOrPhoneNumberContainingIgnoringCase(roles_id, enabled, search, search, search, search, search, CommonUtills.simplePageable(page, size));
+//
+//            //  category bn search
+//        } else if (roles_id == null && categoryId != null && !search.equals("777")) {
+//            users = userRepository.findAllByCategoriesIdInAndEnabledAndFirstNameContainingIgnoringCaseOrLastNameContainingIgnoringCaseOrFatherNameContainingIgnoringCaseOrEmailContainingIgnoringCaseOrPhoneNumberContainingIgnoringCase(Collections.singleton((categoryId)), enabled, search, search, search, search, search, CommonUtills.simplePageable(page, size));
+//        }
+//        return new ApiResponse("All user ", true, users);
+//    }
 
 
     public ApiResponse search(SearchUser searchUser) throws IllegalAccessException {
 
-
-        Page<User> users = userRepository.findAllById(searchUser.getId(), CommonUtills.simplePageable(searchUser.getPage(), searchUser.getSize()));
-
+        Page<User> users =userRepository.findAll(CommonUtills.simplePageable(AppConstants.DEFAULT_PAGE_NUMBER1, AppConstants.DEFAULT_PAGE_SIZE1));
 
         System.out.println(" categor id  " + searchUser.getCategoryId());
         System.out.println(" role id  " + searchUser.getRoles_id());
         System.out.println(" search uchun    " + searchUser.getSearch());
         System.out.println(" enabled  " + searchUser.isEnabled());
 
-// search ishlidi
+        // search ishlidi
         if (searchUser.getRoles_id() == null && searchUser.getCategoryId() == null && !searchUser.getSearch().equals("777")) {
-            users = userRepository.findAllByEnabledAndFirstNameContainingIgnoringCaseOrLastNameContainingIgnoringCaseOrFatherNameContainingIgnoringCaseOrEmailContainingIgnoringCaseOrPhoneNumberContainingIgnoringCase
-                    (searchUser.isEnabled(), searchUser.getSearch(), searchUser.getSearch(), searchUser.getSearch(), searchUser.getSearch(), searchUser.getSearch(), CommonUtills.simplePageable(searchUser.getPage(), searchUser.getSize()));
-            System.out.println("search ishladi  ");
-        } else if
-            //  role ishlidi
-        (searchUser.getCategoryId() == null && searchUser.getSearch().equals("777") && searchUser.getRoles_id() != null) {
+            users = userRepository.findAllByEnabledAndFirstNameContainingIgnoringCaseOrEnabledAndLastNameContainingIgnoringCaseOrEnabledAndFatherNameContainingIgnoringCaseOrEnabledAndEmailContainingIgnoringCaseOrEnabledAndPhoneNumberContainingIgnoringCase(
+                    searchUser.isEnabled(), searchUser.getSearch(),searchUser.isEnabled(), searchUser.getSearch(), searchUser.isEnabled(),searchUser.getSearch(), searchUser.isEnabled(),searchUser.getSearch(), searchUser.isEnabled(),searchUser.getSearch(), CommonUtills.simplePageable(searchUser.getPage(), searchUser.getSize()));
+            System.out.println("search ishladi");
+        }
+        //  role ishlidi
+        else if(searchUser.getCategoryId() == null && searchUser.getSearch().equals("777") && searchUser.getRoles_id() != null) {
             users = userRepository.findAllByEnabledAndRolesId(searchUser.isEnabled(), searchUser.getRoles_id(), CommonUtills.simplePageable(searchUser.getPage(), searchUser.getSize()));
-
             System.out.println("role ishladi  ");
             return new ApiResponse(" role  ", true, users);
-
-
-//             categorya ishlidi
-        } else if (searchUser.getRoles_id() == null && searchUser.getSearch().equals("777") && searchUser.getCategoryId() != null) {
+        }
+        //categorya ishlidi
+        else if (searchUser.getRoles_id() == null && searchUser.getSearch().equals("777") && searchUser.getCategoryId() != null) {
             users = userRepository.findAllByEnabledAndCategoriesIdIn(searchUser.isEnabled(), singleton(searchUser.getCategoryId()), CommonUtills.simplePageable(searchUser.getPage(), searchUser.getSize()));
             System.out.println("categor ishladi  ");
-            // categorya bn role ishlidi
-        } else if (searchUser.getRoles_id() != null && searchUser.getCategoryId() != null && searchUser.getSearch().equals("777")) {
+        }
+        // categorya bn role ishlidi
+        else if (searchUser.getRoles_id() != null && searchUser.getCategoryId() != null && searchUser.getSearch().equals("777")) {
             users = userRepository.findAllByEnabledAndCategoriesIdInAndRolesId(searchUser.isEnabled(), singleton(searchUser.getCategoryId()), searchUser.getRoles_id(), CommonUtills.simplePageable(searchUser.getPage(), searchUser.getSize()));
             System.out.println("category bn role ishladi  ");
-
-            // categorya va role search ham ishlidi
-        } else if (searchUser.getRoles_id() != null && searchUser.getCategoryId() != null && !searchUser.getSearch().equals("777")) {
+        }
+        // categorya va role search ham ishlidi
+        else if (searchUser.getRoles_id() != null && searchUser.getCategoryId() != null && !searchUser.getSearch().equals("777")) {
             users = userRepository.findAllByRolesIdAndCategoriesIdInAndEnabledAndFirstNameContainingIgnoringCaseOrLastNameContainingIgnoringCaseOrFatherNameContainingIgnoringCaseOrEmailContainingIgnoringCaseOrPhoneNumberContainingIgnoringCase(searchUser.getRoles_id(), singleton(searchUser.getCategoryId()), searchUser.isEnabled(), searchUser.getSearch(), searchUser.getSearch(), searchUser.getSearch(), searchUser.getSearch(), searchUser.getSearch(), CommonUtills.simplePageable(searchUser.getPage(), searchUser.getSize()));
             System.out.println("category bn role va search  ishladi  ");
-
-            // role bn search
-        } else if (searchUser.getCategoryId() == null && searchUser.getRoles_id() != null && !searchUser.getSearch().equals("777")) {
+        }
+        // role bn search
+        else if (searchUser.getCategoryId() == null && searchUser.getRoles_id() != null && !searchUser.getSearch().equals("777")) {
             System.out.println("search bn role ishladi  ");
             users = userRepository.findAllByRolesIdAndEnabledAndFirstNameContainingIgnoringCaseOrLastNameContainingIgnoringCaseOrFatherNameContainingIgnoringCaseOrEmailContainingIgnoringCaseOrPhoneNumberContainingIgnoringCase(searchUser.getRoles_id(), searchUser.isEnabled(), searchUser.getSearch(), searchUser.getSearch(), searchUser.getSearch(), searchUser.getSearch(), searchUser.getSearch(), CommonUtills.simplePageable(searchUser.getPage(), searchUser.getSize()));
             return new ApiResponse(" role va searech ", true, users);
-
-            //  category bn search
-        } else if (searchUser.getRoles_id() == null && searchUser.getCategoryId() != null && !searchUser.getSearch().equals("777")) {
+        }
+        //  category bn search
+        else if (searchUser.getRoles_id() == null && searchUser.getCategoryId() != null && !searchUser.getSearch().equals("777")) {
             users = userRepository.findAllByCategoriesIdInAndEnabledAndFirstNameContainingIgnoringCaseOrLastNameContainingIgnoringCaseOrFatherNameContainingIgnoringCaseOrEmailContainingIgnoringCaseOrPhoneNumberContainingIgnoringCase(singleton(searchUser.getCategoryId()), searchUser.isEnabled(), searchUser.getSearch(), searchUser.getSearch(), searchUser.getSearch(), searchUser.getSearch(), searchUser.getSearch(), CommonUtills.simplePageable(searchUser.getPage(), searchUser.getSize()));
             System.out.println("category bn search ishladi  ");
         }
-        return new ApiResponse("All user ", true, users);
-
+        return new ApiResponse("All users: ", true, users);
     }
+
 
 
     // bu yangi qo'shilgan reviewrlarni get qilib beradi
@@ -345,6 +343,7 @@ public class UserService {
             return new ApiResponse("Xatolik Yuz berdi", false);
         }
     }
+
 
 
 }

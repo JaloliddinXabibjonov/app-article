@@ -1,5 +1,6 @@
 package com.example.article.repository;
 
+import com.example.article.entity.Article;
 import com.example.article.entity.Role;
 import com.example.article.entity.User;
 import org.springframework.data.domain.Page;
@@ -33,7 +34,7 @@ List<User>findAllByRolesId(Integer roles_id);
 
     Page<User> findAllByRolesIdAndCategoriesIdInAndEnabledAndFirstNameContainingIgnoringCaseOrLastNameContainingIgnoringCaseOrFatherNameContainingIgnoringCaseOrEmailContainingIgnoringCaseOrPhoneNumberContainingIgnoringCase(Integer roles_id, Collection<Integer> categories_id, boolean enabled, String firstName, String lastName, String fatherName, String email, String phoneNumber, Pageable pageable);
 
-    Page<User> findAllByEnabledAndFirstNameContainingIgnoringCaseOrLastNameContainingIgnoringCaseOrFatherNameContainingIgnoringCaseOrEmailContainingIgnoringCaseOrPhoneNumberContainingIgnoringCase(boolean enabled, String firstName, String lastName, String fatherName, String email, String phoneNumber, Pageable pageable);
+    Page<User> findAllByEnabledAndFirstNameContainingIgnoringCaseOrEnabledAndLastNameContainingIgnoringCaseOrEnabledAndFatherNameContainingIgnoringCaseOrEnabledAndEmailContainingIgnoringCaseOrEnabledAndPhoneNumberContainingIgnoringCase(boolean enabled, String firstName,boolean enabled1,  String lastName, boolean enabled2, String fatherName, boolean enabled3, String email, boolean enabled4, String phoneNumber, Pageable pageable);
 
     Page<User> findAllByRolesIdAndEnabledAndFirstNameContainingIgnoringCaseOrLastNameContainingIgnoringCaseOrFatherNameContainingIgnoringCaseOrEmailContainingIgnoringCaseOrPhoneNumberContainingIgnoringCase(Integer roles_id, boolean enabled, String firstName, String lastName, String fatherName, String email, String phoneNumber, Pageable pageable);
 
@@ -57,6 +58,7 @@ Page<User>findAllById(UUID id, Pageable pageable);
 
     @Query(value = "select (count(*)) from users_roles where roles_id=?1",nativeQuery = true)
     Integer countAllByRolesId(Integer roleId);
+
 
 
 }
