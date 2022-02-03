@@ -1,5 +1,6 @@
 package com.example.article.repository;
 
+import com.example.article.entity.Article;
 import com.example.article.entity.InformationArticle;
 import com.example.article.entity.enums.ArticleStatusName;
 import com.example.article.entity.enums.Watdou;
@@ -83,5 +84,6 @@ public interface InformationArticleRepository extends JpaRepository<InformationA
 
     boolean existsByArticleIdAndRedactorIdAndArticleStatusNameOrArticleIdAndRedactorIdAndArticleStatusNameOrArticleIdAndRedactorIdAndArticleStatusName(UUID article_id, UUID redactor_id, ArticleStatusName articleStatusName, UUID article_id2, UUID redactor_id2, ArticleStatusName articleStatusName2, UUID article_id3, UUID redactor_id3, ArticleStatusName articleStatusName3);
 
-
+    @Query(value = "select a.* from article a inner join information_article ia on a.id = ia.article_id and ia.article_status_name=:status and ia.redactor_id=:redactorId where ia.created_at between :start and :end",nativeQuery = true)
+    List<Article> findAllByCreatedAtBetweenAndArticleStatusNameAndRedactorId(Timestamp start, Timestamp end, ArticleStatusName status, UUID redactorId);
  }

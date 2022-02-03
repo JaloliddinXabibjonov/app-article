@@ -20,7 +20,6 @@ import java.util.List;
 @Entity(name = "users")
 public class User extends AbsEntity implements UserDetails {
 
-//    @JsonIgnore
     @Column(nullable = false, unique = true)
     private String phoneNumber;
 
@@ -34,7 +33,6 @@ public class User extends AbsEntity implements UserDetails {
 
     private String fatherName;
     private String firstName;
-
     private String lastName;
 
 //    @JsonIgnore
@@ -52,7 +50,6 @@ public class User extends AbsEntity implements UserDetails {
     private String workExperience;
     private String academicDegree;
     private String languages;
-
 
     @OneToMany
     private List<Attachment> scientificWork;

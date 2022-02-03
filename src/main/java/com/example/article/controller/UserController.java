@@ -1,5 +1,6 @@
 package com.example.article.controller;
 
+import com.example.article.entity.Article;
 import com.example.article.entity.User;
 import com.example.article.entity.UserStorage;
 import com.example.article.payload.*;
@@ -18,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.telegram.telegrambots.meta.api.objects.passport.dataerror.PassportElementErrorUnspecified;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -76,12 +78,11 @@ public class UserController {
     }
 
 
-    @PostMapping("/edit/{id}")
-    public HttpEntity<ApiResponse> edit(@CurrentUser User user, @RequestBody SignUp userDto) {
-        ApiResponse apiResponse = userService.edit(user, userDto);
-        return ResponseEntity.status(apiResponse.isSuccess() ? apiResponse.getMessage()
-                        .equals("Edit") ? 201 : 202 : 409)
-                .body(apiResponse);
+    @PostMapping("/edit")
+    public HttpEntity<ApiResponse> edit(@RequestBody SignUp userDto) {
+        ApiResponse apiResponse = userService.edit(userDto);
+        return ResponseEntity.status(apiResponse.isSuccess() ? 202 : 409).body(apiResponse);
+
     }
 
     @PostMapping("/login")
@@ -102,12 +103,10 @@ public class UserController {
         return ResponseEntity.status(user != null ? 200 : 409).body(user1);
     }
 
-    @PostMapping("/eddEmployee")
+    @PostMapping("/addEmployee")
     public HttpEntity<ApiResponse> eddEmployee(@RequestBody UserDto userDto) {
         ApiResponse apiResponse = userService.saveAndEditUser(userDto);
-        return ResponseEntity.status(apiResponse.isSuccess() ? apiResponse.getMessage()
-                        .equals("Saved") ? 201 : 202 : 409)
-                .body(apiResponse);
+        return ResponseEntity.status(apiResponse.isSuccess() ? 202 : 409).body(apiResponse);
     }
 
 //    @PostMapping("/changeUserActive/{id}")
@@ -139,39 +138,40 @@ public class UserController {
 
 
     @PostMapping("/search")
-    public ApiResponse search(@RequestBody SearchUser searchUser) throws IllegalAccessException {
-        return new ApiResponse("User", true, userService.search(searchUser));
+    public HttpEntity<?> search(@RequestBody SearchUser searchUser) throws IllegalAccessException {
+        ApiResponse apiResponse = userService.search(searchUser);
+        return ResponseEntity.status(apiResponse.isSuccess() ? 200 : 409).body(apiResponse);
     }
 
 
-//    @GetMapping("/getNewReviewer")
-//    public ApiResponse getNewReviewer() {
-//        return new ApiResponse("Yangi qo'shilgan reviewrlar", true, userService.getNewReviewer());
-//    }
+    @GetMapping("/getNewReviewer")
+    public ApiResponse getNewReviewer() {
+        return new ApiResponse("Yangi qo'shilgan reviewerlar", true, userService.getNewReviewer());
+    }
 
-//    @GetMapping("/getNewReviewerCount")
-//    public Integer getNewReviewerCount() {
-//        return userService.getNewReviewerCount();
-//    }
+    @GetMapping("/getNewReviewerCount")
+    public Integer getNewReviewerCount() {
+        return userService.getNewReviewerCount();
+    }
 
 
-//    @PostMapping("/acceptedUser")
-//    public ApiResponse acceptedUser(@CurrentUser User user, @RequestBody ReviewerDto reviewerDto) {
-//        return new ApiResponse("Reviewer avtivation", true, userService.acceptedUser(user, reviewerDto));
-//    }
+    @PostMapping("/acceptedUser")
+    public ApiResponse acceptedUser(@CurrentUser User user, @RequestBody ReviewerDto reviewerDto) {
+        return new ApiResponse("Reviewer avtivation", true, userService.acceptedUser(user, reviewerDto));
+    }
 
-    //MA'LUM VAQT ORALIG'IDAGI RO`YXATDAN O`TGAN USERLARNI OLIB KELISH UCHUN
-//    @GetMapping("/numberOfRegistredUsersBetween")
-//    public Integer numberOfUsersBetween(@RequestParam Long start, @RequestParam Long end ){
-//        return userService.numberOfRegistredUsers(start, end);
-//    }
+    //    MA'LUM VAQT ORALIG'IDAGI RO`YXATDAN O`TGAN USERLARNI OLIB KELISH UCHUN
+    @GetMapping("/numberOfRegistredUsersBetween")
+    public Integer numberOfUsersBetween(@RequestParam Long start, @RequestParam Long end) {
+        return userService.numberOfRegistredUsers(start, end);
+    }
 
     //DASHBOARD UCHUN
-//    @GetMapping("/dashboard")
-//    public HttpEntity<?> dashboard(){
-//        ApiResponse apiResponse = userService.dashboard();
-//        return ResponseEntity.status(apiResponse.isSuccess()?200:409).body(apiResponse);
-//    }
+    @GetMapping("/dashboard")
+    public HttpEntity<?> dashboard() {
+        ApiResponse apiResponse = userService.dashboard();
+        return ResponseEntity.status(apiResponse.isSuccess() ? 200 : 409).body(apiResponse);
+    }
 
     // method adminstratorlar defoult dedline beradi
     @PostMapping("/defaultDeadlineAddAdministrator")
@@ -181,4 +181,6 @@ public class UserController {
     }
 
 
+//    /**USERNI BERILGAN VAQT ORALIG'IDAGI QABUL QILGAN MAQOLALARI*/
+//    public List<Article> getAcceptedArticles
 }

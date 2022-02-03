@@ -2,6 +2,7 @@ package com.example.article.controller;
 
 import com.example.article.entity.Article;
 import com.example.article.entity.User;
+import com.example.article.entity.enums.ArticleStatusName;
 import com.example.article.payload.*;
 import com.example.article.secret.CurrentUser;
 import com.example.article.servise.ArticleService;
@@ -33,7 +34,7 @@ public class ArticleController {
 
 
     @PostMapping(value = "/addArticle")
-    public HttpEntity<ApiResponse> save( @RequestParam String description, @RequestParam String[] author, @RequestParam String titleArticle, @RequestParam Integer categoryId, @RequestParam boolean publicOrPrivate, @RequestParam UUID userId, @RequestPart MultipartFile file) throws IOException {
+    public HttpEntity<ApiResponse> save(@RequestParam String description, @RequestParam String[] author, @RequestParam String titleArticle, @RequestParam Integer categoryId, @RequestParam boolean publicOrPrivate, @RequestParam UUID userId, @RequestPart MultipartFile file) throws IOException {
         ApiResponse apiResponse;
         System.out.println("bu  user     " + userId);
 //        try {
@@ -165,20 +166,26 @@ public class ArticleController {
     }
 
     @PostMapping("/givenStatus")
-    public HttpEntity<?> statusesGivenToTheArticleByTheEditors(@RequestParam UUID userId, @RequestParam UUID articleId, @RequestParam String status, @RequestPart MultipartFile file){
+    public HttpEntity<?> statusesGivenToTheArticleByTheEditors(@RequestParam UUID userId, @RequestParam UUID articleId, @RequestParam String status, @RequestPart MultipartFile file) {
         ApiResponse apiResponse = articleService.statusesGivenToTheArticleByTheEditors(userId, articleId, status, file);
-        return ResponseEntity.status(apiResponse.isSuccess()?200:409).body(apiResponse);
+        return ResponseEntity.status(apiResponse.isSuccess() ? 200 : 409).body(apiResponse);
     }
 
-@PostMapping("/articleInformation")
-    public ApiResponse  articleInformation(@RequestBody ReviewerAndRedactorResponseDto responseDto){
+    @PostMapping("/articleInformation")
+    public ApiResponse articleInformation(@RequestBody ReviewerAndRedactorResponseDto responseDto) {
+        return new ApiResponse("ok", true, articleService.informationArticle(responseDto));
+    }
 
-        return new ApiResponse("ok",true, articleService.informationArticle(responseDto));
+    @GetMapping("/numberOfViews/{id}")
+    public Integer numberOfViews(@PathVariable UUID id){
+        return articleService.numberOfViews(id);
+    }
 
-
-}
-
-
+    @PostMapping("/giveStatus/{articleId}/{status}")
+    public HttpEntity<?>  giveStatus(@CurrentUser User user, UUID articleId, ArticleStatusName status){
+        ApiResponse apiResponse = articleService.giveStatus(user, articleId, status);
+        return ResponseEntity.status(apiResponse.isSuccess()?202:409).body(apiResponse);
+    }
 
 }
 
