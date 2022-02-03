@@ -21,7 +21,9 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     List<User> findAllByEnabledTrueAndIdIn(Collection<UUID> id);
 
     User findAllByEnabledTrueAndId(UUID id);
-List<User>findAllByRolesId(Integer roles_id);
+
+    List<User> findAllByRolesId(Integer roles_id);
+
     List<User> findAllByActiveTrueAndRolesIdAndCategoriesId(Integer roleId, Integer categories_id);
 
     @Query(value = "select ur.roles_id from users_roles ur where users_id=?1", nativeQuery = true)
@@ -46,7 +48,10 @@ List<User>findAllByRolesId(Integer roles_id);
 
     Page<User> findAllByEnabledAndCategoriesIdInAndRolesId(boolean enabled, Collection<Integer> categories_id, Integer roles_id, Pageable pageable);
 
-Page<User>findAllById(UUID id, Pageable pageable);
+    Page<User> findAllById(UUID id, Pageable pageable);
+
+    Page<User> findAllByEnabled(boolean enabled, Pageable pageable);
+
     boolean existsByPhoneNumber(String phoneNumber);
 
     Integer countAllByCreatedAtBetween(Timestamp start, Timestamp end);
@@ -55,7 +60,7 @@ Page<User>findAllById(UUID id, Pageable pageable);
 
     Integer countAllByEnabledFalseAndActiveFalseAndRolesId(Integer roles_id);
 
-    @Query(value = "select (count(*)) from users_roles where roles_id=?1",nativeQuery = true)
+    @Query(value = "select (count(*)) from users_roles where roles_id=?1", nativeQuery = true)
     Integer countAllByRolesId(Integer roleId);
 
 

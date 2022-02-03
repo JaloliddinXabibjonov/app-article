@@ -10,6 +10,7 @@ import com.example.article.payload.*;
 import com.example.article.repository.*;
 import com.example.article.secret.JwtProvider;
 import com.example.article.utils.CommonUtills;
+import com.google.protobuf.Api;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -66,6 +67,13 @@ public class UserService {
 
     @Autowired
     InformationUserRepository informationUserRepository;
+
+
+    @Autowired
+    DeadlineAdministratorRepository deadlineAdministratorRepository;
+
+
+
 
 
     public String register(SignUp signUp) {
@@ -279,7 +287,11 @@ public class UserService {
         } else if (searchUser.getRoles_id() == null && searchUser.getCategoryId() != null && !searchUser.getSearch().equals("777")) {
             users = userRepository.findAllByCategoriesIdInAndEnabledAndFirstNameContainingIgnoringCaseOrLastNameContainingIgnoringCaseOrFatherNameContainingIgnoringCaseOrEmailContainingIgnoringCaseOrPhoneNumberContainingIgnoringCase(singleton(searchUser.getCategoryId()), searchUser.isEnabled(), searchUser.getSearch(), searchUser.getSearch(), searchUser.getSearch(), searchUser.getSearch(), searchUser.getSearch(), CommonUtills.simplePageable(searchUser.getPage(), searchUser.getSize()));
             System.out.println("category bn search ishladi  ");
+
         }
+
+
+
         return new ApiResponse("All user ", true, users);
 
     }
@@ -346,6 +358,17 @@ public class UserService {
 
 
 
+public ApiResponse defaultDeadlineAddAdministrator(DeadlineAdministratorDto administratorDto){
+        DeadlineAdministrator deadlineAdministrator=new DeadlineAdministrator();
+     if (administratorDto.getId()!=null){
+         deadlineAdministrator = deadlineAdministratorRepository.getById(administratorDto.getId());
+     }
+        deadlineAdministrator.setAdministratorId(administratorDto.getAdministratorId());
+        deadlineAdministrator.setDeadline(administratorDto.getDeadline());
+        deadlineAdministratorRepository.save(deadlineAdministrator);
+
+        return new ApiResponse("Saved",true);
+}
 
 
 }
