@@ -92,7 +92,7 @@ public class UserController {
 
 
     @DeleteMapping("/delete/{id}")
-    public HttpEntity<?> delete(@RequestParam UUID id) {
+    public HttpEntity<?> delete(@PathVariable UUID id) {
         ApiResponse apiResponse = userService.delete(id);
         return ResponseEntity.status(apiResponse.isSuccess() ? 201 : 409).body(apiResponse);
     }
@@ -172,6 +172,14 @@ public class UserController {
         ApiResponse apiResponse = userService.dashboard();
         return ResponseEntity.status(apiResponse.isSuccess() ? 200 : 409).body(apiResponse);
     }
+
+    // method adminstratorlar defoult dedline beradi
+    @PostMapping("/defaultDeadlineAddAdministrator")
+    public HttpEntity<?> defaultDeadlineAddAdministrator(@RequestBody DeadlineAdministratorDto defaultDeadlineAddAdministrator) {
+        ApiResponse apiResponse = userService.defaultDeadlineAddAdministrator(defaultDeadlineAddAdministrator);
+        return ResponseEntity.status(apiResponse.isSuccess() ? 201 : 409).body(apiResponse);
+    }
+
 
 //    /**USERNI BERILGAN VAQT ORALIG'IDAGI QABUL QILGAN MAQOLALARI*/
 //    public List<Article> getAcceptedArticles

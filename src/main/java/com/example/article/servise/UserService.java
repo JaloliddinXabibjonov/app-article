@@ -69,6 +69,13 @@ public class UserService {
     InformationUserRepository informationUserRepository;
 
 
+    @Autowired
+    DeadlineAdministratorRepository deadlineAdministratorRepository;
+
+
+
+
+
     public String register(SignUp signUp) {
         Optional<User> userOptional = userRepository.findByPhoneNumber(signUp.getPhoneNumber());
         if (userOptional.isEmpty()) {
@@ -193,6 +200,7 @@ public class UserService {
 
     public ApiResponse delete(UUID id) {
         userRepository.deleteById(id);
+//        informationUserRepository.save(new InformationUser(user, user1, new Date(), UserStatus.ACCEPTED));
         return new ApiResponse("Successfully deleted", true);
     }
 
@@ -253,6 +261,7 @@ public class UserService {
         //  role ishlidi
         else if(searchUser.getCategoryId() == null && searchUser.getSearch().equals("777") && searchUser.getRoles_id() != null) {
             users = userRepository.findAllByEnabledAndRolesId(searchUser.isEnabled(), searchUser.getRoles_id(), CommonUtills.simplePageable(searchUser.getPage(), searchUser.getSize()));
+
             System.out.println("role ishladi  ");
             return new ApiResponse(" role  ", true, users);
         }
@@ -284,6 +293,8 @@ public class UserService {
         }
         return new ApiResponse("All users: ", true, users);
     }
+
+
 
 
 
@@ -344,6 +355,19 @@ public class UserService {
         }
     }
 
+
+
+public ApiResponse defaultDeadlineAddAdministrator(DeadlineAdministratorDto administratorDto){
+        DeadlineAdministrator deadlineAdministrator=new DeadlineAdministrator();
+     if (administratorDto.getId()!=null){
+         deadlineAdministrator = deadlineAdministratorRepository.getById(administratorDto.getId());
+     }
+        deadlineAdministrator.setAdministratorId(administratorDto.getAdministratorId());
+        deadlineAdministrator.setDeadline(administratorDto.getDeadline());
+        deadlineAdministratorRepository.save(deadlineAdministrator);
+
+        return new ApiResponse("Saved",true);
+}
 
 
 }
