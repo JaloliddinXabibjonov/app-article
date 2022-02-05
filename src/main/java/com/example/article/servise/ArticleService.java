@@ -61,7 +61,7 @@ public class ArticleService {
             }
             article.setDescription(description);
             article.setTitleArticle(titleArticle);
-            article.setPublicAndPrivate(publicOrPrivate);
+            article.setPublicPrivate(publicOrPrivate);
             article.setCategory(category.get());
             article.setUser(userRepository.getById(userId));
 //            article.setPrice();
@@ -118,7 +118,7 @@ public class ArticleService {
     public ApiResponse articleAddEditors(User user, NotificationForRedacktors redacktors) {
 
 
-        List<User> allByIdIn = userRepository.findAllByEnabledTrueAndIdIn(redacktors.getRedactorsAndReviewer());
+        List<User> allByIdIn = userRepository.findAllByEnabledTrueAndIdInAndDeleteFalse(redacktors.getRedactorsAndReviewer());
 
         Article byId = articleRepository.getById(
                 redacktors.getArticle());
@@ -140,7 +140,7 @@ public class ArticleService {
 
     public ApiResponse removeEditor(User user, NotificationForRedacktors notification) {
 
-        List<User> allByIdIn = userRepository.findAllByEnabledTrueAndIdIn(notification.getRedactorsAndReviewer());
+        List<User> allByIdIn = userRepository.findAllByEnabledTrueAndIdInAndDeleteFalse(notification.getRedactorsAndReviewer());
 
         Article byId = articleRepository.getById(notification.getArticle());
 //        if (user.getId().equals(informationArticleRepository.findFirstByArticleIdOrderByCreatedAtDesc(byId.getId()).getChekUser().getId())){
@@ -168,7 +168,7 @@ public class ArticleService {
             deadline=addRedactorDto.getDeadline()*86400000;
         }
         Article article = articleRepository.getById(addRedactorDto.getArticle());
-        User userId = userRepository.findAllByEnabledTrueAndId(addRedactorDto.getRedactorsAndReviewer());
+        User userId = userRepository.findAllByEnabledTrueAndIdAndDeleteFalse(addRedactorDto.getRedactorsAndReviewer());
         Optional<EditorsArticle> editorsArticle = editorArticleRepository.findByArticleIdAndRedactorId(addRedactorDto.getArticle(), addRedactorDto
                 .getRedactorsAndReviewer());
 //        if (user.getId()
@@ -183,7 +183,7 @@ public class ArticleService {
         }
         if (editorsArticle.isEmpty()) {
 //            if (addRedactorDto.isAddAndRemove()) {
-                Integer roleId = userRepository.findByUserId(userId.getId());
+                Integer roleId = userRepository.findByUserIdAndDeleteFalse(userId.getId());
                 editorArticleRepository.save(new EditorsArticle(user, userId, article, roleId,new java.sql.Date(deadline)));
                 informationArticleRepository.save(new InformationArticle(user, userId, article, new Date(), addRedactorDto
                         .isAddAndRemove() ? Watdou.ADD : Watdou.DELETE, ArticleStatusName.NULL));
@@ -337,7 +337,7 @@ public class ArticleService {
         }
         Integer categoryId = article.getCategory().getId();
         System.out.println("category  " + categoryId);
-        List<User> users = userRepository.findAllByEnabledTrueAndRolesIdAndCategoriesId(roleId, categoryId);
+        List<User> users = userRepository.findAllByEnabledTrueAndRolesIdAndCategoriesIdAndDeleteFalse(roleId, categoryId);
         List<User2> usersList = new ArrayList<>();
         for (User user : users) {
             boolean exists = editorArticleRepository.existsByArticleIdAndRedactorId(article.getId(), user.getId());
@@ -561,5 +561,7 @@ public class ArticleService {
     }
 
 
-
+    public List<Article> getAll() {
+        return articleRepository.findAll();
+    }
 }

@@ -12,9 +12,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.*;
 
@@ -41,7 +43,6 @@ public class AttachmentService {
         content.setBytes(file.getBytes());
         attachmentContentRepository.save(content);
         photoIds.add(attechment.getId());
-
         return new ApiResponse("ok", true, photoIds);
     }
 
@@ -50,7 +51,7 @@ public class AttachmentService {
         AttachmentContent content = attachmentContentRepository.findByAttachment(byId);
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(byId.getContentType()))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filenem=\"" + byId.getFileName() + "\"")
+                .header("Content-Disposition", "attachment; fileName=\""+byId.getOriginalName()+"\"")
                 .body(content.getBytes());
     }
 

@@ -170,8 +170,7 @@ public class UserController {
     /**DASHBOARD UCHUN*/
     @GetMapping("/dashboard")
     public HttpEntity<?> dashboard() {
-        ApiResponse apiResponse = userService.dashboard();
-        return ResponseEntity.status(apiResponse.isSuccess() ? 200 : 409).body(apiResponse);
+        return ResponseEntity.ok( userService.dashboard());
     }
 
     /** method adminstratorlar defoult deadline beradi*/

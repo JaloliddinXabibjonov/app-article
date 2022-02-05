@@ -28,7 +28,7 @@ public class Article extends AbsEntity {
 
     private long price;
 
-    private  boolean publicAndPrivate;
+    private  boolean publicPrivate;
 
     private boolean active = false;//Admin  o'zi o'zgartiradi  va edit qilishga aloqasi yoq
 
@@ -40,6 +40,8 @@ public class Article extends AbsEntity {
     private boolean confirm = false; //admin qabul qilganini bildiradi keyin bu maqolami edit qilib bo'lmaydi
 
 //    private boolean rejected; // qayta ishlashga berildi adminlarning tasdiqlashi uchun
+
+
 
 
     public Article(Category category, String title, boolean pay,String description) {
