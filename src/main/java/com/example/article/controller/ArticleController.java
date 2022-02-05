@@ -8,7 +8,6 @@ import com.example.article.secret.CurrentUser;
 import com.example.article.servise.ArticleService;
 import com.example.article.servise.StatusArticleService;
 import com.example.article.utils.AppConstants;
-import com.google.protobuf.Api;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
@@ -187,5 +186,9 @@ public class ArticleController {
         return ResponseEntity.status(apiResponse.isSuccess()?202:409).body(apiResponse);
     }
 
+    @GetMapping("/all")
+    public List<Article> getAll(){
+        return articleService.getAll();
+    }
 }
 

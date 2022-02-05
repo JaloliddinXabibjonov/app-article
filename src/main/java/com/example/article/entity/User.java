@@ -27,6 +27,7 @@ public class User extends AbsEntity implements UserDetails {
     @Column(nullable = false)
     private String password;
 
+    private boolean delete=false;
 
     @ManyToMany
     private List<Role> roles;
@@ -105,7 +106,6 @@ public class User extends AbsEntity implements UserDetails {
     private boolean accountNonLocked = true;
     @JsonIgnore
     private boolean credentialsNonExpired = true;
-    @JsonIgnore
     private boolean enabled = true;
 
     @Override

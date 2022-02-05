@@ -27,7 +27,7 @@ public abstract class AbsEntity {
     @GenericGenerator(name = "uuid2", strategy = "org.hibernate.id.UUIDGenerator")
     private UUID id;
 
-    @JsonIgnore
+//    @JsonIgnore
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private Timestamp createdAt;
