@@ -23,7 +23,7 @@ public class User extends AbsEntity implements UserDetails {
     @Column(nullable = false, unique = true)
     private String phoneNumber;
 
-    @JsonIgnore
+//    @JsonIgnore
     @Column(nullable = false)
     private String password;
 
