@@ -171,10 +171,10 @@ public class ArticleService {
         User userId = userRepository.findAllByEnabledTrueAndIdAndDeleteFalse(addRedactorDto.getRedactorsAndReviewer());
         Optional<EditorsArticle> editorsArticle = editorArticleRepository.findByArticleIdAndRedactorId(addRedactorDto.getArticle(), addRedactorDto
                 .getRedactorsAndReviewer());
-//        if (user.getId()
-//                .equals(informationArticleRepository.findFirstByArticleIdOrderByCreatedAtDesc(article.getId())
-//                                                    .getChekUser()
-//                                                    .getId())) {
+        if (user.getId()
+                .equals(informationArticleRepository.findFirstByArticleIdOrderByCreatedAtDesc(article.getId())
+                                                    .getChekUser()
+                                                    .getId())) {
         if (!addRedactorDto.isAddAndRemove()) {
             informationArticleRepository.save(new InformationArticle(user, userId, article, new Date(), addRedactorDto
                     .isAddAndRemove() ? Watdou.ADD : Watdou.DELETE, ArticleStatusName.NULL));
@@ -187,8 +187,8 @@ public class ArticleService {
                 editorArticleRepository.save(new EditorsArticle(user, userId, article, roleId,new java.sql.Date(deadline)));
                 informationArticleRepository.save(new InformationArticle(user, userId, article, new Date(), addRedactorDto
                         .isAddAndRemove() ? Watdou.ADD : Watdou.DELETE, ArticleStatusName.NULL));
-                return new ApiResponse("Articlga user biriktirildi", true);
-//            }
+                return new ApiResponse("Maqolaga user biriktirildi", true);
+            }
         }
         return new ApiResponse("bu user oldin biriktirilgan  ", false);
 
@@ -265,10 +265,8 @@ public class ArticleService {
 
     //    // Articlaga redactor yo reviewrlar tomondan beriladigon statuslar
     @SneakyThrows
-    public ApiResponse statusesGivenToTheArticleByTheEditors(UUID userId, UUID articleId, String status, MultipartFile file) {
-        System.out.println(file);
-        if (file.isEmpty())
-            return new ApiResponse("Taqriz fayli bo`sh bo`lishi mumkin emas", false);
+    public ApiResponse statusesGivenToTheArticleByTheEditors(UUID userId, String description,UUID articleId, String status, MultipartFile file) {
+        System.out.println(" papka    --"+file);
         InformationArticle informationArticle = informationArticleRepository.findByArticleIdAndRedactorIdAndArticleStatusName(articleId, userId, ArticleStatusName.I_ACCEPTED);
         System.out.println("---->"+articleId);
         User user = userRepository.findById(userId).get();
@@ -280,27 +278,28 @@ public class ArticleService {
 //            }
 //            else {
                 if (status.equalsIgnoreCase(ArticleStatusName.CHECK_AND_ACCEPT.name())) {
-                    informationArticleRepository.save(new InformationArticle(user, article, new Date(), ArticleStatusName.CHECK_AND_ACCEPT, attachmentService.upload1(file)));
+                    informationArticleRepository.save(new InformationArticle(user, description,article, new Date(), ArticleStatusName.CHECK_AND_ACCEPT, attachmentService.upload1(file)));
 
                     return new ApiResponse("Siz maqola tekshiruvini yakunladingiz", true);
                 } else if (status
                         .equalsIgnoreCase(ArticleStatusName.CHECK_AND_CANCEL.name())) {
-                    informationArticleRepository.save(new InformationArticle(user, article, new Date(), ArticleStatusName.CHECK_AND_CANCEL, attachmentService.upload1(file)));
+                    informationArticleRepository.save(new InformationArticle(user, description,article, new Date(), ArticleStatusName.CHECK_AND_CANCEL, attachmentService.upload1(file)));
                     return new ApiResponse("Siz maqola tekshiruvini yakunladingiz", true);
                 } else if (status
                         .equalsIgnoreCase(ArticleStatusName.CHECK_AND_RECYCLE.name())) {
-                    informationArticleRepository.save(new InformationArticle(user, article, new Date(), ArticleStatusName.CHECK_AND_RECYCLE, attachmentService.upload1(file)));
+                    informationArticleRepository.save(new InformationArticle(user,description, article, new Date(), ArticleStatusName.CHECK_AND_RECYCLE, attachmentService.upload1(file)));
                     return new ApiResponse("Maqola qayta ishlashaga yuborildi", true);
                 }
 //            }
             return new ApiResponse("ok", true);
-        } else if (roleId == 2) {
+        }
+        else if (roleId == 2) {
             Article article = articleRepository.getById(informationArticle.getArticle().getId());
             if (informationArticle.getDeadline() <= System.currentTimeMillis()) {
-                return new ApiResponse("sizga berilgan vaqt tugati ", false);
+                return new ApiResponse("Sizga berilgan vaqt tugati ", false);
             } else {
-                informationArticleRepository.save(new InformationArticle(user, article, new Date(), ArticleStatusName.PREPARED_FOR_PUBLICATION, attachmentService.upload1(file)));
-                return new ApiResponse("siz maqolani tasdiqladiz", true);
+                informationArticleRepository.save(new InformationArticle(user, description,article, new Date(), ArticleStatusName.PREPARED_FOR_PUBLICATION, attachmentService.upload1(file)));
+                return new ApiResponse("Siz maqolani tasdiqladingiz", true);
             }
         }
         return new ApiResponse("Sizning rolingiz topilmadi", false);
@@ -352,6 +351,7 @@ public class ArticleService {
 
     // adminstratorlar uchun articlarni statusiga qarab get qilish
     public ApiResponse newMyArticle(User user, ArticleStatusInAdmins articleStatusInAdmins) {
+        System.out.println(">>>>>"+articleStatusInAdmins.getStatus());
         if (user == null) {
             return new ApiResponse("Bunday foydalanuvchi mavjud emas!");
         }
@@ -446,7 +446,7 @@ public class ArticleService {
 //                }
             }
             if (myTasksDtoList.size() == 0)
-                return new ApiResponse("Sizga biriktirilgan vazifalar mavjud emas", false);
+                return new ApiResponse("", true);
             return new ApiResponse("OK", true, myTasksDtoList);
         }
         return new ApiResponse("Sizning vazifangiz topilmadi!!!", false);

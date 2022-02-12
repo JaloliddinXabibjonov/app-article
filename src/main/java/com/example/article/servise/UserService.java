@@ -20,7 +20,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -81,6 +80,7 @@ public class UserService {
             user.setPhoneNumber(signUp.getPhoneNumber());
             user.setPassword(passwordEncoder.encode(signUp.getPassword()));
             user.setRoles(roleRepository.findAllByRoleNameIn(singleton(RoleName.ROLE_USER.name())));
+            user.setEnabled(false);
             userRepository.save(user);
             System.out.println(jwtProvider.generateJwtToken(user));
             return (jwtProvider.generateJwtToken(user));
@@ -109,7 +109,7 @@ public class UserService {
             user.setLanguages(languages);
             user.setRoles(singletonList(roleRepository.getById(3)));
             user.setPhotos(singletonList(attachmentService.upload1(passport)));
-            user.setEnabled(false);
+            user.setEnabled(true);
             user.setActive(false);
             userRepository.save(user);
             return new ApiResponse("Muvaffaqiyatli ro`yxatdan o`tdingiz. Akkountingiz tekshirish uchun adminstratorga yuborildi. Iltimos akkountingiz aktivlashtirilishini kuting", true);
@@ -126,34 +126,36 @@ public class UserService {
         user.setEmail(signUp.getEmail());
 //                    user.setPhotos(Collections.singletonList(attachmentRepository.getById(signUp.getPhotoId())));
         userRepository.save(user);
-        return new ApiResponse("Saved   ", true);
+        return new ApiResponse("Saved", true);
     }
 
-    public ApiResponse saveAndEditUser(UserDto userDto) {
+    /**ADMIN TOMONIDAN YANGI USER QO`SHISH*/
+    public ApiResponse addEmployee(UserDto userDto) {
         try {
-            Optional<User> userOptional = userRepository.findByPhoneNumberAndDeleteFalse(userDto.getPhoneNumber());
+            boolean exists = userRepository.existsByPhoneNumber(userDto.getPhoneNumber());
+            if (exists)
+                return new ApiResponse("Bunday telefon raqam tizimda mavjud!!!", false);
             User user = new User();
-            if (userDto.getId() != null) {
-                user = userRepository.getById(userDto.getId());
+            List<Category> categories=new ArrayList<>();
+            for (Integer integer : userDto.getCategoryId()) {
+                categories.add(categoryRepository.findById(integer).get());
             }
-            if (userOptional.isEmpty()) {
-                user.setLastName(userDto.getLastName() == null ? user.getLastName() : userDto.getLastName());
-                user.setFirstName(userDto.getFirstName() == null ? user.getFirstName() : userDto.getFirstName());
-                user.setPassword(passwordEncoder.encode(userDto.getPassword() == null ? user.getPassword() : userDto.getPassword()));
-                user.setPhoneNumber(userDto.getPhoneNumber() == null ? user.getPhoneNumber() : userDto.getPhoneNumber());
-                user.setEnabled(userDto.isActive());
-                if (userDto.getRole().size() != 0 && userDto.getCategoryId().size() != 0) {
-                    user.setRoles(roleRepository.findAllByIdIn(userDto.getRole()));
-                    user.setCategories(categoryRepository.findAllByIdIn(userDto.getCategoryId()));
-                }
-                userRepository.save(user);
-                return new ApiResponse("Saved", true);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+            user.setCategories(categories);
+            user.setLastName(userDto.getLastName());
+            user.setFirstName(userDto.getFirstName());
+            user.setPassword(passwordEncoder.encode(userDto.getPassword()));
+            user.setPhoneNumber(userDto.getPhoneNumber());
+            user.setEnabled(true);
+            user.setEmail(userDto.getEmail());
+            user.setLanguages(userDto.getLanguages());
+            user.setRoles(singletonList(roleRepository.getById(userDto.getRoleId())));
+            userRepository.save(user);
+            return new ApiResponse("Saqlandi", true);
         }
-        return new ApiResponse("Error", false);
-    }
+        catch(Exception e){
+            return new ApiResponse("Xatolik yuz berdi, birozdan keyin qayta urinib ko'ring",false);
+        }
+}
 
 
     // user rasm qoyish uchun
@@ -179,25 +181,79 @@ public class UserService {
         return jwtProvider.generateJwtToken(principal);
     }
 
-    public ApiResponse edit(SignUp signUp) {
-        boolean exists = userRepository.existsById(signUp.getUserId());
-        if (!exists)
-            return new ApiResponse("User topilmadi", false);
-        System.out.println(signUp.getPhoneNumber() + signUp.getLastName() + signUp.getFirstName() + signUp.getEmail() + signUp.getFatherName());
+    public ApiResponse edit(User user, SignUp signUp) {
+        try {
+            user.setLastName(signUp.getLastName().equals("") ? user.getLastName() : signUp.getLastName());
+            user.setFirstName(signUp.getFirstName().equals("") ? user.getFirstName() : signUp.getFirstName());
+            if (!signUp.getPassword().equals(""))
+                user.setPassword(passwordEncoder.encode(signUp.getPassword()));
+            user.setPhoneNumber(signUp.getPhoneNumber().equals("") ? user.getPhoneNumber() : signUp.getPhoneNumber());
+            user.setFatherName(signUp.getFatherName().equals("") ? user.getFatherName() : signUp.getFatherName());
+            user.setEmail(signUp.getEmail().equals("") ? user.getEmail() : signUp.getEmail());
+            user.setLanguages(signUp.getLanguages().equals("") ? user.getLanguages() : signUp.getLanguages());
+            user.setAcademicDegree(signUp.getAcademicDegree().equals("") ? user.getAcademicDegree() : signUp.getAcademicDegree());
+            user.setWorkExperience(signUp.getWorkExperience().equals("") ? user.getWorkExperience() : signUp.getWorkExperience());
+            user.setWorkPlace(signUp.getWorkPlace().equals("") ? user.getWorkPlace() : signUp.getWorkPlace());
 
-        User user = userRepository.getById(signUp.getUserId());
-        user.setPassword(signUp.getPassword() == null ? user.getPassword() : signUp.getPassword());
-        user.setEmail(signUp.getEmail() == null ? user.getEmail() : signUp.getEmail());
-        user.setLastName(signUp.getLastName() == null ? user.getLastName() : signUp.getLastName());
-        user.setFirstName(signUp.getFirstName() == null ? user.getFirstName() : signUp.getFirstName());
-        user.setPhoneNumber(signUp.getPhoneNumber() == null ? user.getPhoneNumber() : signUp.getPhoneNumber());
-        userRepository.save(user);
-        return new ApiResponse("Successfully edited", true);
+            InformationUser informationUser = new InformationUser();
+            informationUser.setAcceptedUser(user);
+            informationUser.setWhenAndWho(new Date());
+            informationUser.setUserStatus(UserStatus.EDIT);
+            informationUser.setRedactorAndReviewer(user);
+            informationUserRepository.save(informationUser);
+            userRepository.save(user);
+
+            System.out.println("----->>" + signUp.getPassword());
+            System.out.println("----->>" + signUp.getPhoneNumber());
+            System.out.println("----->>" + signUp.getFirstName());
+            System.out.println("----->>" + signUp.getLastName());
+            System.out.println("----->>" + signUp.getFatherName());
+            System.out.println("----->>" + signUp.getWorkExperience());
+            System.out.println("----->>" + signUp.getEmail());
+            return new ApiResponse("Muvaffaqiyatli bajarildi", true);
+        } catch (Exception e) {
+            return new ApiResponse("Xatolik yuz berdi", false);
+        }
+    }
+
+    @SneakyThrows
+    public ApiResponse editUserFromAdmin(User currentUser, SignUp signUp) {
+        try {
+            User user = new User();
+            boolean exists1 = userRepository.existsByPhoneNumber(signUp.getPhoneNumber());
+            if (exists1)
+            if (signUp.getUserId() != null) {
+                user = userRepository.getById(signUp.getUserId());
+            }
+            if (!signUp.getPassword().equals(""))
+                user.setPassword(passwordEncoder.encode(signUp.getPassword()));
+            user.setEmail(signUp.getEmail().equals("") ? user.getEmail() : signUp.getEmail());
+            user.setLastName(signUp.getLastName().equals("") ? user.getLastName() : signUp.getLastName());
+            user.setFirstName(signUp.getFirstName().equals("") ? user.getFirstName() : signUp.getFirstName());
+            user.setFatherName(signUp.getFatherName().equals("") ? user.getFatherName() : signUp.getFatherName());
+            user.setLanguages(signUp.getLanguages().equals("") ? user.getLanguages() : signUp.getLanguages());
+            user.setPhoneNumber(signUp.getPhoneNumber().equals("") ? user.getPhoneNumber() : signUp.getPhoneNumber());
+            user.setAcademicDegree(signUp.getAcademicDegree().equals("") ? user.getAcademicDegree() : signUp.getAcademicDegree());
+            user.setWorkExperience(signUp.getWorkExperience().equals("") ? user.getWorkExperience() : signUp.getWorkExperience());
+            user.setWorkPlace(signUp.getWorkPlace().equals("") ? user.getWorkPlace() : signUp.getWorkPlace());
+
+            InformationUser informationUser = new InformationUser();
+            informationUser.setAcceptedUser(currentUser);
+            informationUser.setWhenAndWho(new Date());
+            informationUser.setUserStatus(UserStatus.EDIT);
+            informationUser.setRedactorAndReviewer(userRepository.getById(signUp.getUserId()));
+            informationUserRepository.save(informationUser);
+
+            userRepository.save(user);
+            return new ApiResponse("Successfully edited", true);
+        } catch (Exception e) {
+            return new ApiResponse("Xatolik yuz berdi", false);
+        }
     }
 
     public ApiResponse delete(UUID id) {
         Optional<User> optionalUser = userRepository.findById(id);
-        if (optionalUser.isPresent()){
+        if (optionalUser.isPresent()) {
             User user = optionalUser.get();
             user.setDelete(true);
             userRepository.save(user);
@@ -262,8 +318,8 @@ public class UserService {
         }
         //  role ishlidi
         else if (searchUser.getCategoryId() == null && searchUser.getSearch().equals("777") && searchUser.getRoles_id() != null) {
-            System.out.println(searchUser.getRoles_id()+"-------"+searchUser.isEnabled());
-            users = userRepository.findAllByEnabledAndRolesIdAndDeleteFalse(searchUser.isEnabled(), searchUser.getRoles_id(),false, CommonUtills.simplePageable(searchUser.getPage(), searchUser.getSize()));
+            System.out.println(searchUser.getRoles_id() + "-------" + searchUser.isEnabled());
+            users = userRepository.findAllByEnabledAndRolesIdAndDeleteFalse(searchUser.isEnabled(), searchUser.getRoles_id(), false, CommonUtills.simplePageable(searchUser.getPage(), searchUser.getSize()));
 
             System.out.println("role ishladi  ");
             return new ApiResponse(" role  ", true, users);
@@ -327,19 +383,18 @@ public class UserService {
      * yangi qo'shilgan reviewerlarni activlashtirish
      */
     public ApiResponse acceptedUser(User user, ReviewerDto reviewerDto) {
-        boolean exists = userRepository.existsByEnabledAndIdAndDeleteFalse(reviewerDto.isActive(), reviewerDto.getUserId());
-        if (exists)
-            return new ApiResponse("User allaqachon:" + " " + (reviewerDto.isActive() ? "aktiv" : "aktiv emas"));
+
         Optional<User> optionalUser = userRepository.findById(reviewerDto.getUserId());
         if (optionalUser.isPresent()) {
             User user1 = optionalUser.get();
-            user1.setActive(reviewerDto.isActive());
+            if (reviewerDto.isActive())
+                user1.setActive(reviewerDto.isActive());
             user1.setEnabled(reviewerDto.isActive());
             userRepository.save(user1);
             informationUserRepository.save(new InformationUser(user, user1, new Date(), UserStatus.ACCEPTED));
-            return new ApiResponse("Reviewer activation ", true);
+            return new ApiResponse(reviewerDto.isActive()?"Foydalanuvchi faollashtirildi":"Foydalanuvchi bloklandi", true);
         }
-        return new ApiResponse("Error", false);
+        return new ApiResponse("Foydalanuvchi topilmadi", false);
     }
 
     /**
@@ -356,21 +411,22 @@ public class UserService {
      */
     public ForDashboard dashboard() {
 //        try {
-            ForDashboard forDashboard = new ForDashboard();
-            forDashboard.setNumberOfUsers(userRepository.countAllByRolesId(4));         //userlar soni
-            forDashboard.setNumberOfReviewers(userRepository.countAllByRolesId(3));     //reviewerlar soni
-            forDashboard.setNumberOfRedactors(userRepository.countAllByRolesId(2));     //redactorlar soni
-            forDashboard.setNumberOfNewArticles(articleRepository.countAllByPayTrueAndConfirmFalse());      //tasdiqlanadigan maqolalar soni
-            forDashboard.setNumberOfInReviewArticles(articleRepository.countAllByArticleStatusName(ArticleStatusName.BEGIN_CHECK));     //tahrirdagi maqolalar soni
-            forDashboard.setNumberOfIsBeingEditedArticles(articleRepository.countAllByArticleStatusName(ArticleStatusName.PREPARING_FOR_PUBLICATION));      //nashrga tayyorlanayotgan  maqolalar soni
-            forDashboard.setNumberOfReadyOfPublicationArticles(articleRepository.countAllByArticleStatusName(ArticleStatusName.PREPARED_FOR_PUBLICATION));      //nashrga tayyor maqolalar soni
-            forDashboard.setNumberOfFreeAndPublishedArticles(articleRepository.countAllByPublicPrivateAndArticleStatusName( false, ArticleStatusName.PUBLISHED));        //nashr qilingan va bepul maqolalar soni
-            forDashboard.setNumberOfPaidAndPublishedArticles(articleRepository.countAllByPublicPrivateAndArticleStatusName(true, ArticleStatusName.PUBLISHED));           //nashr qilingan va pullik maqolalar soni
-            forDashboard.setNumberOfNewAndPayFalse(articleRepository.countAllByPayFalse());         //hali puli to`lanmagan maqolalar soni
-            forDashboard.setNumberOfRejectedArticles(articleRepository.countAllByArticleStatusName(ArticleStatusName.REJECTED));
-            forDashboard.setNumberOfRecycleArticles(articleRepository.countAllByArticleStatusName(ArticleStatusName.RECYCLE));
-            System.out.println(forDashboard);
-            return forDashboard;
+        ForDashboard forDashboard = new ForDashboard();
+        forDashboard.setNumberOfAdmins(userRepository.countAllByRolesId(1));         //adminlar soni
+        forDashboard.setNumberOfUsers(userRepository.countAllByRolesId(4));         //userlar soni
+        forDashboard.setNumberOfReviewers(userRepository.countAllByRolesId(3));     //reviewerlar soni
+        forDashboard.setNumberOfRedactors(userRepository.countAllByRolesId(2));     //redactorlar soni
+        forDashboard.setNumberOfNewArticles(articleRepository.countAllByPayTrueAndConfirmFalse());      //tasdiqlanadigan maqolalar soni
+        forDashboard.setNumberOfInReviewArticles(articleRepository.countAllByArticleStatusName(ArticleStatusName.BEGIN_CHECK));     //tahrirdagi maqolalar soni
+        forDashboard.setNumberOfIsBeingEditedArticles(articleRepository.countAllByArticleStatusName(ArticleStatusName.PREPARING_FOR_PUBLICATION));      //nashrga tayyorlanayotgan  maqolalar soni
+        forDashboard.setNumberOfReadyOfPublicationArticles(articleRepository.countAllByArticleStatusName(ArticleStatusName.PREPARED_FOR_PUBLICATION));      //nashrga tayyor maqolalar soni
+        forDashboard.setNumberOfFreeAndPublishedArticles(articleRepository.countAllByPublicPrivateAndArticleStatusName(false, ArticleStatusName.PUBLISHED));        //nashr qilingan va bepul maqolalar soni
+        forDashboard.setNumberOfPaidAndPublishedArticles(articleRepository.countAllByPublicPrivateAndArticleStatusName(true, ArticleStatusName.PUBLISHED));           //nashr qilingan va pullik maqolalar soni
+        forDashboard.setNumberOfNewAndPayFalse(articleRepository.countAllByPayFalse());         //hali puli to`lanmagan maqolalar soni
+        forDashboard.setNumberOfRejectedArticles(articleRepository.countAllByArticleStatusName(ArticleStatusName.REJECTED));
+        forDashboard.setNumberOfRecycleArticles(articleRepository.countAllByArticleStatusName(ArticleStatusName.RECYCLE));
+        System.out.println(forDashboard);
+        return forDashboard;
 //        } catch (Exception e) {
 //            return new ForDashboard();
 //
@@ -410,5 +466,10 @@ public class UserService {
         forUsersDto.setCheckAndCancels(informationArticleRepository.countAllByArticleStatusNameAndRedactorId(ArticleStatusName.CHECK_AND_CANCEL, userId));
         forUsersDto.setCheckAndRecycles(informationArticleRepository.countAllByArticleStatusNameAndRedactorId(ArticleStatusName.CHECK_AND_RECYCLE, userId));
         return forUsersDto;
+    }
+
+    public ApiResponse getById(UUID id) {
+        Optional<User> optionalUser = userRepository.findById(id);
+        return optionalUser.map(user -> new ApiResponse("Muvaffaqiyatli bajarildi", true, user)).orElseGet(() -> new ApiResponse("Foydalanuvchi topilmadi", false));
     }
 }

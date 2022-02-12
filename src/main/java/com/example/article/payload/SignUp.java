@@ -1,8 +1,10 @@
 package com.example.article.payload;
 
+import com.example.article.entity.Attachment;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
 
@@ -12,8 +14,10 @@ import java.util.UUID;
 @AllArgsConstructor
 public class SignUp {
     private UUID userId;
-
-
+    private String languages;
+    private String academicDegree;
+    private String workExperience;
+    private String workPlace;
     private String lastName;
     private String fatherName;
     private String firstName;

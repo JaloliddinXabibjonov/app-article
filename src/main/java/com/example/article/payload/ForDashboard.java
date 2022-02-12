@@ -1,16 +1,13 @@
 package com.example.article.payload;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-import javax.persistence.Entity;
-
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class ForDashboard {
-
+    private Integer numberOfAdmins;                              //MAQOLA BERUVCHILAR SONI
     private Integer numberOfUsers;                              //MAQOLA BERUVCHILAR SONI
     private Integer numberOfReviewers;                          //REVIEWERLAR SONI
     private Integer numberOfRedactors;                          //REDACTORLAR SONI

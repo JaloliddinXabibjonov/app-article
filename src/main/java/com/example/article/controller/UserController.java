@@ -78,11 +78,16 @@ public class UserController {
     }
 
 
-    @PostMapping("/edit")
-    public HttpEntity<ApiResponse> edit(@RequestBody SignUp userDto) {
-        ApiResponse apiResponse = userService.edit(userDto);
+    @PostMapping("/editUserFromAdmin")
+    public HttpEntity<ApiResponse> editUserFromAdmin(@CurrentUser User currentUser,@RequestBody SignUp userDto) {
+        ApiResponse apiResponse = userService.editUserFromAdmin(currentUser,userDto);
         return ResponseEntity.status(apiResponse.isSuccess() ? 202 : 409).body(apiResponse);
+    }
 
+    @PostMapping("/edit")
+    public HttpEntity<?> edit(@CurrentUser User user,@RequestBody SignUp signUp){
+        ApiResponse apiResponse = userService.edit(user, signUp);
+        return ResponseEntity.status(apiResponse.isSuccess()?202:409).body(apiResponse);
     }
 
     @PostMapping("/login")
@@ -104,9 +109,9 @@ public class UserController {
     }
 
     @PostMapping("/addEmployee")
-    public HttpEntity<ApiResponse> eddEmployee(@RequestBody UserDto userDto) {
-        ApiResponse apiResponse = userService.saveAndEditUser(userDto);
-        return ResponseEntity.status(apiResponse.isSuccess() ? 202 : 409).body(apiResponse);
+    public HttpEntity<ApiResponse> addEmployee(@RequestBody UserDto userDto) {
+        ApiResponse apiResponse = userService.addEmployee(userDto);
+        return ResponseEntity.status(apiResponse.isSuccess( )? 201 : 409).body(apiResponse);
     }
 
 //    @PostMapping("/changeUserActive/{id}")
@@ -157,8 +162,9 @@ public class UserController {
 
     /**USERNI TIZIMDA ISHLASHI UCHUN RUXSAT BERISH*/
     @PostMapping("/acceptedUser")
-    public ApiResponse acceptedUser(@CurrentUser User user, @RequestBody ReviewerDto reviewerDto) {
-        return new ApiResponse("Reviewer activation", true, userService.acceptedUser(user, reviewerDto));
+    public HttpEntity<?> acceptedUser(@CurrentUser User user, @RequestBody ReviewerDto reviewerDto) {
+        ApiResponse apiResponse = userService.acceptedUser(user, reviewerDto);
+        return ResponseEntity.status(apiResponse.isSuccess()?200:409).body(apiResponse);
     }
 
     /**    MA'LUM VAQT ORALIG'IDAGI RO`YXATDAN O`TGAN USERLARNI OLIB KELISH UCHUN*/
@@ -193,4 +199,9 @@ public class UserController {
         return userService.getStatisticsArticlesForUsers(id);
     }
 
+    @GetMapping("getById/{id}")
+    public HttpEntity<?> getById(@PathVariable UUID id){
+        ApiResponse apiResponse = userService.getById( id);
+        return ResponseEntity.status(apiResponse.isSuccess()?200:409).body(apiResponse);
+    }
 }

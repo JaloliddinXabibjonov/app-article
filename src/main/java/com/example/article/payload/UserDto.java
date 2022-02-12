@@ -19,6 +19,11 @@ public class UserDto {
     private String phoneNumber;
     private String email;
     private String password;
+    private String workPlace;
+    private String workExperience;
+    private String languages;
+    private String academicDegree;
+    private Integer roleId;
     private List<Integer> role;
     private boolean active;
     private UUID photoId;

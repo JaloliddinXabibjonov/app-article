@@ -28,7 +28,7 @@ public interface EditorArticleRepository extends JpaRepository<EditorsArticle, U
             "                    ON IA.redactor_id = ?1\n" +
             "                        AND ea.redactor_id = ia.redactor_id\n" +
             "                        AND ea.article_id=IA.article_id and\n" +
-            " ia.article_status_name <> 'I_ACCEPTED' and ia.article_status_name <> 'I_DID_NOT_ACCEPT'", nativeQuery = true)
+            " ia.article_status_name != 'I_ACCEPTED' and ia.article_status_name != 'I_DID_NOT_ACCEPT'", nativeQuery = true)
     List<EditorsArticle> findAllByAndRedactorId(UUID redactor_id);
 
     @Query(value = "select count(*) from editors_article  where article_id=?1 and role_id=?2",nativeQuery = true)

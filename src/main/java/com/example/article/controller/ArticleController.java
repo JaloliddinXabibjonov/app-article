@@ -34,16 +34,9 @@ public class ArticleController {
 
     @PostMapping(value = "/addArticle")
     public HttpEntity<ApiResponse> save(@RequestParam String description, @RequestParam String[] author, @RequestParam String titleArticle, @RequestParam Integer categoryId, @RequestParam boolean publicOrPrivate, @RequestParam UUID userId, @RequestPart MultipartFile file) throws IOException {
-        ApiResponse apiResponse;
-        System.out.println("bu  user     " + userId);
-//        try {
-        apiResponse = articleService.addArticle(description, author, titleArticle, categoryId, publicOrPrivate, userId, file);
-//        } catch (IOException e) {
-//            return ResponseEntity.ok(apiResponse);
-//        }
+        ApiResponse apiResponse= articleService.addArticle(description, author, titleArticle, categoryId, publicOrPrivate, userId, file);
         return ResponseEntity.status(apiResponse.isSuccess() ? 201 : 409).body(apiResponse);
     }
-
 
     @GetMapping("/getMyArticle")
     public HttpEntity<?> getMyArticle(@CurrentUser User user) {
@@ -67,15 +60,12 @@ public class ArticleController {
     public HttpEntity<ApiResponse> sendNotification(@CurrentUser User user, @RequestBody NotificationForRedacktors notification) {
         ApiResponse apiResponse = articleService.articleAddEditors(user, notification);
         return ResponseEntity.status(apiResponse.isSuccess() ? 200 : 409).body(apiResponse);
-
-
     }
 
     @PostMapping("/articleRemoveEditor")
     public HttpEntity<ApiResponse> removeEditor(@CurrentUser User user, @RequestBody NotificationForRedacktors notification) {
         ApiResponse apiResponse = articleService.removeEditor(user, notification);
         return ResponseEntity.status(apiResponse.isSuccess() ? 200 : 409).body(apiResponse);
-
     }
 
     //MAQOLANI ADMIN TOMONIDAN REDACTOR VA REVIEWER LARGA BIRIKTIRISH
@@ -165,8 +155,8 @@ public class ArticleController {
     }
 
     @PostMapping("/givenStatus")
-    public HttpEntity<?> statusesGivenToTheArticleByTheEditors(@RequestParam UUID userId, @RequestParam UUID articleId, @RequestParam String status, @RequestPart MultipartFile file) {
-        ApiResponse apiResponse = articleService.statusesGivenToTheArticleByTheEditors(userId, articleId, status, file);
+    public HttpEntity<?> statusesGivenToTheArticleByTheEditors(@RequestParam UUID userId,@RequestParam(required = false) String description, @RequestParam UUID articleId, @RequestParam String status, @RequestPart(required = false) MultipartFile file) {
+        ApiResponse apiResponse = articleService.statusesGivenToTheArticleByTheEditors(userId, description,articleId, status, file);
         return ResponseEntity.status(apiResponse.isSuccess() ? 200 : 409).body(apiResponse);
     }
 

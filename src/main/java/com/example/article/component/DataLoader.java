@@ -147,7 +147,7 @@ public class DataLoader implements CommandLineRunner {
                             "6",
                             "Orif@",
                             passwordEncoder.encode("6"),
-                            roleRepository.findAllByIdIn(Collections.singletonList(3)),
+                            roleRepository.findAllByIdIn(Collections.singletonList(1)),
                             Collections.singletonList(categoryRepository.getById(1))
 
 

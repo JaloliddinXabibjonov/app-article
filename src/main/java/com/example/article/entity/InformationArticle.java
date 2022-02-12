@@ -45,7 +45,7 @@ public class InformationArticle extends AbsEntity {  //bu articldi kim va qachon
     private ArticleStatusName articleStatusName;   //redaktor qaysi statusni berdi redactorlar tomondan bertiladigon statuslar
 
     private String massage;
-
+private String description;
     private  long deadline;
 
     @OneToOne
@@ -65,6 +65,16 @@ public class InformationArticle extends AbsEntity {  //bu articldi kim va qachon
         this.whenAndWho = date;
         this.attachFile=attachFile;
     }
+
+    public InformationArticle(User user, String description, Article articleId, Date date, ArticleStatusName articleStatus, Attachment attachFile) {
+        this.redactor = user;
+        this.description=description;
+        this.article = articleId;
+        this.articleStatusName = articleStatus;
+        this.whenAndWho = date;
+        this.attachFile=attachFile;
+    }
+
     public InformationArticle(User user, Article articleId, Date date, ArticleStatusName articleStatus) {
         this.redactor = user;
         this.article = articleId;

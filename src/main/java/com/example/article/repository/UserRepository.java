@@ -17,6 +17,7 @@ import java.util.UUID;
 
 public interface UserRepository extends JpaRepository<User, UUID> {
 
+    boolean existsByPhoneNumberAndIdNot(String phoneNumber,UUID id);
     Optional<User> findByPhoneNumberAndDeleteFalse(String phoneNumber);
 
     List<User> findAllByEnabledTrueAndIdInAndDeleteFalse(Collection<UUID> id);
@@ -68,4 +69,5 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     boolean existsByEnabledAndIdAndDeleteFalse(boolean enabled, UUID id);
 
+    boolean existsByPhoneNumber(String phoneNumber);
 }

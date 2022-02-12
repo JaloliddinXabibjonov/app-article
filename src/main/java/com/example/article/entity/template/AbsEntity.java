@@ -1,5 +1,6 @@
 package com.example.article.entity.template;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
@@ -33,6 +34,7 @@ public abstract class AbsEntity {
     private Timestamp createdAt;
 
     @JsonIgnore
+//    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     @UpdateTimestamp
     @Column(nullable = false)
     private Timestamp updatedAt;
@@ -42,8 +44,10 @@ public abstract class AbsEntity {
     private UUID createdBy;
 
     @JsonIgnore
+
     @LastModifiedBy
     private UUID updatedBy;
+
 
 
 

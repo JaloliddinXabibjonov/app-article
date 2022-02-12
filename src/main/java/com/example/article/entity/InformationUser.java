@@ -23,7 +23,7 @@ public class InformationUser extends AbsEntity {
 
 
     @ManyToOne
-    private User acceptedUser;
+    private User acceptedUser;      //kim bajardi
 
 
     @ManyToOne
