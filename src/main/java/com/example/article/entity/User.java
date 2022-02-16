@@ -2,6 +2,7 @@ package com.example.article.entity;
 
 import com.example.article.entity.template.AbsEntity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -29,7 +30,7 @@ public class User extends AbsEntity implements UserDetails {
 
     private boolean delete=false;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     private List<Role> roles;
 
     private String fatherName;
@@ -40,17 +41,18 @@ public class User extends AbsEntity implements UserDetails {
     private String email;
 
 //    @JsonIgnore
-    @OneToMany
+@OneToMany
     private List<Attachment> photos;
 
 //    @JsonIgnore
-    @ManyToMany
+@ManyToMany
     private List<Category> categories;
 
     private String workPlace;
     private String workExperience;
     private String academicDegree;
     private String languages;
+
 
     @OneToMany
     private List<Attachment> scientificWork;

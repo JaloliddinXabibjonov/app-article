@@ -48,7 +48,7 @@ public class ArticleService {
     @Autowired
     AuthorsRepository authorsRepository;
 
-    public ApiResponse addArticle( String description, String[] author, String titleArticle, Integer categoryId, boolean publicOrPrivate, UUID userId, MultipartFile file) throws IOException {
+    public ApiResponse addArticle(String description, String[] author, String titleArticle, Integer categoryId, boolean publicOrPrivate, UUID userId, MultipartFile file) throws IOException {
         Article article = new Article();
         Optional<Category> category = categoryRepository.findById(categoryId);
         if (category.isPresent()) {
@@ -563,5 +563,13 @@ public class ArticleService {
 
     public List<Article> getAll() {
         return articleRepository.findAll();
+    }
+
+    @SneakyThrows
+    public ApiResponse editArticle(UUID id,  MultipartFile file){
+           Article article = articleRepository.getById(id);
+           article.setFile(attachmentService.upload1(file));
+           articleRepository.save(article);
+           return new ApiResponse("Muvaffaqiyatli tahrirlandi", true);
     }
 }

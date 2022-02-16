@@ -21,6 +21,8 @@ public class Article extends AbsEntity {
     @Column(nullable = false)
     private String description;
 
+
+
     @ManyToMany
     private Set<Authors> authors;
 

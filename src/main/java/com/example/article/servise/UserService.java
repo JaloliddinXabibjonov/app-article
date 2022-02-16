@@ -21,6 +21,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -80,17 +81,21 @@ public class UserService {
             user.setPhoneNumber(signUp.getPhoneNumber());
             user.setPassword(passwordEncoder.encode(signUp.getPassword()));
             user.setRoles(roleRepository.findAllByRoleNameIn(singleton(RoleName.ROLE_USER.name())));
-            user.setEnabled(false);
             userRepository.save(user);
-            System.out.println(jwtProvider.generateJwtToken(user));
+            System.out.println("telefon raqam" + signUp.getPhoneNumber());
+            System.out.println("password " + signUp.getPassword());
             return (jwtProvider.generateJwtToken(user));
         }
         return ("User is already exist");
     }
 
+    /**
+     * Yangi Reviewer qo`shish
+     */
+    @SneakyThrows
     public ApiResponse registerReviewer(String lastName, String firstName, String fathersName, String phoneNumber, String password, String email, Set<Integer> categoryIdList,
-                                        String workPlace, String workExperience, MultipartFile scientificWork, String academicDegree, String languages, MultipartFile passport) {
-        boolean exists = userRepository.existsByPhoneNumberAndDeleteFalse(phoneNumber);
+                                        String workPlace, String workExperience, MultipartFile file, String academicDegree, String languages, MultipartFile passport) {
+        boolean exists = userRepository.existsByPhoneNumber(phoneNumber);
         if (exists)
             return new ApiResponse("Bunday telefon raqam orqali avval ro`yxatdan o`tilgan", false);
         try {
@@ -104,15 +109,18 @@ public class UserService {
             user.setCategories(categoryRepository.findAllByIdIn(categoryIdList));
             user.setWorkPlace(workPlace);
             user.setWorkExperience(workExperience);
-            user.setScientificWork(singletonList(attachmentService.upload1(scientificWork)));
+            user.setScientificWork(singletonList(attachmentService.upload1(file)));
             user.setAcademicDegree(academicDegree);
             user.setLanguages(languages);
-            user.setRoles(singletonList(roleRepository.getById(3)));
-            user.setPhotos(singletonList(attachmentService.upload1(passport)));
+            user.setRoles(singletonList(roleRepository.findById(3).get()));
             user.setEnabled(true);
-            user.setActive(false);
+            user.setActive(true);
+            user.setPhotos(singletonList(attachmentService.upload1(passport)));
+            System.out.println("----" + password);
+            System.out.println("-----" + phoneNumber);
             userRepository.save(user);
-            return new ApiResponse("Muvaffaqiyatli ro`yxatdan o`tdingiz. Akkountingiz tekshirish uchun adminstratorga yuborildi. Iltimos akkountingiz aktivlashtirilishini kuting", true);
+
+            return new ApiResponse("Muvaffaqiyatli ro`yxatdan o`tdingiz. Akkountingiz tekshirish uchun adminstratorga yuborildi. Iltimos akkountingiz aktivlashtirilishini kuting", true, jwtProvider.generateJwtToken(user));
         } catch (Exception e) {
             return new ApiResponse("Xatolik yuz berdi, iltimos qaytadan urinib ko`ring", false);
         }
@@ -129,14 +137,16 @@ public class UserService {
         return new ApiResponse("Saved", true);
     }
 
-    /**ADMIN TOMONIDAN YANGI USER QO`SHISH*/
+    /**
+     * ADMIN TOMONIDAN YANGI USER QO`SHISH
+     */
     public ApiResponse addEmployee(UserDto userDto) {
         try {
             boolean exists = userRepository.existsByPhoneNumber(userDto.getPhoneNumber());
             if (exists)
                 return new ApiResponse("Bunday telefon raqam tizimda mavjud!!!", false);
             User user = new User();
-            List<Category> categories=new ArrayList<>();
+            List<Category> categories = new ArrayList<>();
             for (Integer integer : userDto.getCategoryId()) {
                 categories.add(categoryRepository.findById(integer).get());
             }
@@ -151,11 +161,10 @@ public class UserService {
             user.setRoles(singletonList(roleRepository.getById(userDto.getRoleId())));
             userRepository.save(user);
             return new ApiResponse("Saqlandi", true);
+        } catch (Exception e) {
+            return new ApiResponse("Xatolik yuz berdi, birozdan keyin qayta urinib ko'ring", false);
         }
-        catch(Exception e){
-            return new ApiResponse("Xatolik yuz berdi, birozdan keyin qayta urinib ko'ring",false);
-        }
-}
+    }
 
 
     // user rasm qoyish uchun
@@ -178,16 +187,26 @@ public class UserService {
         );
         SecurityContextHolder.getContext().setAuthentication(authenticate);
         User principal = (User) authenticate.getPrincipal();
+
+
         return jwtProvider.generateJwtToken(principal);
     }
 
     public ApiResponse edit(User user, SignUp signUp) {
         try {
+            String phone = user.getPhoneNumber();
+            if ( !signUp.getPhoneNumber().equals(phone)) {
+                user.setPhoneNumber(signUp.getPhoneNumber());
+            }
+            if (!signUp.getPassword().equalsIgnoreCase("xyz"))
+                user.setPassword(    passwordEncoder.encode(signUp.getPassword()));
+
+
             user.setLastName(signUp.getLastName().equals("") ? user.getLastName() : signUp.getLastName());
             user.setFirstName(signUp.getFirstName().equals("") ? user.getFirstName() : signUp.getFirstName());
-            if (!signUp.getPassword().equals(""))
-                user.setPassword(passwordEncoder.encode(signUp.getPassword()));
-            user.setPhoneNumber(signUp.getPhoneNumber().equals("") ? user.getPhoneNumber() : signUp.getPhoneNumber());
+
+
+
             user.setFatherName(signUp.getFatherName().equals("") ? user.getFatherName() : signUp.getFatherName());
             user.setEmail(signUp.getEmail().equals("") ? user.getEmail() : signUp.getEmail());
             user.setLanguages(signUp.getLanguages().equals("") ? user.getLanguages() : signUp.getLanguages());
@@ -203,17 +222,26 @@ public class UserService {
             informationUserRepository.save(informationUser);
             userRepository.save(user);
 
-            System.out.println("----->>" + signUp.getPassword());
-            System.out.println("----->>" + signUp.getPhoneNumber());
-            System.out.println("----->>" + signUp.getFirstName());
-            System.out.println("----->>" + signUp.getLastName());
-            System.out.println("----->>" + signUp.getFatherName());
-            System.out.println("----->>" + signUp.getWorkExperience());
-            System.out.println("----->>" + signUp.getEmail());
+            System.out.println("Password:" + signUp.getPassword());
+            System.out.println("phone:" + signUp.getPhoneNumber());
+            System.out.println("tt->" + "");
             return new ApiResponse("Muvaffaqiyatli bajarildi", true);
+
+
         } catch (Exception e) {
-            return new ApiResponse("Xatolik yuz berdi", false);
+            return new ApiResponse("tamom");
         }
+
+
+//            System.out.println("----->>" + signUp.getLastName());
+//            System.out.println("----->>" + signUp.getFatherName());
+//            System.out.println("----->>" + signUp.getWorkExperience());
+//            System.out.println("----->>" + signUp.getEmail());
+//            System.out.println("popop------" + user);
+
+//        } catch (Exception e) {
+//            return new ApiResponse("Xatolik yuz berdi", false);
+//        }
     }
 
     @SneakyThrows
@@ -222,6 +250,7 @@ public class UserService {
             User user = new User();
             boolean exists1 = userRepository.existsByPhoneNumber(signUp.getPhoneNumber());
             if (exists1)
+                return new ApiResponse("Telefon raqam avval kiritilgan", false);
             if (signUp.getUserId() != null) {
                 user = userRepository.getById(signUp.getUserId());
             }
@@ -243,7 +272,8 @@ public class UserService {
             informationUser.setUserStatus(UserStatus.EDIT);
             informationUser.setRedactorAndReviewer(userRepository.getById(signUp.getUserId()));
             informationUserRepository.save(informationUser);
-
+            System.out.println("password " + signUp.getPassword());
+            System.out.println("phone  " + signUp.getPhoneNumber());
             userRepository.save(user);
             return new ApiResponse("Successfully edited", true);
         } catch (Exception e) {
@@ -392,7 +422,7 @@ public class UserService {
             user1.setEnabled(reviewerDto.isActive());
             userRepository.save(user1);
             informationUserRepository.save(new InformationUser(user, user1, new Date(), UserStatus.ACCEPTED));
-            return new ApiResponse(reviewerDto.isActive()?"Foydalanuvchi faollashtirildi":"Foydalanuvchi bloklandi", true);
+            return new ApiResponse(reviewerDto.isActive() ? "Foydalanuvchi faollashtirildi" : "Foydalanuvchi bloklandi", true);
         }
         return new ApiResponse("Foydalanuvchi topilmadi", false);
     }
