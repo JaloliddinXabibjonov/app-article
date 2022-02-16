@@ -61,10 +61,9 @@ public class UserController {
     @SneakyThrows
     @PostMapping(value = "/registerReviewer")
     public HttpEntity<?> registerReviewer(@RequestParam String lastName, @RequestParam String firstName, @RequestParam String fathersName, @RequestParam String phoneNumber, @RequestParam String password, @RequestParam String email, @RequestParam Set<Integer> categoryIdList,
-                                          @RequestParam String workPlace, @RequestParam String workExperience, @RequestPart MultipartFile scientificWork, @RequestParam String academicDegree, @RequestParam String languages, @RequestPart MultipartFile passport) {
-        System.out.println(" register" + lastName + " " + firstName + " " + fathersName + " " + Double.valueOf(workExperience));
-        ApiResponse apiResponse = userService.registerReviewer(lastName, firstName, fathersName, phoneNumber, password, email, categoryIdList, workPlace, workExperience, scientificWork, academicDegree, languages, passport);
-
+                                          @RequestParam String workPlace, @RequestParam String workExperience,@RequestPart MultipartFile file, @RequestParam String academicDegree, @RequestParam String languages, @RequestPart MultipartFile passport) {
+        System.out.println(" register " + lastName + " " + firstName + " " + fathersName + " " + Double.valueOf(workExperience));
+        ApiResponse apiResponse = userService.registerReviewer(lastName, firstName, fathersName, phoneNumber, password, email, categoryIdList, workPlace, workExperience, file, academicDegree, languages, passport);
         return ResponseEntity.status(apiResponse.isSuccess() ? 201 : 409).body(apiResponse);
     }
 
@@ -105,6 +104,7 @@ public class UserController {
     @GetMapping("/me")
     public HttpEntity<?> me(@CurrentUser User user) {
         User user1 = userRepository.findById(user.getId()).get();
+        System.out.println("    ---"+user);
         return ResponseEntity.status(user != null ? 200 : 409).body(user1);
     }
 

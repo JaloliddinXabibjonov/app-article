@@ -3,6 +3,7 @@ package com.example.article.servise;
 import com.example.article.entity.Attachment;
 import com.example.article.entity.AttachmentContent;
 import com.example.article.payload.ApiResponse;
+import com.example.article.payload.MultipartForm;
 import com.example.article.repository.AttachmentContentRepository;
 import com.example.article.repository.AttachmentRepository;
 import lombok.SneakyThrows;
@@ -13,6 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileCopyUtils;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
@@ -31,6 +33,7 @@ public class AttachmentService {
     public ApiResponse upload(MultipartHttpServletRequest request) throws IOException {
         List<UUID> photoIds = new ArrayList<>();
         Iterator<String> fileNames = request.getFileNames();
+        while (fileNames.hasNext()){
         MultipartFile file = request.getFile(fileNames.next());
         Attachment attechment = new Attachment();
         attechment.setOriginalName(file.getOriginalFilename());
@@ -43,6 +46,7 @@ public class AttachmentService {
         content.setBytes(file.getBytes());
         attachmentContentRepository.save(content);
         photoIds.add(attechment.getId());
+        }
         return new ApiResponse("ok", true, photoIds);
     }
 
@@ -68,5 +72,8 @@ public class AttachmentService {
         attachmentContentRepository.save(content);
         return attechment;
     }
+
+
+
 
 }
