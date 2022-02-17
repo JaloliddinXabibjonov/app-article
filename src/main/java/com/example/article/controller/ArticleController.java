@@ -180,5 +180,10 @@ public class ArticleController {
     public List<Article> getAll(){
         return articleService.getAll();
     }
+
+    @GetMapping("/articleInfoForAdmin/{id}")
+    public ArticleInfo getArticleInfoForAdmin(@PathVariable UUID id){
+        return articleService.getArticleInfo(id);
+    }
 }
 

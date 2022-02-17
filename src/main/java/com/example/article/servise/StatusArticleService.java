@@ -56,7 +56,7 @@ public class StatusArticleService {
         for (Role role : user.getRoles()) {
             roles=role.getRoleName();
         }
-        informationArticleRepository.save(new InformationArticle(user, byId, new Date(), getUsersRoleId.isConfirm() ? Watdou.CONFIRM : Watdou.UN_CONFIRM,ArticleStatusName.NULL,
+        informationArticleRepository.save(new InformationArticle(user, byId, new Date(), getUsersRoleId.isConfirm() ? Watdou.CONFIRM : Watdou.UN_CONFIRM,getUsersRoleId.isConfirm() ?ArticleStatusName.CONFIRM:ArticleStatusName.UN_CONFIRM,
                                                                  roles+": "+user.getLastName()+" "+user.getFirstName()+" tomonidan maqola aktivlashtiril"+(getUsersRoleId.isConfirm()?"":"ma")+"di" ));
         return new ApiResponse(byId.isConfirm() ? "confirmed" : "not confirmed", true);
 

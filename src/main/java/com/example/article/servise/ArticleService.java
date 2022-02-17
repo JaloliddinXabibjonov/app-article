@@ -53,7 +53,7 @@ public class ArticleService {
         Optional<Category> category = categoryRepository.findById(categoryId);
         if (category.isPresent()) {
             for (String s : author) {
-                Authors authors=new Authors();
+                Authors authors = new Authors();
                 authors.setFullName(s);
                 authors.setCode(UUID.randomUUID());
                 authorsRepository.save(authors);
@@ -160,12 +160,11 @@ public class ArticleService {
     // bu bittalab userlarni articlga briktiradi
     public ApiResponse addAndRemoveRedactor(User user, AddRedactorDto addRedactorDto) {
         long deadline;
-        if (addRedactorDto.getDeadline()==777) {
+        if (addRedactorDto.getDeadline() == 777) {
             DeadlineDefaultValue value = deadlineDefaultValueRepository.getById(1);
-            deadline=value.getDeadline()*86400000;
-        }
-        else {
-            deadline=addRedactorDto.getDeadline()*86400000;
+            deadline = value.getDeadline() * 86400000;
+        } else {
+            deadline = addRedactorDto.getDeadline() * 86400000;
         }
         Article article = articleRepository.getById(addRedactorDto.getArticle());
         User userId = userRepository.findAllByEnabledTrueAndIdAndDeleteFalse(addRedactorDto.getRedactorsAndReviewer());
@@ -173,18 +172,18 @@ public class ArticleService {
                 .getRedactorsAndReviewer());
         if (user.getId()
                 .equals(informationArticleRepository.findFirstByArticleIdOrderByCreatedAtDesc(article.getId())
-                                                    .getChekUser()
-                                                    .getId())) {
-        if (!addRedactorDto.isAddAndRemove()) {
-            informationArticleRepository.save(new InformationArticle(user, userId, article, new Date(), addRedactorDto
-                    .isAddAndRemove() ? Watdou.ADD : Watdou.DELETE, ArticleStatusName.NULL));
-            editorArticleRepository.deleteByArticleIdAndRedactorId(article.getId(), userId.getId());
-            return new ApiResponse("Articledan shu  user o'chirildi", true);
-        }
-        if (editorsArticle.isEmpty()) {
+                        .getChekUser()
+                        .getId())) {
+            if (!addRedactorDto.isAddAndRemove()) {
+                informationArticleRepository.save(new InformationArticle(user, userId, article, new Date(), addRedactorDto
+                        .isAddAndRemove() ? Watdou.ADD : Watdou.DELETE, ArticleStatusName.NULL));
+                editorArticleRepository.deleteByArticleIdAndRedactorId(article.getId(), userId.getId());
+                return new ApiResponse("Articledan shu  user o'chirildi", true);
+            }
+            if (editorsArticle.isEmpty()) {
 //            if (addRedactorDto.isAddAndRemove()) {
                 Integer roleId = userRepository.findByUserIdAndDeleteFalse(userId.getId());
-                editorArticleRepository.save(new EditorsArticle(user, userId, article, roleId,new java.sql.Date(deadline)));
+                editorArticleRepository.save(new EditorsArticle(user, userId, article, roleId, new java.sql.Date(deadline)));
                 informationArticleRepository.save(new InformationArticle(user, userId, article, new Date(), addRedactorDto
                         .isAddAndRemove() ? Watdou.ADD : Watdou.DELETE, ArticleStatusName.NULL));
                 return new ApiResponse("Maqolaga user biriktirildi", true);
@@ -265,10 +264,10 @@ public class ArticleService {
 
     //    // Articlaga redactor yo reviewrlar tomondan beriladigon statuslar
     @SneakyThrows
-    public ApiResponse statusesGivenToTheArticleByTheEditors(UUID userId, String description,UUID articleId, String status, MultipartFile file) {
-        System.out.println(" papka    --"+file);
+    public ApiResponse statusesGivenToTheArticleByTheEditors(UUID userId, String description, UUID articleId, String status, MultipartFile file) {
+        System.out.println(" papka    --" + file);
         InformationArticle informationArticle = informationArticleRepository.findByArticleIdAndRedactorIdAndArticleStatusName(articleId, userId, ArticleStatusName.I_ACCEPTED);
-        System.out.println("---->"+articleId);
+        System.out.println("---->" + articleId);
         User user = userRepository.findById(userId).get();
         Integer roleId = user.getRoles().get(0).getId();
         if (roleId == 3) {
@@ -277,28 +276,27 @@ public class ArticleService {
 //                return new ApiResponse("sizga berilgan vaqt tugati ", false);
 //            }
 //            else {
-                if (status.equalsIgnoreCase(ArticleStatusName.CHECK_AND_ACCEPT.name())) {
-                    informationArticleRepository.save(new InformationArticle(user, description,article, new Date(), ArticleStatusName.CHECK_AND_ACCEPT, attachmentService.upload1(file)));
+            if (status.equalsIgnoreCase(ArticleStatusName.CHECK_AND_ACCEPT.name())) {
+                informationArticleRepository.save(new InformationArticle(user, description, article, new Date(), ArticleStatusName.CHECK_AND_ACCEPT, attachmentService.upload1(file)));
 
-                    return new ApiResponse("Siz maqola tekshiruvini yakunladingiz", true);
-                } else if (status
-                        .equalsIgnoreCase(ArticleStatusName.CHECK_AND_CANCEL.name())) {
-                    informationArticleRepository.save(new InformationArticle(user, description,article, new Date(), ArticleStatusName.CHECK_AND_CANCEL, attachmentService.upload1(file)));
-                    return new ApiResponse("Siz maqola tekshiruvini yakunladingiz", true);
-                } else if (status
-                        .equalsIgnoreCase(ArticleStatusName.CHECK_AND_RECYCLE.name())) {
-                    informationArticleRepository.save(new InformationArticle(user,description, article, new Date(), ArticleStatusName.CHECK_AND_RECYCLE, attachmentService.upload1(file)));
-                    return new ApiResponse("Maqola qayta ishlashaga yuborildi", true);
-                }
+                return new ApiResponse("Siz maqola tekshiruvini yakunladingiz", true);
+            } else if (status
+                    .equalsIgnoreCase(ArticleStatusName.CHECK_AND_CANCEL.name())) {
+                informationArticleRepository.save(new InformationArticle(user, description, article, new Date(), ArticleStatusName.CHECK_AND_CANCEL, attachmentService.upload1(file)));
+                return new ApiResponse("Siz maqola tekshiruvini yakunladingiz", true);
+            } else if (status
+                    .equalsIgnoreCase(ArticleStatusName.CHECK_AND_RECYCLE.name())) {
+                informationArticleRepository.save(new InformationArticle(user, description, article, new Date(), ArticleStatusName.CHECK_AND_RECYCLE, attachmentService.upload1(file)));
+                return new ApiResponse("Maqola qayta ishlashaga yuborildi", true);
+            }
 //            }
             return new ApiResponse("ok", true);
-        }
-        else if (roleId == 2) {
+        } else if (roleId == 2) {
             Article article = articleRepository.getById(informationArticle.getArticle().getId());
             if (informationArticle.getDeadline() <= System.currentTimeMillis()) {
                 return new ApiResponse("Sizga berilgan vaqt tugati ", false);
             } else {
-                informationArticleRepository.save(new InformationArticle(user, description,article, new Date(), ArticleStatusName.PREPARED_FOR_PUBLICATION, attachmentService.upload1(file)));
+                informationArticleRepository.save(new InformationArticle(user, description, article, new Date(), ArticleStatusName.PREPARED_FOR_PUBLICATION, attachmentService.upload1(file)));
                 return new ApiResponse("Siz maqolani tasdiqladingiz", true);
             }
         }
@@ -351,7 +349,7 @@ public class ArticleService {
 
     // adminstratorlar uchun articlarni statusiga qarab get qilish
     public ApiResponse newMyArticle(User user, ArticleStatusInAdmins articleStatusInAdmins) {
-        System.out.println(">>>>>"+articleStatusInAdmins.getStatus());
+        System.out.println(">>>>>" + articleStatusInAdmins.getStatus());
         if (user == null) {
             return new ApiResponse("Bunday foydalanuvchi mavjud emas!");
         }
@@ -408,7 +406,7 @@ public class ArticleService {
                 Date date = new Date(informationArticle.getCreatedAt().getTime());
                 SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm");
                 String sendDate = dateFormat.format(date);
-                boolean exists = informationArticleRepository.existsByArticleIdAndArticleStatusNameAndRedactorId(informationArticle.getArticle().getId(), ArticleStatusName.PREPARED_FOR_PUBLICATION, user.getId() );
+                boolean exists = informationArticleRepository.existsByArticleIdAndArticleStatusNameAndRedactorId(informationArticle.getArticle().getId(), ArticleStatusName.PREPARED_FOR_PUBLICATION, user.getId());
                 if (!exists) {
                     MyTasksDto myTasksDto = new MyTasksDto();
                     myTasksDto.setArticle(article);
@@ -433,8 +431,8 @@ public class ArticleService {
                 SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm");
                 String sendDate = dateFormat.format(date);
                 boolean exists = informationArticleRepository.existsByArticleIdAndRedactorIdAndArticleStatusNameOrArticleIdAndRedactorIdAndArticleStatusNameOrArticleIdAndRedactorIdAndArticleStatusName(informationArticle.getArticle().getId(), user.getId(), ArticleStatusName.CHECK_AND_ACCEPT, informationArticle.getArticle().getId(), user.getId(), ArticleStatusName.CHECK_AND_CANCEL, informationArticle.getArticle().getId(), user.getId(), ArticleStatusName.CHECK_AND_RECYCLE);
-                if (!exists){
-                    MyTasksDto myTasksDto=new MyTasksDto();
+                if (!exists) {
+                    MyTasksDto myTasksDto = new MyTasksDto();
                     myTasksDto.setArticle(article);
                     myTasksDto.setDeadLine(deadline);
                     myTasksDto.setSendDate(sendDate);
@@ -534,30 +532,38 @@ public class ArticleService {
         return new ApiResponse("Article", true, article);
     }
 
-    /**articleni necha marta korganini sanaydi*/
+    /**
+     * articleni necha marta korganini sanaydi
+     */
     public void viewsArticle(UUID articleId) {
         Article article = articleRepository.getById(articleId);
-        article.setViews(article.getViews()+1);
+        article.setViews(article.getViews() + 1);
         articleRepository.save(article);
     }
 
-    /**MAQOLANI NECHA MARTA KO`RILGANINI QAYTARADI*/
-    public Integer numberOfViews(UUID articleId){
+    /**
+     * MAQOLANI NECHA MARTA KO`RILGANINI QAYTARADI
+     */
+    public Integer numberOfViews(UUID articleId) {
         Optional<Article> articleOptional = articleRepository.findById(articleId);
         if (articleOptional.isPresent())
             return articleOptional.get().getViews();
         return 0;
     }
 
-    /**MAQOLANI ADMIN TOMONIDAN STATUSINI O`ZGARTIRISH*/
-    public ApiResponse giveStatus(User user, UUID articleId, ArticleStatusName statusName){
+    /**
+     * MAQOLANI ADMIN TOMONIDAN STATUSINI O`ZGARTIRISH
+     */
+    public ApiResponse giveStatus(User user, UUID articleId, ArticleStatusName statusName) {
         Optional<Article> optionalArticle = articleRepository.findById(articleId);
         if (optionalArticle.isEmpty())
             return new ApiResponse("Maqola topilmadi", false);
         Article article = optionalArticle.get();
         article.setArticleStatusName(statusName);
         articleRepository.save(article);
-        return new ApiResponse("Maqolaning statusi "+statusName+" ga o`zgartirldi", true);
+        informationArticleRepository.save(new InformationArticle(user, article, new Date(), article.getArticleStatusName(),
+                "Maqolaga " + article.getTitleArticle() + " status berildi"));
+        return new ApiResponse("Maqolaning statusi " + statusName + " ga o`zgartirldi", true);
     }
 
 
@@ -566,10 +572,39 @@ public class ArticleService {
     }
 
     @SneakyThrows
-    public ApiResponse editArticle(UUID id,  MultipartFile file){
-           Article article = articleRepository.getById(id);
-           article.setFile(attachmentService.upload1(file));
-           articleRepository.save(article);
-           return new ApiResponse("Muvaffaqiyatli tahrirlandi", true);
+    public ApiResponse editArticle(UUID id, MultipartFile file) {
+        Article article = articleRepository.getById(id);
+        article.setFile(attachmentService.upload1(file));
+        articleRepository.save(article);
+        return new ApiResponse("Muvaffaqiyatli tahrirlandi", true);
+    }
+
+    public ArticleInfo getArticleInfo(UUID articleId) {
+        try {
+            ArticleInfo articleInfo = new ArticleInfo();
+            articleInfo.setArticle(articleRepository.findById(articleId).get());
+            List<InformationArticle> informationArticleList = informationArticleRepository.findAllByArticleId(articleId);
+            ArticleAdminInfo articleAdminInfo = new ArticleAdminInfo();
+            List<ArticleAdminInfo> articleAdminInfoList = new ArrayList<>();
+            informationArticleList.forEach(informationArticle -> {
+                String format = new SimpleDateFormat("dd-MMM-yyyy | HH:mm").format(informationArticle.getWhenAndWho());
+                if (informationArticle.getChekUser() == null)
+                    articleAdminInfo.setAdmin(informationArticle.getRedactor());
+                else if (informationArticle.getRedactor() == null)
+                    articleAdminInfo.setAdmin(informationArticle.getChekUser());
+                else
+                    articleAdminInfo.setAdmin(informationArticle.getChekUser());
+
+                articleAdminInfo.setProcessDate(format);
+                articleAdminInfo.setStatus(informationArticle.getArticleStatusName().name());
+                articleAdminInfo.setComment(informationArticle.getDescription());
+                articleAdminInfo.setFile(informationArticle.getAttachFile());
+                articleAdminInfoList.add(articleAdminInfo);
+            });
+            articleInfo.setArticleAdminInfoList(articleAdminInfoList);
+            return articleInfo;
+        } catch (Exception e) {
+            return new ArticleInfo();
+        }
     }
 }

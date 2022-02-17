@@ -88,4 +88,8 @@ public interface InformationArticleRepository extends JpaRepository<InformationA
     List<Article> findAllByCreatedAtBetweenAndArticleStatusNameAndRedactorId(Timestamp start, Timestamp end, ArticleStatusName status, UUID redactorId);
 
     Integer countAllByArticleStatusNameAndRedactorId(ArticleStatusName articleStatusName, UUID redactor_id);
+
+    List<InformationArticle> findAllByChekUserIdAndArticleId(UUID chekUser_id, UUID article_id);
+
+//    List<InformationArticle> findAllByRedactorIdAndArticleId(UUID redactor_id, UUID article_id);
  }

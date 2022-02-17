@@ -19,5 +19,7 @@ public enum ArticleStatusName {
 
     /*********-------------------------------------*******************/
     NULL,
-    NONE
+    NONE,
+    CONFIRM,
+    UN_CONFIRM
 }
