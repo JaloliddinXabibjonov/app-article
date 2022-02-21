@@ -14,8 +14,11 @@ import java.util.UUID;
 
 public interface InformationArticleRepository extends JpaRepository<InformationArticle, UUID> {
 
-    InformationArticle findFirstByArticleIdOrderByCreatedAtDesc(UUID article_id);
+    Optional<InformationArticle> findFirstByArticleIdOrderByCreatedAtDesc(UUID article_id);
 
+    boolean existsByArticleIdAndChekUserIdAndArticleStatusName(UUID article_id, UUID chekUser_id, ArticleStatusName articleStatusName);
+    InformationArticle findFirstByArticleIdAndChekUserIdOrderByCreatedAtAsc(UUID articleId, UUID uuid);
+    @Query(value = "select * from information_article where article_id=?1",nativeQuery = true)
     List<InformationArticle> findAllByArticleId(UUID article_id);
 
     InformationArticle findByArticleId(UUID article_id);

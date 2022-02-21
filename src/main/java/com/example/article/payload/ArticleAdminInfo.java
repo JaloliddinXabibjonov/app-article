@@ -12,7 +12,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ArticleAdminInfo {
-    private User admin;
+    private String fullName;
+    private String role;
     private String processDate;
     private String status;
 
@@ -20,9 +21,5 @@ public class ArticleAdminInfo {
     private String comment;
     private Attachment file;
 
-    public ArticleAdminInfo(User admin, String processDate, String status) {
-        this.admin = admin;
-        this.processDate = processDate;
-        this.status = status;
-    }
+
 }

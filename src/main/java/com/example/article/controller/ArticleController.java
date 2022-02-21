@@ -1,5 +1,6 @@
 package com.example.article.controller;
 
+import ch.qos.logback.classic.sift.AppenderFactoryUsingJoran;
 import com.example.article.entity.Article;
 import com.example.article.entity.User;
 import com.example.article.entity.enums.ArticleStatusName;
@@ -7,11 +8,8 @@ import com.example.article.payload.*;
 import com.example.article.secret.CurrentUser;
 import com.example.article.servise.ArticleService;
 import com.example.article.servise.StatusArticleService;
-import com.example.article.utils.AppConstants;
-import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -184,6 +182,16 @@ public class ArticleController {
     @GetMapping("/articleInfoForAdmin/{id}")
     public ArticleInfo getArticleInfoForAdmin(@PathVariable UUID id){
         return articleService.getArticleInfo(id);
+    }
+
+    @GetMapping("/getById/{id}")
+    public Article getById(@PathVariable UUID id){
+        return articleService.getById(id);
+    }
+    @PostMapping("/sendSmsUserPrice")
+    public HttpEntity<?>  sendSmsUserPrice(@CurrentUser User user,@RequestBody SendSmsUserPriceDto sendSmsUserPrice){
+        ApiResponse apiResponse = articleService.sendSmsUserPrice(user, sendSmsUserPrice);
+        return ResponseEntity.status(apiResponse.isSuccess()?202:409).body(apiResponse);
     }
 }
 

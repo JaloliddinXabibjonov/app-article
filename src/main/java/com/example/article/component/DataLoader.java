@@ -49,13 +49,6 @@ public class DataLoader implements CommandLineRunner {
 
             pricesRepository.save(new Prices(1,5000));
 
-            articleRepository.save(new Article( categoryRepository.getById(1), "Tarix ", true,"dfds"));
-            articleRepository.save(new Article( categoryRepository.getById(1), "Matematika ", true,"dfds"));
-            articleRepository.save(new Article(categoryRepository.getById(1), "Fizika ", true,"dfds"));
-            articleRepository.save(new Article(categoryRepository.getById(1), "Sanoat ", true,"dfds"));
-            articleRepository.save(new Article(categoryRepository.getById(1), "Informatika ", true,"dfds"));
-            articleRepository.save(new Article( categoryRepository.getById(1), "Axborot xavfsizligi ", true,"dfds"));
-            articleRepository.save(new Article(categoryRepository.getById(1), "Tarbiya ", true,"dfds"));
             userRepository.save(
                     new User(
                             "admin",
@@ -126,10 +119,11 @@ public class DataLoader implements CommandLineRunner {
                             roleRepository.findAllByIdIn(Collections.singletonList(4)),
                             Collections.singletonList(categoryRepository.getById(1))
                     )
-            );userRepository.save(
+            );
+            userRepository.save(
                     new User(
-                            "Jajoliddin ",
-                            "Jajoliddin",
+                            "Jaloliddin ",
+                            "Jaloliddin",
                             "5",
                             "Jajoliddin@",
 
@@ -149,9 +143,14 @@ public class DataLoader implements CommandLineRunner {
                             passwordEncoder.encode("6"),
                             roleRepository.findAllByIdIn(Collections.singletonList(1)),
                             Collections.singletonList(categoryRepository.getById(1))
-
-
                     ));
+//            articleRepository.save(new Article( categoryRepository.getById(1), "Tarix ", true,"dfds" ));
+//            articleRepository.save(new Article( categoryRepository.getById(1), "Matematika ", true,"dfds"));
+//            articleRepository.save(new Article(categoryRepository.getById(1), "Fizika ", true,"dfds"));
+//            articleRepository.save(new Article(categoryRepository.getById(1), "Sanoat ", true,"dfds"));
+//            articleRepository.save(new Article(categoryRepository.getById(1), "Informatika ", true,"dfds"));
+//            articleRepository.save(new Article( categoryRepository.getById(1), "Axborot xavfsizligi ", true,"dfds"));
+//            articleRepository.save(new Article(categoryRepository.getById(1), "Tarbiya ", true,"dfds"));
         }
     }
 }

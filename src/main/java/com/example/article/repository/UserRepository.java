@@ -24,6 +24,8 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     User findAllByEnabledTrueAndIdAndDeleteFalse(UUID id);
 
+User findByEnabledTrueAndId(UUID id);
+
     List<User> findAllByRolesIdAndDeleteFalse(Integer roles_id);
 
     List<User> findAllByActiveTrueAndDeleteFalseAndRolesIdAndCategoriesId(Integer roleId, Integer categories_id);

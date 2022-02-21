@@ -194,19 +194,18 @@ public class UserService {
 
     public ApiResponse edit(User user, SignUp signUp) {
         try {
+        boolean exist=userRepository.existsByPhoneNumberAndIdNot(user.getPhoneNumber(), user.getId());
             String phone = user.getPhoneNumber();
             if ( !signUp.getPhoneNumber().equals(phone)) {
+                if (!exist)
+                    return new ApiResponse("Ushbu telefon raqam orqali avval ro`yxatdan o`tilgan",false);
+                else
                 user.setPhoneNumber(signUp.getPhoneNumber());
             }
             if (!signUp.getPassword().equalsIgnoreCase("xyz"))
                 user.setPassword(    passwordEncoder.encode(signUp.getPassword()));
-
-
             user.setLastName(signUp.getLastName().equals("") ? user.getLastName() : signUp.getLastName());
             user.setFirstName(signUp.getFirstName().equals("") ? user.getFirstName() : signUp.getFirstName());
-
-
-
             user.setFatherName(signUp.getFatherName().equals("") ? user.getFatherName() : signUp.getFatherName());
             user.setEmail(signUp.getEmail().equals("") ? user.getEmail() : signUp.getEmail());
             user.setLanguages(signUp.getLanguages().equals("") ? user.getLanguages() : signUp.getLanguages());
@@ -226,8 +225,6 @@ public class UserService {
             System.out.println("phone:" + signUp.getPhoneNumber());
             System.out.println("tt->" + "");
             return new ApiResponse("Muvaffaqiyatli bajarildi", true);
-
-
         } catch (Exception e) {
             return new ApiResponse("tamom");
         }
@@ -248,11 +245,16 @@ public class UserService {
     public ApiResponse editUserFromAdmin(User currentUser, SignUp signUp) {
         try {
             User user = new User();
-            boolean exists1 = userRepository.existsByPhoneNumber(signUp.getPhoneNumber());
-            if (exists1)
-                return new ApiResponse("Telefon raqam avval kiritilgan", false);
             if (signUp.getUserId() != null) {
                 user = userRepository.getById(signUp.getUserId());
+            }
+            System.out.println("----** "+signUp.getPhoneNumber());
+            boolean exists1 = userRepository.existsByPhoneNumberAndIdNot(signUp.getPhoneNumber(), signUp.getUserId());
+            if ( !signUp.getPhoneNumber().equals(user.getPhoneNumber())) {
+                if (!exists1)
+                    return new ApiResponse("Ushbu telefon raqam orqali avval ro`yxatdan o`tilgan",false);
+                else
+                    user.setPhoneNumber(signUp.getPhoneNumber());
             }
             if (!signUp.getPassword().equals(""))
                 user.setPassword(passwordEncoder.encode(signUp.getPassword()));
@@ -261,7 +263,7 @@ public class UserService {
             user.setFirstName(signUp.getFirstName().equals("") ? user.getFirstName() : signUp.getFirstName());
             user.setFatherName(signUp.getFatherName().equals("") ? user.getFatherName() : signUp.getFatherName());
             user.setLanguages(signUp.getLanguages().equals("") ? user.getLanguages() : signUp.getLanguages());
-            user.setPhoneNumber(signUp.getPhoneNumber().equals("") ? user.getPhoneNumber() : signUp.getPhoneNumber());
+//            user.setPhoneNumber(signUp.getPhoneNumber().equals("") ? user.getPhoneNumber() : signUp.getPhoneNumber());
             user.setAcademicDegree(signUp.getAcademicDegree().equals("") ? user.getAcademicDegree() : signUp.getAcademicDegree());
             user.setWorkExperience(signUp.getWorkExperience().equals("") ? user.getWorkExperience() : signUp.getWorkExperience());
             user.setWorkPlace(signUp.getWorkPlace().equals("") ? user.getWorkPlace() : signUp.getWorkPlace());

@@ -21,5 +21,7 @@ public enum ArticleStatusName {
     NULL,
     NONE,
     CONFIRM,
-    UN_CONFIRM
+    UN_CONFIRM,
+    ADD,
+    REMOVE
 }

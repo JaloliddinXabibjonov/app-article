@@ -3,6 +3,7 @@ package com.example.article.entity;
 import com.example.article.entity.enums.ArticleStatusName;
 import com.example.article.entity.enums.Watdou;
 import com.example.article.entity.template.AbsEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -44,7 +45,9 @@ public class InformationArticle extends AbsEntity {  //bu articldi kim va qachon
     @Enumerated(EnumType.STRING)
     private ArticleStatusName articleStatusName;   //redaktor qaysi statusni berdi redactorlar tomondan bertiladigon statuslar
 
+    @JsonIgnore
     private String massage;
+
 private String description;
     private  long deadline;
 

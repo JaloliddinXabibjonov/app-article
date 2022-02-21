@@ -48,6 +48,10 @@ public class ArticleService {
     @Autowired
     AuthorsRepository authorsRepository;
 
+
+    @Autowired
+    SmsService smsService;
+
     public ApiResponse addArticle(String description, String[] author, String titleArticle, Integer categoryId, boolean publicOrPrivate, UUID userId, MultipartFile file) throws IOException {
         Article article = new Article();
         Optional<Category> category = categoryRepository.findById(categoryId);
@@ -171,7 +175,7 @@ public class ArticleService {
         Optional<EditorsArticle> editorsArticle = editorArticleRepository.findByArticleIdAndRedactorId(addRedactorDto.getArticle(), addRedactorDto
                 .getRedactorsAndReviewer());
         if (user.getId()
-                .equals(informationArticleRepository.findFirstByArticleIdOrderByCreatedAtDesc(article.getId())
+                .equals(informationArticleRepository.findFirstByArticleIdOrderByCreatedAtDesc(article.getId()).get()
                         .getChekUser()
                         .getId())) {
             if (!addRedactorDto.isAddAndRemove()) {
@@ -185,7 +189,8 @@ public class ArticleService {
                 Integer roleId = userRepository.findByUserIdAndDeleteFalse(userId.getId());
                 editorArticleRepository.save(new EditorsArticle(user, userId, article, roleId, new java.sql.Date(deadline)));
                 informationArticleRepository.save(new InformationArticle(user, userId, article, new Date(), addRedactorDto
-                        .isAddAndRemove() ? Watdou.ADD : Watdou.DELETE, ArticleStatusName.NULL));
+                        .isAddAndRemove() ? Watdou.ADD : Watdou.DELETE, addRedactorDto
+                        .isAddAndRemove() ? ArticleStatusName.ADD : ArticleStatusName.REMOVE));
                 return new ApiResponse("Maqolaga user biriktirildi", true);
             }
         }
@@ -566,7 +571,6 @@ public class ArticleService {
         return new ApiResponse("Maqolaning statusi " + statusName + " ga o`zgartirldi", true);
     }
 
-
     public List<Article> getAll() {
         return articleRepository.findAll();
     }
@@ -584,27 +588,57 @@ public class ArticleService {
             ArticleInfo articleInfo = new ArticleInfo();
             articleInfo.setArticle(articleRepository.findById(articleId).get());
             List<InformationArticle> informationArticleList = informationArticleRepository.findAllByArticleId(articleId);
-            ArticleAdminInfo articleAdminInfo = new ArticleAdminInfo();
             List<ArticleAdminInfo> articleAdminInfoList = new ArrayList<>();
-            informationArticleList.forEach(informationArticle -> {
+            for (InformationArticle informationArticle : informationArticleList) {
+                ArticleAdminInfo articleAdminInfo = new ArticleAdminInfo();
                 String format = new SimpleDateFormat("dd-MMM-yyyy | HH:mm").format(informationArticle.getWhenAndWho());
-                if (informationArticle.getChekUser() == null)
-                    articleAdminInfo.setAdmin(informationArticle.getRedactor());
-                else if (informationArticle.getRedactor() == null)
-                    articleAdminInfo.setAdmin(informationArticle.getChekUser());
+                if (informationArticle.getChekUser() == null) {
+                    articleAdminInfo.setFullName(informationArticle.getRedactor().getLastName() + " " + informationArticle.getRedactor().getFirstName());
+                    articleAdminInfo.setRole(informationArticle.getRedactor().getRoles().get(0).getRoleName());
+                }
+                else if (informationArticle.getRedactor() == null) {
+                    articleAdminInfo.setFullName(informationArticle.getChekUser().getLastName() + " " + informationArticle.getChekUser().getFirstName());
+                    articleAdminInfo.setRole(informationArticle.getChekUser().getRoles().get(0).getRoleName());
+                }else {
+                    articleAdminInfo.setFullName(informationArticle.getChekUser().getLastName() + " " + informationArticle.getChekUser().getFirstName());
+                    articleAdminInfo.setRole(informationArticle.getChekUser().getRoles().get(0).getRoleName());
+                }articleAdminInfo.setProcessDate(format);
+                if (informationArticle.getArticleStatusName().equals(ArticleStatusName.ADD))
+                    articleAdminInfo.setStatus(informationArticle.getArticleStatusName().name() + " (" + informationArticle.getRedactor().getLastName() + " " + informationArticle.getRedactor().getFirstName() + ")");
                 else
-                    articleAdminInfo.setAdmin(informationArticle.getChekUser());
-
-                articleAdminInfo.setProcessDate(format);
-                articleAdminInfo.setStatus(informationArticle.getArticleStatusName().name());
+                    articleAdminInfo.setStatus(informationArticle.getArticleStatusName().name());
                 articleAdminInfo.setComment(informationArticle.getDescription());
                 articleAdminInfo.setFile(informationArticle.getAttachFile());
                 articleAdminInfoList.add(articleAdminInfo);
-            });
+            }
             articleInfo.setArticleAdminInfoList(articleAdminInfoList);
             return articleInfo;
         } catch (Exception e) {
             return new ArticleInfo();
         }
+    }
+
+    public Article getById(UUID articleId) {
+        Optional<Article> optionalArticle = articleRepository.findById(articleId);
+        return optionalArticle.orElseGet(Article::new);
+    }
+
+    public ApiResponse sendSmsUserPrice(User CurrentUser, SendSmsUserPriceDto sendSmsUserPriceDto) {
+        try {
+            Article article = articleRepository.findByConfirmTrueAndId(sendSmsUserPriceDto.getArticleId());
+            User user = userRepository.findByEnabledTrueAndId(article.getUser().getId());
+
+            article.setPrice(sendSmsUserPriceDto.getNewPrice());
+
+            smsService.sendSms(user.getPhoneNumber(), sendSmsUserPriceDto.getText());
+            articleRepository.save(article);
+
+
+            return new ApiResponse("ok", true, user);
+        } catch (Exception e) {
+
+            return new ApiResponse("tamom ", false);
+        }
+
     }
 }
