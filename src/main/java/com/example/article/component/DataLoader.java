@@ -47,7 +47,7 @@ public class DataLoader implements CommandLineRunner {
             categoryRepository.save(new Category("matem"));
             categoryRepository.save(new Category("iqtisod"));
 
-            pricesRepository.save(new Prices(1,5000));
+            pricesRepository.save(new Prices(1,10000, 20000, 40000,20000,25000));
 
             userRepository.save(
                     new User(

@@ -17,13 +17,14 @@ import java.util.UUID;
 
 public interface UserRepository extends JpaRepository<User, UUID> {
 
+    boolean existsByCode(int code);
     boolean existsByPhoneNumberAndIdNot(String phoneNumber,UUID id);
     Optional<User> findByPhoneNumberAndDeleteFalse(String phoneNumber);
 
     List<User> findAllByEnabledTrueAndIdInAndDeleteFalse(Collection<UUID> id);
 
     User findAllByEnabledTrueAndIdAndDeleteFalse(UUID id);
-
+boolean  existsByPasswordAndIdNot(String password, UUID id);
 User findByEnabledTrueAndId(UUID id);
 
     List<User> findAllByRolesIdAndDeleteFalse(Integer roles_id);
@@ -34,6 +35,7 @@ User findByEnabledTrueAndId(UUID id);
     @Query(value = "select ur.roles_id from users_roles ur where users_id=?1", nativeQuery = true)
     Integer findByUserIdAndDeleteFalse(UUID id);
 
+//    @Query(value = "select * from users inner join users_roles on users.id = users_roles.users_id and users_roles.roles_id=?1 inner join users_categories uc on users.id=uc.users_id and uc.categories_id=?2 and users.delete=false",nativeQuery = true)
     List<User> findAllByEnabledTrueAndRolesIdAndCategoriesIdAndDeleteFalse(Integer roleId, Integer categories_id);
 
 //    List<User> findAllByRolesIdAndCategoriesId(Integer roles_id, Integer categories_id);
@@ -72,4 +74,6 @@ User findByEnabledTrueAndId(UUID id);
     boolean existsByEnabledAndIdAndDeleteFalse(boolean enabled, UUID id);
 
     boolean existsByPhoneNumber(String phoneNumber);
+
+   Optional<User> findByCode(Integer code);
 }

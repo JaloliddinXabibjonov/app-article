@@ -3,12 +3,15 @@ package com.example.article.entity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Type;
 import org.yaml.snakeyaml.events.Event;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import java.util.UUID;
 
 @Entity
 @Data
@@ -16,12 +19,16 @@ import javax.persistence.Id;
 @NoArgsConstructor
 public class PricesOfArticle {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    @Type(type = "org.hibernate.type.PostgresUUIDType")
+    @GeneratedValue(generator = "uuid2")
+    @GenericGenerator(name = "uuid2", strategy = "org.hibernate.id.UUIDGenerator")
+    private UUID id;
 
-    private double sahifaNarxi;
-    private double bittaJurnaldaChopEtishNarxi;
-    private double bittaBosmaJunalNarxi;
-    private double bittaSertifikatNarxi;
-    private double doi;
+    private int sahifaSoni;
+    private int JurnallardaChopEtishSoni;
+    private int BosmaJurnallarSoni;
+    private int SertifikatlarSoni;
+    private boolean doi;
+
+    private double price;
 }

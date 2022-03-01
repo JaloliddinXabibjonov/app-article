@@ -3,6 +3,7 @@ package com.example.article.repository;
 import com.example.article.entity.Article;
 import com.example.article.entity.EditorsArticle;
 import com.example.article.entity.Role;
+import com.example.article.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -38,10 +39,11 @@ public interface EditorArticleRepository extends JpaRepository<EditorsArticle, U
     List<EditorsArticle> findAllByArticleIdAndRoleIdAndRedactorIdIn(UUID article_id, Integer roleId, List<UUID> redactor_id);
 
 
-    List<EditorsArticle> findAllByArticleIdAndRoleId(UUID article_id, Integer roleId);
+//    List<EditorsArticle> findAllByArticleIdAndRoleId(UUID article_id, Integer roleId);
 
     List<EditorsArticle>findAllByRedactorId(UUID redactor_id);
 
+    List<User> findAllByArticleIdAndRoleId(UUID article_id, Integer roleId);
 
     //   Integer countAllByRedactorIdAnd
 

@@ -12,9 +12,16 @@ public class Prices {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
     @Column(nullable = false)
-    private long priceOfArticle;
+    private double sahifaNarxi;
+    @Column(nullable = false)
+    private double bittaJurnaldaChopEtishNarxi;
+    @Column(nullable = false)
+    private double bittaBosmaJunalNarxi;
+    @Column(nullable = false)
+    private double bittaSertifikatNarxi;
+    @Column(nullable = false)
+    private double doi;
 
 
 }

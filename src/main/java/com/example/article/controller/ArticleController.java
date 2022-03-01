@@ -10,10 +10,12 @@ import com.example.article.servise.ArticleService;
 import com.example.article.servise.StatusArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.print.attribute.standard.Media;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
@@ -29,10 +31,14 @@ public class ArticleController {
     @Autowired
     StatusArticleService statusArticleService;
 
-
+    //    @PostMapping(value = "/addArticle")
+//    public HttpEntity<ApiResponse> save(@RequestParam(required = false) Integer sahifaSoni,@RequestParam(required = false) Double price,@RequestParam(required = false) Integer jurnaldaChopEtishSoni, @RequestParam(required = false) Integer bosmaJurnalSoni, @RequestParam(required = false) Integer sertifikatSoni, @RequestParam Boolean doi, @RequestParam(required = false) String description, @RequestParam String[] author, @RequestParam String titleArticle, @RequestParam Integer categoryId, @RequestParam boolean publicOrPrivate, @RequestParam UUID userId, @RequestPart MultipartFile file) throws IOException {
+//        ApiResponse apiResponse= articleService.addArticle(sahifaSoni,price,jurnaldaChopEtishSoni, bosmaJurnalSoni, sertifikatSoni, doi,description, author, titleArticle, categoryId, publicOrPrivate, userId, file);
+//        return ResponseEntity.status(apiResponse.isSuccess() ? 201 : 409).body(apiResponse);
+//    }
     @PostMapping(value = "/addArticle")
-    public HttpEntity<ApiResponse> save(@RequestParam String description, @RequestParam String[] author, @RequestParam String titleArticle, @RequestParam Integer categoryId, @RequestParam boolean publicOrPrivate, @RequestParam UUID userId, @RequestPart MultipartFile file) throws IOException {
-        ApiResponse apiResponse= articleService.addArticle(description, author, titleArticle, categoryId, publicOrPrivate, userId, file);
+    public HttpEntity<ApiResponse> save(@RequestBody AddArticleDto dto, @CurrentUser User user, @RequestPart MultipartFile file) throws IOException {
+        ApiResponse apiResponse = articleService.addArticle(dto, user, file);
         return ResponseEntity.status(apiResponse.isSuccess() ? 201 : 409).body(apiResponse);
     }
 
@@ -153,8 +159,8 @@ public class ArticleController {
     }
 
     @PostMapping("/givenStatus")
-    public HttpEntity<?> statusesGivenToTheArticleByTheEditors(@RequestParam UUID userId,@RequestParam(required = false) String description, @RequestParam UUID articleId, @RequestParam String status, @RequestPart(required = false) MultipartFile file) {
-        ApiResponse apiResponse = articleService.statusesGivenToTheArticleByTheEditors(userId, description,articleId, status, file);
+    public HttpEntity<?> statusesGivenToTheArticleByTheEditors(@RequestParam UUID userId, @RequestParam(required = false) String description, @RequestParam UUID articleId, @RequestParam String status, @RequestPart(required = false) MultipartFile file) {
+        ApiResponse apiResponse = articleService.statusesGivenToTheArticleByTheEditors(userId, description, articleId, status, file);
         return ResponseEntity.status(apiResponse.isSuccess() ? 200 : 409).body(apiResponse);
     }
 
@@ -164,34 +170,66 @@ public class ArticleController {
     }
 
     @GetMapping("/numberOfViews/{id}")
-    public Integer numberOfViews(@PathVariable UUID id){
+    public Integer numberOfViews(@PathVariable UUID id) {
         return articleService.numberOfViews(id);
     }
 
-    @PostMapping("/giveStatus/{articleId}/{status}")
-    public HttpEntity<?>  giveStatus(@CurrentUser User user, UUID articleId, ArticleStatusName status){
-        ApiResponse apiResponse = articleService.giveStatus(user, articleId, status);
-        return ResponseEntity.status(apiResponse.isSuccess()?202:409).body(apiResponse);
+    @PostMapping(value = "/giveStatus")
+    public HttpEntity<?> giveStatus(@CurrentUser User user, @ModelAttribute GiveStatusDto statusDto, @RequestPart(required = false) MultipartFile file) {
+        ApiResponse apiResponse = articleService.giveStatus(user, statusDto, file);
+        return ResponseEntity.status(apiResponse.isSuccess() ? 202 : 409).body(apiResponse);
     }
 
     @GetMapping("/all")
-    public List<Article> getAll(){
+    public List<Article> getAll() {
         return articleService.getAll();
     }
 
     @GetMapping("/articleInfoForAdmin/{id}")
-    public ArticleInfo getArticleInfoForAdmin(@PathVariable UUID id){
+    public ArticleInfo getArticleInfoForAdmin(@PathVariable UUID id) {
         return articleService.getArticleInfo(id);
     }
 
     @GetMapping("/getById/{id}")
-    public Article getById(@PathVariable UUID id){
+    public Article getById(@PathVariable UUID id) {
         return articleService.getById(id);
     }
+
     @PostMapping("/sendSmsUserPrice")
-    public HttpEntity<?>  sendSmsUserPrice(@CurrentUser User user,@RequestBody SendSmsUserPriceDto sendSmsUserPrice){
+    public HttpEntity<?> sendSmsUserPrice(@CurrentUser User user, @RequestBody SendSmsUserPriceDto sendSmsUserPrice) {
         ApiResponse apiResponse = articleService.sendSmsUserPrice(user, sendSmsUserPrice);
-        return ResponseEntity.status(apiResponse.isSuccess()?202:409).body(apiResponse);
+        return ResponseEntity.status(apiResponse.isSuccess() ? 202 : 409).body(apiResponse);
+    }
+
+    @GetMapping("/myPublishedArticles")
+    public List<Article> getMyPublishedArticles(@CurrentUser User user) {
+        return articleService.getMyPublishedArticles(user);
+    }
+
+
+    @GetMapping("/myCanceledArticles")
+    public List<Article> getMyCanceledArticles(@CurrentUser User user) {
+        return articleService.getMyCanceledArticles(user);
+    }
+
+    @GetMapping("/myPreparedForPublicationArticles")
+    public List<Article> getMyPreparedForPublicationArticles(@CurrentUser User user) {
+        return articleService.getMyPreparedForPublicationArticles(user);
+    }
+
+    @GetMapping("/myCheckingArticles")
+    public List<Article> getMyCheckingArticles(@CurrentUser User user) {
+        return articleService.getMyCheckingArticles(user);
+    }
+
+    @GetMapping("/myRejectedArticles")
+    public List<Article> getMyRejectedArticles(@CurrentUser User user) {
+        return articleService.getMyRejectedArticles(user);
+    }
+
+    @GetMapping("/myCopyrightedArticles")
+    public List<Article> getMyCopyrightedArticles(@CurrentUser User user){
+        return articleService.getMyCopyRightedArticles(user);
     }
 }
 

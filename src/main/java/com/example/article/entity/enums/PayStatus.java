@@ -5,8 +5,6 @@ import lombok.Setter;
 
 @Getter
 public enum PayStatus {
-
     INCOME,
-    OUTCOME,
-
+    OUTCOME
 }

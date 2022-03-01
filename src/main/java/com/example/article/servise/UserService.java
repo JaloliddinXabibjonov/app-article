@@ -6,13 +6,20 @@ import com.example.article.entity.enums.ArticleStatusName;
 import com.example.article.entity.enums.RoleName;
 import com.example.article.entity.enums.UserStatus;
 import com.example.article.entity.enums.Watdou;
+import com.example.article.entity.template.AbsEntity;
 import com.example.article.payload.*;
 import com.example.article.repository.*;
 import com.example.article.secret.JwtProvider;
 import com.example.article.utils.AppConstants;
 import com.example.article.utils.CommonUtills;
+import com.google.api.core.ApiFuture;
+import com.google.cloud.firestore.Firestore;
+import com.google.cloud.firestore.WriteResult;
+import com.google.firebase.cloud.FirestoreClient;
 import lombok.SneakyThrows;
+import org.antlr.v4.misc.Graph;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringApplication;
 import org.springframework.data.domain.Page;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,12 +27,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import static java.util.Collections.*;
@@ -68,7 +77,6 @@ public class UserService {
     @Autowired
     InformationUserRepository informationUserRepository;
 
-
     @Autowired
     DeadlineAdministratorRepository deadlineAdministratorRepository;
 
@@ -81,10 +89,26 @@ public class UserService {
             user.setPhoneNumber(signUp.getPhoneNumber());
             user.setPassword(passwordEncoder.encode(signUp.getPassword()));
             user.setRoles(roleRepository.findAllByRoleNameIn(singleton(RoleName.ROLE_USER.name())));
+           user.setFirebaseToken(signUp.getFirebaseToken());
+
             userRepository.save(user);
             System.out.println("telefon raqam" + signUp.getPhoneNumber());
             System.out.println("password " + signUp.getPassword());
+
+//            var crudDto = new CrudDto();
+//            crudDto.setEmail(signUp.getEmail());
+//            crudDto.setFatherName(signUp.getFatherName());
+//            crudDto.setFirstName(signUp.getFirstName());
+//            crudDto.setPhoneNumber(signUp.getPhoneNumber());
+//
+//
+//            Firestore dbFirestore = FirestoreClient.getFirestore();
+//            ApiFuture<WriteResult> collectionsApiFuture = dbFirestore.collection("crud_user").document("rfgsfse").set(crudDto);
+//            System.out.println(user.getId().toString());
+
             return (jwtProvider.generateJwtToken(user));
+
+
         }
         return ("User is already exist");
     }
@@ -134,13 +158,13 @@ public class UserService {
         user.setEmail(signUp.getEmail());
 //                    user.setPhotos(Collections.singletonList(attachmentRepository.getById(signUp.getPhotoId())));
         userRepository.save(user);
-        return new ApiResponse("Saved", true);
+        return new ApiResponse("Saqlandi", true);
     }
 
     /**
      * ADMIN TOMONIDAN YANGI USER QO`SHISH
      */
-    public ApiResponse addEmployee(UserDto userDto) {
+    public ApiResponse addEmployee(UserDto userDto) throws ExecutionException, IllegalAccessException {
         try {
             boolean exists = userRepository.existsByPhoneNumber(userDto.getPhoneNumber());
             if (exists)
@@ -159,11 +183,41 @@ public class UserService {
             user.setEmail(userDto.getEmail());
             user.setLanguages(userDto.getLanguages());
             user.setRoles(singletonList(roleRepository.getById(userDto.getRoleId())));
+
+            CrudDto crudDto = new CrudDto();
+            crudDto.setEmail(userDto.getEmail());
+            crudDto.setFatherName(userDto.getFatherName());
+            crudDto.setFirstName(userDto.getFirstName());
+            crudDto.setPhoneNumber(userDto.getPhoneNumber());
+
+
+            Firestore dbFirestore = FirestoreClient.getFirestore();
+            ApiFuture<WriteResult> collectionsApiFuture = dbFirestore.collection("crud_user").document("rfgsfse").set(crudDto);
+            System.out.println(user.getId().toString());
             userRepository.save(user);
+
+
             return new ApiResponse("Saqlandi", true);
         } catch (Exception e) {
             return new ApiResponse("Xatolik yuz berdi, birozdan keyin qayta urinib ko'ring", false);
         }
+    }
+
+
+    public String createCRUD(SignIn crud) throws ExecutionException, InterruptedException {
+        try {
+            Firestore dbFirestore = FirestoreClient.getFirestore();
+            ApiFuture<WriteResult> collectionsApiFuture = dbFirestore.collection("crud_user").document("777").set(crud);
+            return "oxshadi";
+        } catch (Exception e) {
+
+            return "xato";
+        }
+
+
+//        return collectionsApiFuture.get().getUpdateTime().toString();
+
+
     }
 
 
@@ -192,18 +246,19 @@ public class UserService {
         return jwtProvider.generateJwtToken(principal);
     }
 
+
     public ApiResponse edit(User user, SignUp signUp) {
         try {
-        boolean exist=userRepository.existsByPhoneNumberAndIdNot(user.getPhoneNumber(), user.getId());
+            boolean exist = userRepository.existsByPhoneNumberAndIdNot(user.getPhoneNumber(), user.getId());
             String phone = user.getPhoneNumber();
-            if ( !signUp.getPhoneNumber().equals(phone)) {
+            if (!signUp.getPhoneNumber().equals(phone)) {
                 if (!exist)
-                    return new ApiResponse("Ushbu telefon raqam orqali avval ro`yxatdan o`tilgan",false);
+                    return new ApiResponse("Ushbu telefon raqam orqali avval ro`yxatdan o`tilgan", false);
                 else
-                user.setPhoneNumber(signUp.getPhoneNumber());
+                    user.setPhoneNumber(signUp.getPhoneNumber());
             }
             if (!signUp.getPassword().equalsIgnoreCase("xyz"))
-                user.setPassword(    passwordEncoder.encode(signUp.getPassword()));
+                user.setPassword(passwordEncoder.encode(signUp.getPassword()));
             user.setLastName(signUp.getLastName().equals("") ? user.getLastName() : signUp.getLastName());
             user.setFirstName(signUp.getFirstName().equals("") ? user.getFirstName() : signUp.getFirstName());
             user.setFatherName(signUp.getFatherName().equals("") ? user.getFatherName() : signUp.getFatherName());
@@ -248,16 +303,21 @@ public class UserService {
             if (signUp.getUserId() != null) {
                 user = userRepository.getById(signUp.getUserId());
             }
-            System.out.println("----** "+signUp.getPhoneNumber());
+            System.out.println("----** " + signUp.getPhoneNumber());
             boolean exists1 = userRepository.existsByPhoneNumberAndIdNot(signUp.getPhoneNumber(), signUp.getUserId());
-            if ( !signUp.getPhoneNumber().equals(user.getPhoneNumber())) {
-                if (!exists1)
-                    return new ApiResponse("Ushbu telefon raqam orqali avval ro`yxatdan o`tilgan",false);
+            if (!signUp.getPhoneNumber().equals(user.getPhoneNumber())) {
+                if (exists1)
+                    return new ApiResponse("Ushbu telefon raqam orqali avval ro`yxatdan o`tilgan", false);
                 else
-                    user.setPhoneNumber(signUp.getPhoneNumber());
+                    user.setPhoneNumber(signUp.getPhoneNumber().equals("") ? user.getPhoneNumber() : signUp.getPhoneNumber());
             }
-            if (!signUp.getPassword().equals(""))
-                user.setPassword(passwordEncoder.encode(signUp.getPassword()));
+            if (!signUp.getPassword().equals("")) {
+                boolean exists = userRepository.existsByPasswordAndIdNot(passwordEncoder.encode(signUp.getPassword()), user.getId());
+                if (!exists)
+                    user.setPassword(passwordEncoder.encode(signUp.getPassword()));
+                else
+                    return new ApiResponse("Ushbu parol band qilingan", false);
+            }
             user.setEmail(signUp.getEmail().equals("") ? user.getEmail() : signUp.getEmail());
             user.setLastName(signUp.getLastName().equals("") ? user.getLastName() : signUp.getLastName());
             user.setFirstName(signUp.getFirstName().equals("") ? user.getFirstName() : signUp.getFirstName());
@@ -274,10 +334,10 @@ public class UserService {
             informationUser.setUserStatus(UserStatus.EDIT);
             informationUser.setRedactorAndReviewer(userRepository.getById(signUp.getUserId()));
             informationUserRepository.save(informationUser);
-            System.out.println("password " + signUp.getPassword());
+            System.out.println("password " + signUp.getPassword() + "-----" + passwordEncoder.encode(signUp.getPassword()));
             System.out.println("phone  " + signUp.getPhoneNumber());
             userRepository.save(user);
-            return new ApiResponse("Successfully edited", true);
+            return new ApiResponse("Muvaffaqiyatli tahrirlandi", true);
         } catch (Exception e) {
             return new ApiResponse("Xatolik yuz berdi", false);
         }
@@ -289,9 +349,9 @@ public class UserService {
             User user = optionalUser.get();
             user.setDelete(true);
             userRepository.save(user);
-            return new ApiResponse("Successfully deleted", true);
+            return new ApiResponse("Muvaffaqiyatli o`chirildi", true);
         }
-        return new ApiResponse("Error", false);
+        return new ApiResponse("Xatolik yuz berdi", false);
     }
 
 //    public ApiResponse searchUser(String search, Integer roles_id, boolean enabled, Integer categoryId, Integer page, Integer size)
@@ -504,4 +564,21 @@ public class UserService {
         Optional<User> optionalUser = userRepository.findById(id);
         return optionalUser.map(user -> new ApiResponse("Muvaffaqiyatli bajarildi", true, user)).orElseGet(() -> new ApiResponse("Foydalanuvchi topilmadi", false));
     }
+
+
+    public int generatorCode() {
+        int code = (int) (Math.random() * 10000000);
+        boolean exists = userRepository.existsByCode(code);
+        if (exists) {
+            return generatorCode();
+        } else
+            return code;
+    }
+
+
+//    public List<Notifications> getMyNotifications(User user) {
+//        return userRepository.findAllBy();
+//
+//
+//    }
 }
