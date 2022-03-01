@@ -1,7 +1,7 @@
 package com.example.article.controller;
 
 import com.example.article.entity.Article;
-import com.example.article.entity.Notifications;
+
 import com.example.article.entity.User;
 import com.example.article.entity.UserStorage;
 import com.example.article.payload.*;
