@@ -1,25 +1,19 @@
 package com.example.article.controller;
 
 import com.example.article.entity.Article;
-import com.example.article.entity.Notifications;
 import com.example.article.entity.User;
 import com.example.article.entity.UserStorage;
 import com.example.article.payload.*;
 import com.example.article.repository.UserRepository;
 import com.example.article.secret.CurrentUser;
 import com.example.article.servise.UserService;
-import com.example.article.utils.AppConstants;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.method.P;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.telegram.telegrambots.meta.api.objects.passport.dataerror.PassportElementErrorUnspecified;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;

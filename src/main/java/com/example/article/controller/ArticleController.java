@@ -231,5 +231,7 @@ public class ArticleController {
     public List<Article> getMyCopyrightedArticles(@CurrentUser User user){
         return articleService.getMyCopyRightedArticles(user);
     }
+
+
 }
 

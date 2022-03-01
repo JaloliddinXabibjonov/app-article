@@ -2,9 +2,12 @@ package com.example.article.controller;
 
 import com.example.article.entity.Attachment;
 import com.example.article.entity.AttachmentContent;
+import com.example.article.payload.ApiResponse;
 import com.example.article.repository.AttachmentContentRepository;
 import com.example.article.repository.AttachmentRepository;
+import com.example.article.repository.PricesRepository;
 import com.example.article.servise.AttachmentService;
+import com.google.protobuf.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +16,9 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import java.io.IOException;
+import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.*;
 
 @RestController
@@ -22,6 +28,8 @@ public class AttachmentController {
     @Autowired
     AttachmentService attachmentService;
 
+    @Autowired
+    PricesRepository pricesRepository;
     @Autowired
     AttachmentRepository attachmentRepository;
 
@@ -79,5 +87,20 @@ public class AttachmentController {
 //        }
 
         return attachmentList;
+    }
+
+    @PostMapping("/delete/{id}")
+    public ApiResponse del(@PathVariable UUID id){
+        Optional<Attachment> optional = attachmentRepository.findById(id);
+
+        LocalTime localTime=LocalTime.now();
+        LocalTime localTime1=localTime.plus(10, ChronoUnit.SECONDS);
+
+        do {
+            localTime=LocalTime.now();
+        }
+       while (localTime.getSecond() != localTime1.getSecond());
+        pricesRepository.deleteById(2);
+    return new ApiResponse("ok", true, optional.get());
     }
 }
