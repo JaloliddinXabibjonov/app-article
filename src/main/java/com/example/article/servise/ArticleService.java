@@ -54,7 +54,11 @@ public class ArticleService {
 
     @Autowired
     PricesOfArticleRepository pricesRepository;
-//    public ApiResponse addArticle(int sahifaSoni, double price, int jurnaldaChopEtishSoni, int bosmaJurnalSoni, int sertifikatSoni, boolean doi, String description, String[] author, String titleArticle, Integer categoryId, boolean publicOrPrivate, UUID userId, MultipartFile file) throws IOException {
+
+    @Autowired
+    NotificationFromUserRepository notificationFromUserRepository;
+
+    //    public ApiResponse addArticle(int sahifaSoni, double price, int jurnaldaChopEtishSoni, int bosmaJurnalSoni, int sertifikatSoni, boolean doi, String description, String[] author, String titleArticle, Integer categoryId, boolean publicOrPrivate, UUID userId, MultipartFile file) throws IOException {
 //        System.out.println("-------"+doi);
 //        Article article = new Article();
 //        Optional<Category> category = categoryRepository.findById(categoryId);
@@ -89,7 +93,7 @@ public class ArticleService {
 //        return new ApiResponse("This subject not found", false);
 //    }
     public ApiResponse addArticle(AddArticleDto dto, User user, MultipartFile file) throws IOException {
-        System.out.println("-------"+dto.isDoi());
+        System.out.println("-------" + dto.isDoi());
         Article article = new Article();
         Optional<Category> category = categoryRepository.findById(dto.getCategoryId());
         if (category.isPresent()) {
@@ -123,7 +127,6 @@ public class ArticleService {
         }
         return new ApiResponse("Bunday fan topilmadi", false);
     }
-
 
 
 //        public ApiResponse editArticle(ArticleDto articleDto, User user ){
@@ -230,11 +233,14 @@ public class ArticleService {
             }
             if (editorsArticle.isEmpty()) {
 //            if (addRedactorDto.isAddAndRemove()) {
+                String not = "A new article has been attached to you";
+
                 Integer roleId = userRepository.findByUserIdAndDeleteFalse(userId.getId());
                 editorArticleRepository.save(new EditorsArticle(user, userId, article, roleId, new java.sql.Date(deadline)));
                 informationArticleRepository.save(new InformationArticle(user, userId, article, new Date(), addRedactorDto
                         .isAddAndRemove() ? Watdou.ADD : Watdou.DELETE, addRedactorDto
                         .isAddAndRemove() ? ArticleStatusName.ADD : ArticleStatusName.REMOVE));
+                notificationFromUserRepository.save(new NotificationFromUser(article.getId(), addRedactorDto.getRedactorsAndReviewer(), false, not));
 
                 return new ApiResponse("Maqolaga user biriktirildi", true);
             }
@@ -295,6 +301,14 @@ public class ArticleService {
             return new ApiResponse("Qabul qilindi  ", true);
         } else if (redactorResponseDto.getArticleStatus().equals(ArticleStatusName.I_DID_NOT_ACCEPT)) {
             informationArticleRepository.save(new InformationArticle(user, article, new Date(), ArticleStatusName.I_DID_NOT_ACCEPT));
+            String not=user.getFirstName()+" refused to investigate the article, entitled   "+article.getTitleArticle();
+            UUID administratorId = null;
+            for (InformationArticle informationArticle : information) {
+             administratorId=   informationArticle.getChekUser().getId();
+            }
+            
+            notificationFromUserRepository.save(new NotificationFromUser(redactorResponseDto.getArticleId(),user.getId(),false,not,administratorId));
+
             return new ApiResponse("Ok mayli bu ishing yaxshi emas sani reytinging tushib ketadi", true);
         }
         return new ApiResponse("eeeeeeeeeeeee ", false);
@@ -334,10 +348,13 @@ public class ArticleService {
                 } else if (status
                         .equalsIgnoreCase(ArticleStatusName.CHECK_AND_CANCEL.name())) {
                     informationArticleRepository.save(new InformationArticle(user, description, article, new Date(), ArticleStatusName.CHECK_AND_CANCEL, file == null ? null : attachmentService.upload1(file)));
-                    return new ApiResponse("Siz maqola tekshiruvini yakunladingiz", true);
+                    return new ApiResponse("Siz maqola rad  qilindi", true);
                 } else if (status
                         .equalsIgnoreCase(ArticleStatusName.CHECK_AND_RECYCLE.name())) {
                     informationArticleRepository.save(new InformationArticle(user, description, article, new Date(), ArticleStatusName.CHECK_AND_RECYCLE, file == null ? null : attachmentService.upload1(file)));
+                 String not=" The article entitled the "+ article.getTitleArticle() + "was rejected for publication by "+user.getFirstName();
+                    UUID administratorId = informationArticle.getChekUser().getId();
+                    notificationFromUserRepository.save(new NotificationFromUser(articleId,userId,false,not,administratorId));
                     return new ApiResponse("Maqola qayta ishlashaga yuborildi", true);
                 }
 //            }
@@ -352,7 +369,7 @@ public class ArticleService {
                 }
             }
             return new ApiResponse("Sizning rolingiz topilmadi", false);
-        }catch (Exception e){
+        } catch (Exception e) {
             return new ApiResponse("Xatolik yuz berdi", false);
         }
     }
@@ -710,8 +727,8 @@ public class ArticleService {
 
     }
 
-    public List<Article> getMyPublishedArticles(User user){
-       return articleRepository.findAllByArticleStatusNameAndUserId(ArticleStatusName.PUBLISHED, user.getId());
+    public List<Article> getMyPublishedArticles(User user) {
+        return articleRepository.findAllByArticleStatusNameAndUserId(ArticleStatusName.PUBLISHED, user.getId());
     }
 
     public List<Article> getMyCanceledArticles(User user) {
@@ -723,7 +740,7 @@ public class ArticleService {
     }
 
     public List<Article> getMyCheckingArticles(User user) {
-        return articleRepository.findAllByArticleStatusNameAndUserIdOrArticleStatusNameAndUserId(ArticleStatusName.BEGIN_CHECK, user.getId(),ArticleStatusName.PREPARING_FOR_PUBLICATION,user.getId());
+        return articleRepository.findAllByArticleStatusNameAndUserIdOrArticleStatusNameAndUserId(ArticleStatusName.BEGIN_CHECK, user.getId(), ArticleStatusName.PREPARING_FOR_PUBLICATION, user.getId());
     }
 
     public List<Article> getMyRejectedArticles(User user) {
@@ -731,6 +748,6 @@ public class ArticleService {
     }
 
     public List<Article> getMyCopyRightedArticles(User user) {
-      return   articleRepository.findAllByAuthorsCode(user.getCode());
+        return articleRepository.findAllByAuthorsCode(user.getCode());
     }
 }
