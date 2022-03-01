@@ -18,7 +18,7 @@ public class PricesService {
             Optional<Prices> optionalPrices = pricesRepository.findById(priceDTO.getId());
             if (optionalPrices.isPresent()){
                 Prices prices = optionalPrices.get();
-                prices.setPriceOfArticle(priceDTO.getPriceOfArticle());
+//                prices.setPriceOfArticle(priceDTO.getPriceOfArticle());
                 pricesRepository.save(prices);
                 return new ApiResponse("Successfully edited", true);
             }

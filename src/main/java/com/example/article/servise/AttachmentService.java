@@ -3,22 +3,16 @@ package com.example.article.servise;
 import com.example.article.entity.Attachment;
 import com.example.article.entity.AttachmentContent;
 import com.example.article.payload.ApiResponse;
-import com.example.article.payload.MultipartForm;
 import com.example.article.repository.AttachmentContentRepository;
 import com.example.article.repository.AttachmentRepository;
-import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.util.FileCopyUtils;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.*;
 

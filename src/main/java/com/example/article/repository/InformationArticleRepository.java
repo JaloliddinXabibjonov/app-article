@@ -14,8 +14,11 @@ import java.util.UUID;
 
 public interface InformationArticleRepository extends JpaRepository<InformationArticle, UUID> {
 
-    InformationArticle findFirstByArticleIdOrderByCreatedAtDesc(UUID article_id);
+    Optional<InformationArticle> findFirstByArticleIdOrderByCreatedAtDesc(UUID article_id);
 
+    boolean existsByArticleIdAndChekUserIdAndArticleStatusName(UUID article_id, UUID chekUser_id, ArticleStatusName articleStatusName);
+    InformationArticle findFirstByArticleIdAndChekUserIdOrderByCreatedAtAsc(UUID articleId, UUID uuid);
+    @Query(value = "select * from information_article where article_id=?1",nativeQuery = true)
     List<InformationArticle> findAllByArticleId(UUID article_id);
 
     InformationArticle findByArticleId(UUID article_id);
@@ -25,7 +28,7 @@ public interface InformationArticleRepository extends JpaRepository<InformationA
     boolean existsByArticleIdAndRedactorIdAndArticleStatusName(UUID article_id, UUID redactor_id, ArticleStatusName articleStatusName);
 
     boolean existsByArticleIdAndArticleStatusName(UUID article_id, ArticleStatusName articleStatusName);
-    InformationArticle findByArticleIdAndRedactorIdAndWatdou(UUID article_id, UUID redactor_id, Watdou watdou);
+    List<InformationArticle> findAllByArticleIdAndRedactorIdAndWatdou(UUID article_id, UUID redactor_id, Watdou watdou);
 
    InformationArticle findByArticleIdAndRedactorIdAndArticleStatusName(UUID article_id, UUID redactor_id,ArticleStatusName articleStatusName);
 
@@ -88,4 +91,8 @@ public interface InformationArticleRepository extends JpaRepository<InformationA
     List<Article> findAllByCreatedAtBetweenAndArticleStatusNameAndRedactorId(Timestamp start, Timestamp end, ArticleStatusName status, UUID redactorId);
 
     Integer countAllByArticleStatusNameAndRedactorId(ArticleStatusName articleStatusName, UUID redactor_id);
+
+    List<InformationArticle> findAllByChekUserIdAndArticleId(UUID chekUser_id, UUID article_id);
+
+//    List<InformationArticle> findAllByRedactorIdAndArticleId(UUID redactor_id, UUID article_id);
  }

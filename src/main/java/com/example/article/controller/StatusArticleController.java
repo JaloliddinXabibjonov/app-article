@@ -25,10 +25,9 @@ public class StatusArticleController {
 
 
     @PostMapping("/changeActiveAndFalse/{id}/{active}")
-    public ApiResponse changeActiveAndFalse(@PathVariable UUID id, @CurrentUser User user, @PathVariable boolean active) {
-
-
-        return new ApiResponse("change", true, statusArticleService.changeActiveAndFalse(user, active, id));
+    public HttpEntity<?> changeActiveAndFalse(@PathVariable UUID id, @CurrentUser User user, @PathVariable boolean active) {
+        ApiResponse apiResponse = statusArticleService.changeActiveAndFalse(user, active, id);
+        return ResponseEntity.status(apiResponse.isSuccess()?202:409).body(apiResponse);
     }
 
 

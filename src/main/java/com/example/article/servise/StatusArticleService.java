@@ -32,32 +32,31 @@ public class StatusArticleService {
 
 //        findFirstByArticleIdOrderByCreatedAtDesc agar ishlamasa findFirstByArticleIdOrderByCreatedAtAsc ni qo'llab ko'ring
 
-        if (user.getId().equals(informationArticleRepository.findFirstByArticleIdOrderByCreatedAtDesc(id).getChekUser().getId())) {
-
+        System.out.println("=====>" + informationArticleRepository.existsByArticleIdAndChekUserIdAndArticleStatusName(id, user.getId(), ArticleStatusName.CONFIRM));
+        if (informationArticleRepository.existsByArticleIdAndChekUserIdAndArticleStatusName(id, user.getId(), ArticleStatusName.CONFIRM)) {
             Article byId = articleRepository.getById(id);
             byId.setActive(changeStatus);
             articleRepository.save(byId);
-            return new ApiResponse(byId.isActive() ? "Activated" : "Blocked", true);
-        }else {
-            return new ApiResponse("sizga mumkin emas " , false);
+            return new ApiResponse(byId.isActive() ? "Aktivlashtirldi" : "Bloklandi", true);
+        } else {
+            return new ApiResponse("sizga mumkin emas", false);
         }
-
     }
 
     // bu articldi kim qabul qilganini aniqlidi
     public ApiResponse confirm(User user, GetUsersRoleId getUsersRoleId) {
-        String roles="";
+        String roles = "";
         Article byId = articleRepository.getById(getUsersRoleId.getArticleId());
-        if (byId.isConfirm()==getUsersRoleId.isConfirm())
-            return new ApiResponse("Article already "+(getUsersRoleId.isConfirm()? "confirmed":"not confirmed"));
+        if (byId.isConfirm() == getUsersRoleId.isConfirm())
+            return new ApiResponse("Article already " + (getUsersRoleId.isConfirm() ? "confirmed" : "not confirmed"));
         byId.setConfirm(getUsersRoleId.isConfirm());
         byId.setArticleStatusName(ArticleStatusName.START);
         articleRepository.save(byId);
         for (Role role : user.getRoles()) {
-            roles=role.getRoleName();
+            roles = role.getRoleName();
         }
-        informationArticleRepository.save(new InformationArticle(user, byId, new Date(), getUsersRoleId.isConfirm() ? Watdou.CONFIRM : Watdou.UN_CONFIRM,ArticleStatusName.NULL,
-                                                                 roles+": "+user.getLastName()+" "+user.getFirstName()+" tomonidan maqola aktivlashtiril"+(getUsersRoleId.isConfirm()?"":"ma")+"di" ));
+        informationArticleRepository.save(new InformationArticle(user, byId, new Date(), getUsersRoleId.isConfirm() ? Watdou.CONFIRM : Watdou.UN_CONFIRM, getUsersRoleId.isConfirm() ? ArticleStatusName.CONFIRM : ArticleStatusName.UN_CONFIRM,
+                roles + ": " + user.getLastName() + " " + user.getFirstName() + " tomonidan maqola aktivlashtiril" + (getUsersRoleId.isConfirm() ? "" : "ma") + "di"));
         return new ApiResponse(byId.isConfirm() ? "confirmed" : "not confirmed", true);
 
     }

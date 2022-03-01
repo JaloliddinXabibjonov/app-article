@@ -18,7 +18,6 @@ List<Article>findAllByIdIn(Collection<UUID> id);
     Page<Article> findByPayTrue(Pageable simplePageable);
 
 
-
 //    Page<Article>findAllByChecked(String checked, Pageable pageable);
 
     Page<Article> findByActiveTrue(Pageable simplePageable);
@@ -52,5 +51,9 @@ List<Article>findAllByIdIn(Collection<UUID> id);
     Integer countAllByPublicPrivateAndArticleStatusName(boolean publicPrivate, ArticleStatusName articleStatusName);
     Integer countAllByPayFalse();
 
+    List<Article> findAllByArticleStatusNameAndUserId(ArticleStatusName articleStatusName, UUID user_id);
+    List<Article> findAllByArticleStatusNameAndUserIdOrArticleStatusNameAndUserId(ArticleStatusName articleStatusName, UUID user_id, ArticleStatusName articleStatusName2, UUID user_id2);
 
+    @Query(value = "select a.* from article a inner join article_authors aa on a.id=aa.article_id inner join authors au on au.id=aa.authors_id and au.code=?1 ",nativeQuery = true)
+    List<Article> findAllByAuthorsCode(Integer authors_code);
 }

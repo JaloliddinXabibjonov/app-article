@@ -3,6 +3,7 @@ package com.example.article.entity;
 import com.example.article.entity.enums.ArticleStatusName;
 import com.example.article.entity.enums.Watdou;
 import com.example.article.entity.template.AbsEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -44,9 +45,11 @@ public class InformationArticle extends AbsEntity {  //bu articldi kim va qachon
     @Enumerated(EnumType.STRING)
     private ArticleStatusName articleStatusName;   //redaktor qaysi statusni berdi redactorlar tomondan bertiladigon statuslar
 
+    @JsonIgnore
     private String massage;
-private String description;
-    private  long deadline;
+
+    private String description;
+    private long deadline;
 
     @OneToOne
     private Attachment attachFile;
@@ -63,16 +66,16 @@ private String description;
         this.article = articleId;
         this.articleStatusName = articleStatus;
         this.whenAndWho = date;
-        this.attachFile=attachFile;
+        this.attachFile = attachFile;
     }
 
     public InformationArticle(User user, String description, Article articleId, Date date, ArticleStatusName articleStatus, Attachment attachFile) {
         this.redactor = user;
-        this.description=description;
+        this.description = description;
         this.article = articleId;
         this.articleStatusName = articleStatus;
         this.whenAndWho = date;
-        this.attachFile=attachFile;
+        this.attachFile = attachFile;
     }
 
     public InformationArticle(User user, Article articleId, Date date, ArticleStatusName articleStatus) {
@@ -89,7 +92,7 @@ private String description;
         this.article = byId;
         this.watdou = watdou;
         this.whenAndWho = date;
-        this.articleStatusName=statusName;
+        this.articleStatusName = statusName;
     }
 
     public InformationArticle(User user, Article byId, Date date, Watdou watdou, ArticleStatusName aNull, String massage) {
@@ -98,7 +101,7 @@ private String description;
         this.whenAndWho = date;
         this.watdou = watdou;
         this.massage = massage;
-        this.articleStatusName=aNull;
+        this.articleStatusName = aNull;
     }
 
     public InformationArticle(User chekUser, Article article, Date whenAndWho, ArticleStatusName articleStatusName, String massage) {
@@ -109,5 +112,14 @@ private String description;
         this.massage = massage;
     }
 
+    public InformationArticle(User chekUser, Article article, Date whenAndWho, ArticleStatusName articleStatusName, String massage, Attachment attachFile, String description) {
+        this.chekUser = chekUser;
+        this.article = article;
+        this.whenAndWho = whenAndWho;
+        this.articleStatusName = articleStatusName;
+        this.massage = massage;
+        this.attachFile = attachFile;
+        this.description=description;
+    }
 
 }

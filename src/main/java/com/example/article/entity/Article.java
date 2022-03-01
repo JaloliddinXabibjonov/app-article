@@ -21,14 +21,13 @@ public class Article extends AbsEntity {
     @Column(nullable = false)
     private String description;
 
-
+    @OneToOne
+    private PricesOfArticle price;
 
     @ManyToMany
     private Set<Authors> authors;
 
     private String titleArticle;
-
-    private long price;
 
     private  boolean publicPrivate;
 

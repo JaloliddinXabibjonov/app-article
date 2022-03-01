@@ -4,6 +4,7 @@ import com.example.article.entity.template.AbsEntity;
 import lombok.*;
 
 import javax.persistence.Entity;
+import javax.persistence.OneToOne;
 import java.util.UUID;
 
 @EqualsAndHashCode(callSuper = true)
@@ -13,8 +14,9 @@ import java.util.UUID;
 @Data
 public class Authors extends AbsEntity {
 
-    private String fullName;
+    @OneToOne
+    private User authorId;
 
-    private UUID code;
+    private Integer code;
 
 }

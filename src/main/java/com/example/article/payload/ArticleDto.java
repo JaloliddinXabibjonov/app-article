@@ -17,11 +17,20 @@ public class ArticleDto {
     private String description;
     private String author;
     private String titleArticle;
-private boolean publicPrivate;
+    private boolean publicPrivate;
     private Integer categoryId;
     private UUID fileId;
 
-    private boolean active=false;
-    private boolean confirm=false;
-private List<String> authorsList;
+    private boolean active = false;
+    private boolean confirm = false;
+    private List<String> authorsList;
+
+    /**
+     * NARXNI HISOBLASH PARAMETRLARI
+     */
+    private int sahifaSoni;
+    private int JurnaldaChopEtishSoni;
+    private int BosmaJurnalSoni;
+    private int SertifikatSoni;
+    private boolean doi;
 }

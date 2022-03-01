@@ -37,6 +37,8 @@ public class User extends AbsEntity implements UserDetails {
     private String firstName;
     private String lastName;
 
+    private  String firebaseToken;
+
 //    @JsonIgnore
     private String email;
 
@@ -53,6 +55,7 @@ public class User extends AbsEntity implements UserDetails {
     private String academicDegree;
     private String languages;
 
+    private Integer code;
 
     @OneToMany
     private List<Attachment> scientificWork;
