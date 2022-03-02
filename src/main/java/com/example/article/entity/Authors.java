@@ -1,6 +1,7 @@
 package com.example.article.entity;
 
 import com.example.article.entity.template.AbsEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.Entity;
@@ -14,8 +15,11 @@ import java.util.UUID;
 @Data
 public class Authors extends AbsEntity {
 
+    @JsonIgnore
     @OneToOne
     private User authorId;
+
+    private String fullname;
 
     private Integer code;
 
