@@ -21,6 +21,13 @@ public class Journals extends AbsEntity {
 
 
     private Date publishedDate;  // chop etilgan sana
+    private Date receivedDate;  // maqolani qabul qilish sanasi
+
+    @Enumerated(EnumType.STRING)
+    private JournalsStatus journalsStatus; // maqola chop etilgan yo etilmaganini bildiradi
+
+
+
 //    private Date receivedDate;  // maqolani qabul qilish sanasi
 
     private String articleReviewers; // bu maqolani kimlar korib chiqish haqida ma'lumot bunda hamma reviwerlar haqida malumot ilmiy kengash haqida
@@ -30,8 +37,6 @@ public class Journals extends AbsEntity {
     private String ISSN;
     private String jurnalSertificat;
 
-    @Enumerated(EnumType.STRING)
-    private JournalsStatus journalsStatus; // maqola chop etilgan yo etilmaganini bildiradi
 
     @ManyToMany
     private List<Category> category;

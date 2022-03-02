@@ -144,7 +144,7 @@ public class DataLoader implements CommandLineRunner {
                             roleRepository.findAllByIdIn(Collections.singletonList(1)),
                             Collections.singletonList(categoryRepository.getById(1))
                     ));
-//            articleRepository.save(new Article( categoryRepository.getById(1), "Tarix ", true,"dfds" ));
+            articleRepository.save(new Article( categoryRepository.getById(1), "Tarix ", true,"dfds" ));
 //            articleRepository.save(new Article( categoryRepository.getById(1), "Matematika ", true,"dfds"));
 //            articleRepository.save(new Article(categoryRepository.getById(1), "Fizika ", true,"dfds"));
 //            articleRepository.save(new Article(categoryRepository.getById(1), "Sanoat ", true,"dfds"));

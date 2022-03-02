@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.print.attribute.standard.Media;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.UUID;
 
@@ -31,14 +32,15 @@ public class ArticleController {
     @Autowired
     StatusArticleService statusArticleService;
 
-    //    @PostMapping(value = "/addArticle")
+    //        @PostMapping(value = "/addArticle")
 //    public HttpEntity<ApiResponse> save(@RequestParam(required = false) Integer sahifaSoni,@RequestParam(required = false) Double price,@RequestParam(required = false) Integer jurnaldaChopEtishSoni, @RequestParam(required = false) Integer bosmaJurnalSoni, @RequestParam(required = false) Integer sertifikatSoni, @RequestParam Boolean doi, @RequestParam(required = false) String description, @RequestParam String[] author, @RequestParam String titleArticle, @RequestParam Integer categoryId, @RequestParam boolean publicOrPrivate, @RequestParam UUID userId, @RequestPart MultipartFile file) throws IOException {
 //        ApiResponse apiResponse= articleService.addArticle(sahifaSoni,price,jurnaldaChopEtishSoni, bosmaJurnalSoni, sertifikatSoni, doi,description, author, titleArticle, categoryId, publicOrPrivate, userId, file);
 //        return ResponseEntity.status(apiResponse.isSuccess() ? 201 : 409).body(apiResponse);
 //    }
     @PostMapping(value = "/addArticle")
-    public HttpEntity<ApiResponse> save(@RequestBody AddArticleDto dto, @CurrentUser User user, @RequestPart MultipartFile file) throws IOException {
+    public HttpEntity<ApiResponse> save(@ModelAttribute AddArticleDto dto, @CurrentUser User user, @RequestPart MultipartFile file) throws IOException {
         ApiResponse apiResponse = articleService.addArticle(dto, user, file);
+        System.out.println("------"+dto.getAuthorsList().toString());
         return ResponseEntity.status(apiResponse.isSuccess() ? 201 : 409).body(apiResponse);
     }
 
@@ -132,7 +134,7 @@ public class ArticleController {
     }
 
     //ADMINGA NECHTA YANGI MAQOLA QO`SHILGANLIGINI QAYTARADI
-    @GetMapping("/newArticles")
+    @GetMapping("/newArticlesNumber")
     public HttpEntity<?> newArticles() {
         Integer integer = articleService.getNumberNewArticles();
         return ResponseEntity.ok(integer);
@@ -201,34 +203,52 @@ public class ArticleController {
         return ResponseEntity.status(apiResponse.isSuccess() ? 202 : 409).body(apiResponse);
     }
 
+    /**
+     * MENING NASHR ETILGAN MAQOLALARIM
+     */
     @GetMapping("/myPublishedArticles")
     public List<Article> getMyPublishedArticles(@CurrentUser User user) {
         return articleService.getMyPublishedArticles(user);
     }
 
 
+    /**
+     * MENING QAYTA ISHLOVGA BERILGAN MAQOLALARIM
+     */
     @GetMapping("/myCanceledArticles")
     public List<Article> getMyCanceledArticles(@CurrentUser User user) {
         return articleService.getMyCanceledArticles(user);
     }
 
+    /**
+     * MENING NASHR ETILAYOTGAN MAQOLALARIM
+     */
     @GetMapping("/myPreparedForPublicationArticles")
     public List<Article> getMyPreparedForPublicationArticles(@CurrentUser User user) {
         return articleService.getMyPreparedForPublicationArticles(user);
     }
 
+    /**
+     * MENING TEKSHIRILAYOTGAN MAQOLALARIM
+     */
     @GetMapping("/myCheckingArticles")
     public List<Article> getMyCheckingArticles(@CurrentUser User user) {
         return articleService.getMyCheckingArticles(user);
     }
 
+    /**
+     * MENING RAD ETILGAN MAQOLALARIM
+     */
     @GetMapping("/myRejectedArticles")
     public List<Article> getMyRejectedArticles(@CurrentUser User user) {
         return articleService.getMyRejectedArticles(user);
     }
 
+    /**
+     * MENING BARCHA MAQOLALARIM(MUALLIFLIK MAQOLALARIM)
+     */
     @GetMapping("/myCopyrightedArticles")
-    public List<Article> getMyCopyrightedArticles(@CurrentUser User user){
+    public List<Article> getMyCopyrightedArticles(@CurrentUser User user) {
         return articleService.getMyCopyRightedArticles(user);
     }
 
