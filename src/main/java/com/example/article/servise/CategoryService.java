@@ -79,7 +79,6 @@ public class CategoryService {
         return new ApiResponse("Ok",true);
     }
 
-    public List<Category> all() {
-        return categoryRepository.findAll();
-    }
+
+
 }

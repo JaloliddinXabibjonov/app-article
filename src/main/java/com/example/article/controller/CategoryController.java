@@ -40,8 +40,5 @@ public class CategoryController {
     }
 
 
-    @GetMapping("/all")
-    public HttpEntity<?> all(){
-        return ResponseEntity.ok(categoryService.all());
-    }
+
 }
