@@ -26,17 +26,30 @@ public class Journals extends AbsEntity {
     @Enumerated(EnumType.STRING)
     private JournalsStatus journalsStatus; // maqola chop etilgan yo etilmaganini bildiradi
 
+
+
+//    private Date receivedDate;  // maqolani qabul qilish sanasi
+
+    private String articleReviewers; // bu maqolani kimlar korib chiqish haqida ma'lumot bunda hamma reviwerlar haqida malumot ilmiy kengash haqida
+
+    private String maqolaJurnaldaNechaKundaChiqishi;
+    private String jurnalNechaKundaChiqishi;
+    private String ISSN;
+    private String jurnalSertificat;
+
+
     @ManyToMany
     private List<Category> category;
 
     @OneToOne
-    private Attachment photo;
+    private Attachment photoJournals;
 
     @ManyToMany
     private Set<Article> articles;
 
     @OneToOne
     private Attachment file;
+
 
 
 }
