@@ -8,6 +8,7 @@ import com.example.article.servise.JournalsService;
 import com.google.protobuf.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,12 +27,9 @@ public class JournalsController {
     }
 
     @PostMapping("/addJournals")
-    public ApiResponse addJournals(@RequestBody JournalsPayload journalsPayload) throws IOException {
-        journalsService.newAddJournals(journalsPayload);
-        return new ApiResponse("Jurnals", true);
-
-
+    public HttpEntity<ApiResponse> addJournals(@RequestBody JournalsPayload journalsPayload,@RequestPart MultipartFile photo, @RequestPart(required = false) MultipartFile file ) throws IOException {
+        ApiResponse apiResponse = journalsService.addNewJournal(journalsPayload, photo, file);
+        return ResponseEntity.status(apiResponse.isSuccess()?200:409).body(apiResponse);
     }
-
 
 }

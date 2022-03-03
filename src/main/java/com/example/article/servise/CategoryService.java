@@ -21,7 +21,7 @@ public class CategoryService {
     public ApiResponse saveOrEdit(CategoryDto dto) {
         boolean exists = categoryRepository.existsByName(dto.getName());
         if (exists)
-            return new ApiResponse(dto.getName() +" nomli bo`lim avval qo`shilgan");
+            return new ApiResponse(dto.getName() +" nomli bo`lim avval qo`shilgan",false);
         try {
             Category category = new Category();
             if (dto.getId() != null) {
@@ -80,5 +80,7 @@ public class CategoryService {
     }
 
 
-
+    public List<Category> all() {
+        return categoryRepository.parentCategory();
+    }
 }
