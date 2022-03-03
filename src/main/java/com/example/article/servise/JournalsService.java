@@ -10,10 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class JournalsService {
@@ -43,33 +40,39 @@ public class JournalsService {
     }
 
 
-    public ApiResponse newAddJournals(JournalsPayload journalsDto) throws IOException {
+    public ApiResponse addNewJournal(JournalsPayload journalsDto, MultipartFile photo, MultipartFile file) throws IOException {
         try {
+            Optional<Journals> optionalJournals = journalsRepository.findByParentIdAndDeletedTrue(journalsDto.getParentId());
+            if (optionalJournals.isEmpty())
+                return new ApiResponse("Jurnal topilmadi", false);
 
             Journals journals = new Journals();
-            if (journalsDto.getId() != null) {
-                journals = journalsRepository.getById(journalsDto.getId());
+            if (journalsDto.getParentId() != null) {
+                Journals jour = journalsRepository.getByIdAndDeletedTrue(journalsDto.getParentId());
+                journals.setName(jour.getName());
+                journals.setParentId(journalsDto.getParentId());
+                journals.setCategory(categoryRepository.findById(journalsDto.getCategoryId()).get());
+            }else {
+                journals.setName(journalsDto.getName());
+                journals.setParentId(journalsDto.getParentId());
+                journals.setCategory(categoryRepository.findById(journalsDto.getCategoryId()).get());
             }
-
-
-            journals.setName(journalsDto.getName());
-//        journals.setReceivedDate(journalsDto.getReceivedDate());
+            journals.setFile(attachmentService.upload1(file));
+            journals.setNumberOfThisYear(journalsDto.getNumberOfThisYear());
+            journals.setGeneralNumber(journals.getGeneralNumber());
+            journals.setReceivedDate(journalsDto.getReceivedDate());
             journals.setArticleReviewers(journalsDto.getArticleReviewers());
-            journals.setMaqolaJurnaldaNechaKundaChiqishi(journalsDto.getMaqolaJurnaldaNechaKundaChiqishi());
-            journals.setJurnalNechaKundaChiqishi(journalsDto.getJurnalNechaKundaChiqishi());
-            journals.setISSN(journalsDto.getISSN());
-            journals.setJurnalSertificat(journalsDto.getJurnalSertificat());
-//        journals.setPhotoJournals(attachmentService.upload1(journalsPhoto));
-            journals.setCategory(categoryRepository.findAllByIdIn(Collections.singleton(journalsDto.getCategoryId())));
-
+            journals.setPrintedDate(journalsDto.getPrintedDate());
+            journals.setISSN(journalsDto.getIssn());
+            journals.setISBN(journals.getISBN());
+            journals.setCertificateOfJournals(journalsDto.getCertificateOfJournals());
+            journals.setPhoto(attachmentService.upload1(photo));
+            journals.setDeleted(true);
             journalsRepository.save(journals);
-
+            return new ApiResponse("Muvaffaqiyatli bajarildi", true);
         } catch (Exception r) {
-            return new ApiResponse("nega oxshamadi", false);
+            return new ApiResponse("Xatolik yuz berdi, qaytadan urinib ko`ring", false);
         }
-
-
-        return new ApiResponse("ok", true);
     }
 
 
