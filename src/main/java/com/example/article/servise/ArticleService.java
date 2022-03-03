@@ -8,12 +8,16 @@ import com.example.article.payload.*;
 import com.example.article.repository.*;
 
 import lombok.SneakyThrows;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -58,18 +62,18 @@ public class ArticleService {
     @Autowired
     NotificationFromUserRepository notificationFromUserRepository;
 
-    //    public ApiResponse addArticle(int sahifaSoni, double price, int jurnaldaChopEtishSoni, int bosmaJurnalSoni, int sertifikatSoni, boolean doi, String description, String[] author, String titleArticle, Integer categoryId, boolean publicOrPrivate, UUID userId, MultipartFile file) throws IOException {
+//        public ApiResponse addArticle(int sahifaSoni, double price, int jurnaldaChopEtishSoni, int bosmaJurnalSoni, int sertifikatSoni, boolean doi, String description, String[] author, String titleArticle, Integer categoryId, boolean publicOrPrivate, UUID userId, MultipartFile file) throws IOException {
 //        System.out.println("-------"+doi);
 //        Article article = new Article();
 //        Optional<Category> category = categoryRepository.findById(categoryId);
 //        if (category.isPresent()) {
-//            for (String s : author) {
-//                Authors authors = new Authors();
-//                authors.setFullName(s);
-//                authors.setCode(UUID.randomUUID());
-//                authorsRepository.save(authors);
-//                article.setAuthors(Collections.singleton(authors));
-//            }
+////            for (String s : author) {
+////                Authors authors = new Authors();
+//////                authors.setFullName(s);
+////                authors.setCode(UUID.randomUUID());
+////                authorsRepository.save(authors);
+////                article.setAuthors(Collections.singleton(authors));
+////            }
 //            article.setDescription(description);
 //            article.setTitleArticle(titleArticle);
 //            article.setPublicPrivate(publicOrPrivate);
@@ -102,6 +106,7 @@ public class ArticleService {
                 authors.setCode(s);
                 User user1 = userRepository.findByCode(s).get();
                 authors.setAuthorId(user1);
+                authors.setFullname(user1.getLastName()+" "+user1.getFirstName());
                 authorsRepository.save(authors);
                 article.setAuthors(Collections.singleton(authors));
             }
@@ -145,7 +150,6 @@ public class ArticleService {
     public ApiResponse getMyArticle(User user) {
         UUID id = user.getId();
         return new ApiResponse("all", true, articleRepository.findAllByCreatedBy(id));
-
     }
 
     public ApiResponse deleteArticle(UUID id) {
@@ -348,7 +352,7 @@ public class ArticleService {
                 } else if (status
                         .equalsIgnoreCase(ArticleStatusName.CHECK_AND_CANCEL.name())) {
                     informationArticleRepository.save(new InformationArticle(user, description, article, new Date(), ArticleStatusName.CHECK_AND_CANCEL, file == null ? null : attachmentService.upload1(file)));
-                    return new ApiResponse("Siz maqola rad  qilindi", true);
+                    return new ApiResponse("Siz maqolani rad qildingiz", true);
                 } else if (status
                         .equalsIgnoreCase(ArticleStatusName.CHECK_AND_RECYCLE.name())) {
                     informationArticleRepository.save(new InformationArticle(user, description, article, new Date(), ArticleStatusName.CHECK_AND_RECYCLE, file == null ? null : attachmentService.upload1(file)));
@@ -750,4 +754,6 @@ public class ArticleService {
     public List<Article> getMyCopyRightedArticles(User user) {
         return articleRepository.findAllByAuthorsCode(user.getCode());
     }
+
+
 }

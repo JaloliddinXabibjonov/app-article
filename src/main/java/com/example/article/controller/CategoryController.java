@@ -1,5 +1,6 @@
 package com.example.article.controller;
 
+import com.example.article.entity.Category;
 import com.example.article.payload.ApiResponse;
 import com.example.article.payload.CategoryDto;
 import com.example.article.servise.CategoryService;
@@ -9,6 +10,8 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/category")
 public class CategoryController {
@@ -16,13 +19,13 @@ public class CategoryController {
     CategoryService categoryService;
 
     @PostMapping("/saveOrEdit")
-    public HttpEntity<?> saveOrEdit(@RequestBody CategoryDto categoryDto){
+    public HttpEntity<ApiResponse> saveOrEdit(@RequestBody CategoryDto categoryDto){
         ApiResponse apiResponse = categoryService.saveOrEdit(categoryDto);
-        return ResponseEntity.status(apiResponse.isSuccess()?apiResponse.getMessage().equals("Saved")?201:202:409).body(apiResponse);
+        return ResponseEntity.status(apiResponse.isSuccess()?201:409).body(apiResponse);
     }
 
     @GetMapping("/allByPageable")
-    public HttpEntity<?> allByPageable(@RequestParam(value = "page",defaultValue = AppConstants.DEFAULT_PAGE_NUMBER)Integer page,
+    public HttpEntity<ApiResponse> allByPageable(@RequestParam(value = "page",defaultValue = AppConstants.DEFAULT_PAGE_NUMBER)Integer page,
                                        @RequestParam(value = "size",defaultValue = AppConstants.DEFAULT_PAGE_SIZE)Integer size,
                                        @RequestParam(value = "search",defaultValue = "all") String search
     ) throws IllegalAccessException {
@@ -30,14 +33,20 @@ public class CategoryController {
     }
 
     @GetMapping("/changeActive/{id}")
-    public HttpEntity<?> changeActive(@PathVariable Integer id){
+    public HttpEntity<ApiResponse> changeActive(@PathVariable Integer id){
         return ResponseEntity.ok(categoryService.changeActive(id));
     }
 
     @GetMapping("/delete/{id}")
-    public HttpEntity<?> remove(@PathVariable Integer id){
+    public HttpEntity<ApiResponse> remove(@PathVariable Integer id){
         return ResponseEntity.ok(categoryService.remove(id));
     }
+
+    @GetMapping("/all")
+    public List<Category> forJournals(){
+        return categoryService.all();
+    }
+
 
 
 
