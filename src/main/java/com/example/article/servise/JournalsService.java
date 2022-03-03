@@ -42,6 +42,8 @@ public class JournalsService {
 
     public ApiResponse addNewJournal(JournalsPayload journalsDto, MultipartFile photo, MultipartFile file) throws IOException {
         try {
+            if (journalsDto.getReceivedDate().getTime()<=System.currentTimeMillis())
+                return new ApiResponse("Maqola qabul qilish muddati hozirgi vaqtdan keyingi vaqt bo`lishi kerak!", true);
             Optional<Journals> optionalJournals = journalsRepository.findByParentIdAndDeletedTrue(journalsDto.getParentId());
             if (optionalJournals.isEmpty())
                 return new ApiResponse("Jurnal topilmadi", false);
