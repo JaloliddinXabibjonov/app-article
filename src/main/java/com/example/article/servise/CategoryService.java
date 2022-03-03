@@ -19,19 +19,20 @@ public class CategoryService {
     CategoryRepository categoryRepository;
 
     public ApiResponse saveOrEdit(CategoryDto dto) {
-        boolean exists = categoryRepository.existsByName(dto.getName());
+        boolean exists = categoryRepository.existsByNameAndDeletedTrue(dto.getName());
         if (exists)
-            return new ApiResponse(dto.getName() +" nomli bo`lim avval qo`shilgan",false);
+            return new ApiResponse(dto.getName() + " nomli bo`lim avval qo`shilgan", false);
         try {
             Category category = new Category();
             if (dto.getId() != null) {
-                category = categoryRepository.getById(dto.getId());
+                category = categoryRepository.getByDeletedTrueAndId(dto.getId());
             }
-            if (dto.getParentDto() != null&&dto.getParentDto().getId()>0) {
-                category.setParent(categoryRepository.getById(dto.getParentDto().getId()));
+            if (dto.getParentDto() != null && dto.getParentDto().getId() > 0) {
+                category.setParent(categoryRepository.getByDeletedTrueAndId(dto.getParentDto().getId()));
             }
             category.setName(dto.getName());
             category.setActive(dto.getId() == null || category.isActive());
+            category.setDeleted(true);
             categoryRepository.save(category);
             return new ApiResponse(dto.getId() != null ? "Edited" : "Saved", true);
         } catch (Exception e) {
@@ -43,14 +44,14 @@ public class CategoryService {
         List<Category> categories = new ArrayList<>();
         long totalElements = 0;
         if (!search.equals("all")) {
-            categories = categoryRepository.findAllByNameContainingIgnoringCase(search);
+            categories = categoryRepository.findAllByDeletedTrueAndNameContainingIgnoringCase(search);
         } else {
             if (size > 0) {
-                Page<Category> categoryPage = categoryRepository.findAll(CommonUtills.getPageableByIdDesc(page, size));
+                Page<Category> categoryPage = categoryRepository.findAllByDeletedTrue(CommonUtills.getPageableByIdDesc(page, size));
                 categories = categoryPage.getContent();
                 totalElements = categoryPage.getTotalElements();
             } else {
-                categories = categoryRepository.findAll();
+                categories = categoryRepository.findAllByDeletedTrue();
             }
         }
         return new ApiResponse(true, "CategoryPage", categories.stream().map(this::getCategoryDto).collect(Collectors.toList()), totalElements);
@@ -68,15 +69,19 @@ public class CategoryService {
     }
 
     public ApiResponse changeActive(Integer id) {
-        Category byId = categoryRepository.getById(id);
+        Category byId = categoryRepository.getByDeletedTrueAndId(id);
         byId.setActive(!byId.isActive());
         categoryRepository.save(byId);
         return new ApiResponse(byId.isActive() ? "Activated" : "Blocked", true);
     }
 
     public ApiResponse remove(Integer id) {
-        categoryRepository.deleteById(id);
-        return new ApiResponse("Ok",true);
+
+        Category category = categoryRepository.getByDeletedTrueAndId(id);
+        category.setDeleted(false);
+        categoryRepository.save(category);
+
+        return new ApiResponse("Ok", true);
     }
 
 
