@@ -1,6 +1,8 @@
 package com.example.article.repository;
 
 import com.example.article.entity.Category;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -12,20 +14,17 @@ public interface CategoryRepository extends JpaRepository<Category, Integer> {
 
     Category getById(Integer id);
 
-    List<Category> findAllByNameContainingIgnoringCase(String name);
+    Category getByDeletedTrueAndId(Integer id);
 
-    boolean existsByName(String name);
+    List<Category> findAllByDeletedTrueAndNameContainingIgnoringCase(String name);
 
-    List<Category> findAllByIdIn(Set<Integer> categoryIdList);
+    boolean existsByNameAndDeletedTrue(String name);
 
-    List<Category> findAllById(Integer id);
+    List<Category> findAllByDeletedTrueAndIdIn(Set<Integer> categoryIdList);
 
-    List<Category> findAllByParentIdIn(List<Integer> parent_id);
+    Page<Category> findAllByDeletedTrue(Pageable pageable);
+List<Category>findAllByDeletedTrue();
 
-    List<Category> findAllByParentAndIdIn(Category parent, Collection<Integer> id);
-
-
-    List<Category> findAllByParent(Category parent);
 
 
     @Query(value = "select * from category where parent_id IS NULL", nativeQuery = true)
