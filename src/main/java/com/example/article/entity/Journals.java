@@ -18,10 +18,10 @@ public class Journals extends AbsEntity {
 
     @Column(nullable = false)
     private String name;
-
+    private boolean active;
 
     private Date publishedDate;  // chop etilgan sana
-//    private Date receivedDate;  // maqolani qabul qilish sanasi
+    private Date receivedDate;  // maqolani qabul qilish sanasi
 
     private String articleReviewers; // bu maqolani kimlar korib chiqish haqida ma'lumot bunda hamma reviwerlar haqida malumot ilmiy kengash haqida
 
@@ -44,7 +44,6 @@ public class Journals extends AbsEntity {
 
     @OneToOne
     private Attachment file;
-
 
 
 }

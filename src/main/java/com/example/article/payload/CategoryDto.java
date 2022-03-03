@@ -12,7 +12,6 @@ import lombok.NoArgsConstructor;
 public class CategoryDto {
     private Integer id;
     private String name;
-
     private boolean active;
     private CategoryDto parentDto;
 }

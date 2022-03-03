@@ -1,6 +1,7 @@
 package com.example.article.payload;
 
 import com.example.article.entity.Attachment;
+import com.example.article.entity.enums.JournalsStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,7 +16,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class JournalsPayload {
- private  UUID id;
+    private UUID id;
     private String name;
     private Date publishedDate;  // chop etilgan sana
     private Date receivedDate;  // maqolani qabul qilish sanasi
@@ -26,7 +27,7 @@ public class JournalsPayload {
     private String jurnalNechaKundaChiqishi;
     private String ISSN;
     private String jurnalSertificat;
-
-    private Integer   categoryId;
+    private Integer categoryId;
+    private JournalsStatus journalsStatus;
 
 }

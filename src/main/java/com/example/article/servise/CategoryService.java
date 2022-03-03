@@ -76,6 +76,7 @@ public class CategoryService {
 
     public ApiResponse remove(Integer id) {
         categoryRepository.deleteById(id);
+
         return new ApiResponse("Ok",true);
     }
 
