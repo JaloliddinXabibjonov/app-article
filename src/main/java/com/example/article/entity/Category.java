@@ -22,10 +22,14 @@ public class Category  {
     @ManyToOne(fetch = FetchType.LAZY)
     private Category parent;
 
+    private boolean deleted;
+
 //    @OneToMany(fetch = FetchType.LAZY, mappedBy = "parent",cascade = CascadeType.ALL)
 //    private List<Category> children;
 
     public Category( String name) {
         this.name = name;
     }
+
+
 }
