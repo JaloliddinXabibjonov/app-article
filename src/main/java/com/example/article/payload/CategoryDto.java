@@ -13,5 +13,5 @@ public class CategoryDto {
     private Integer id;
     private String name;
     private boolean active;
-    private CategoryDto parentDto;
+    private Integer parentId;
 }

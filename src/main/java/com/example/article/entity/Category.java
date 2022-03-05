@@ -19,7 +19,7 @@ public class Category  {
     private String name;
     private boolean active;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     private Category parent;
 
     private boolean deleted;

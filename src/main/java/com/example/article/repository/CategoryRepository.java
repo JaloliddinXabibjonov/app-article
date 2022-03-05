@@ -8,25 +8,33 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public interface CategoryRepository extends JpaRepository<Category, Integer> {
 
-    Category getById(Integer id);
+//    Category getById(Integer id);
 
-    Category getByDeletedTrueAndId(Integer id);
+    Category getByIdAndDeletedTrue(Integer id);
+    Category getByDeletedTrueAndActiveTrueAndId(Integer id);
 
     List<Category> findAllByDeletedTrueAndNameContainingIgnoringCase(String name);
 
-    boolean existsByNameAndDeletedTrue(String name);
+    boolean existsByNameAndDeletedTrueAndActiveTrue(String name);
 
-    List<Category> findAllByDeletedTrueAndIdIn(Set<Integer> categoryIdList);
+    List<Category> findAllByDeletedTrueAndActiveTrueAndIdIn(Set<Integer> categoryIdList);
 
-    Page<Category> findAllByDeletedTrue(Pageable pageable);
-List<Category>findAllByDeletedTrue();
+    Page<Category> findAllByDeletedTrueAndActiveTrue(Pageable pageable);
+
+    List<Category> findAllByDeletedTrueAndActiveTrue();
 
 
-
-    @Query(value = "select * from category where parent_id IS NULL", nativeQuery = true)
+    @Query(value = "select * from category where  deleted=true and parent_id IS NULL and active=true", nativeQuery = true)
     List<Category> parentCategory();
+
+    List<Category> findAllByDeletedTrueAndActiveTrueAndParentId(Integer parent_id);
+
+    Category getByDeletedTrueAndId(Integer id);
+
+    List<Category> findAllByDeletedTrue();
 }

@@ -4,10 +4,13 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
 public class AddArticleDto {
+  private UUID  journalsId;
+
     private String description;
     private String author;
     private String titleArticle;

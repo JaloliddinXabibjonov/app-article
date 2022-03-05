@@ -62,7 +62,10 @@ public class ArticleService {
     @Autowired
     NotificationFromUserRepository notificationFromUserRepository;
 
-//        public ApiResponse addArticle(int sahifaSoni, double price, int jurnaldaChopEtishSoni, int bosmaJurnalSoni, int sertifikatSoni, boolean doi, String description, String[] author, String titleArticle, Integer categoryId, boolean publicOrPrivate, UUID userId, MultipartFile file) throws IOException {
+    @Autowired
+    JournalsRepository journalsRepository;
+
+    //        public ApiResponse addArticle(int sahifaSoni, double price, int jurnaldaChopEtishSoni, int bosmaJurnalSoni, int sertifikatSoni, boolean doi, String description, String[] author, String titleArticle, Integer categoryId, boolean publicOrPrivate, UUID userId, MultipartFile file) throws IOException {
 //        System.out.println("-------"+doi);
 //        Article article = new Article();
 //        Optional<Category> category = categoryRepository.findById(categoryId);
@@ -106,10 +109,11 @@ public class ArticleService {
                 authors.setCode(s);
                 User user1 = userRepository.findByCode(s).get();
                 authors.setAuthorId(user1);
-                authors.setFullname(user1.getLastName()+" "+user1.getFirstName());
+                authors.setFullname(user1.getLastName() + " " + user1.getFirstName());
                 authorsRepository.save(authors);
                 article.setAuthors(Collections.singleton(authors));
             }
+
             article.setDescription(dto.getDescription());
             article.setTitleArticle(dto.getTitleArticle());
             article.setPublicPrivate(dto.isPublicPrivate());
@@ -127,6 +131,9 @@ public class ArticleService {
             pricesOfArticle.setPrice(dto.getPrice());
             PricesOfArticle savedPrices = pricesRepository.save(pricesOfArticle);
             article.setPrice(savedPrices);
+//            Journals journals = journalsRepository.getByIdAndDeletedTrue(dto.getJournalsId());
+//            journals.setArticles(Collections.singleton(article));
+//            journalsRepository.save(journals);
             articleRepository.save(article);
             return new ApiResponse("Maqola muvaffaqiyatli saqlandi", true);
         }
@@ -305,13 +312,13 @@ public class ArticleService {
             return new ApiResponse("Qabul qilindi  ", true);
         } else if (redactorResponseDto.getArticleStatus().equals(ArticleStatusName.I_DID_NOT_ACCEPT)) {
             informationArticleRepository.save(new InformationArticle(user, article, new Date(), ArticleStatusName.I_DID_NOT_ACCEPT));
-            String not=user.getFirstName()+" refused to investigate the article, entitled   "+article.getTitleArticle();
+            String not = user.getFirstName() + " refused to investigate the article, entitled   " + article.getTitleArticle();
             UUID administratorId = null;
             for (InformationArticle informationArticle : information) {
-             administratorId=   informationArticle.getChekUser().getId();
+                administratorId = informationArticle.getChekUser().getId();
             }
-            
-            notificationFromUserRepository.save(new NotificationFromUser(redactorResponseDto.getArticleId(),user.getId(),false,not,administratorId));
+
+            notificationFromUserRepository.save(new NotificationFromUser(redactorResponseDto.getArticleId(), user.getId(), false, not, administratorId));
 
             return new ApiResponse("Ok mayli bu ishing yaxshi emas sani reytinging tushib ketadi", true);
         }
@@ -356,9 +363,9 @@ public class ArticleService {
                 } else if (status
                         .equalsIgnoreCase(ArticleStatusName.CHECK_AND_RECYCLE.name())) {
                     informationArticleRepository.save(new InformationArticle(user, description, article, new Date(), ArticleStatusName.CHECK_AND_RECYCLE, file == null ? null : attachmentService.upload1(file)));
-                 String not=" The article entitled the "+ article.getTitleArticle() + "was rejected for publication by "+user.getFirstName();
+                    String not = " The article entitled the " + article.getTitleArticle() + "was rejected for publication by " + user.getFirstName();
                     UUID administratorId = informationArticle.getChekUser().getId();
-                    notificationFromUserRepository.save(new NotificationFromUser(articleId,userId,false,not,administratorId));
+                    notificationFromUserRepository.save(new NotificationFromUser(articleId, userId, false, not, administratorId));
                     return new ApiResponse("Maqola qayta ishlashaga yuborildi", true);
                 }
 //            }

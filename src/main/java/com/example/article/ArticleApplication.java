@@ -42,7 +42,7 @@ public class ArticleApplication {
 //
 //        FirebaseApp.initializeApp(options);
         Date date=new Date();
-        System.out.println("push notification"+date.getTime());
+        System.out.println("push notification"+date.toString());
     }
 
 }

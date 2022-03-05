@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/category")
@@ -19,35 +20,43 @@ public class CategoryController {
     CategoryService categoryService;
 
     @PostMapping("/saveOrEdit")
-    public HttpEntity<ApiResponse> saveOrEdit(@RequestBody CategoryDto categoryDto){
+    public HttpEntity<ApiResponse> saveOrEdit(@RequestBody CategoryDto categoryDto) {
         ApiResponse apiResponse = categoryService.saveOrEdit(categoryDto);
-        return ResponseEntity.status(apiResponse.isSuccess()?201:409).body(apiResponse);
+        return ResponseEntity.status(apiResponse.isSuccess() ? 201 : 409).body(apiResponse);
     }
 
     @GetMapping("/allByPageable")
-    public HttpEntity<ApiResponse> allByPageable(@RequestParam(value = "page",defaultValue = AppConstants.DEFAULT_PAGE_NUMBER)Integer page,
-                                       @RequestParam(value = "size",defaultValue = AppConstants.DEFAULT_PAGE_SIZE)Integer size,
-                                       @RequestParam(value = "search",defaultValue = "all") String search
+    public HttpEntity<ApiResponse> allByPageable(@RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) Integer page,
+                                                 @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) Integer size,
+                                                 @RequestParam(value = "search", defaultValue = "all") String search
     ) throws IllegalAccessException {
-        return ResponseEntity.ok(categoryService.allByPageable(page,size,search));
+        return ResponseEntity.ok(categoryService.allByPageable(page, size, search));
     }
 
     @GetMapping("/changeActive/{id}")
-    public HttpEntity<ApiResponse> changeActive(@PathVariable Integer id){
+    public HttpEntity<ApiResponse> changeActive(@PathVariable Integer id) {
         return ResponseEntity.ok(categoryService.changeActive(id));
     }
 
     @GetMapping("/delete/{id}")
-    public HttpEntity<ApiResponse> remove(@PathVariable Integer id){
+    public HttpEntity<ApiResponse> remove(@PathVariable Integer id) {
         return ResponseEntity.ok(categoryService.remove(id));
     }
 
     @GetMapping("/all")
-    public List<Category> forJournals(){
+    public List<Category> forJournals() {
         return categoryService.all();
     }
 
 
+    @GetMapping("/allParentCategory")
+    public List<Category> allParentCategory() {
+        return categoryService.allParentCategory();
+    }
 
+    @GetMapping("/allChildrenCategory/{journalId}")
+    public List<Category> allChildrenCategory(@PathVariable UUID journalId){
+        return categoryService.allChildrenCategory(journalId);
+    }
 
 }
