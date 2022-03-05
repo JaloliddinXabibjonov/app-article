@@ -1,11 +1,15 @@
 package com.example.article.controller;
 
+import com.example.article.entity.NotificationFromUser;
 import com.example.article.entity.User;
 import com.example.article.payload.ApiResponse;
 import com.example.article.secret.CurrentUser;
 import com.example.article.servise.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.LinkedHashSet;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/notification")
@@ -20,8 +24,8 @@ public class NotificationController {
 
 
     @PostMapping("notificationList")
-    public ApiResponse notificationList(@CurrentUser User user){
-        return    notificationService.notificationList(user);
+    public List<NotificationFromUser> notificationList(@CurrentUser User user){
+        return   notificationService.notificationList(user);
     }
 
 

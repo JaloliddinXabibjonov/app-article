@@ -42,10 +42,6 @@ public class DataLoader implements CommandLineRunner {
             roleRepository.save(new Role(3, "ROLE_REVIEWER"));
             roleRepository.save(new Role(4, "ROLE_USER"));
 
-            categoryRepository.save(new Category("informatika"));
-            categoryRepository.save(new Category("fizika"));
-            categoryRepository.save(new Category("matem"));
-            categoryRepository.save(new Category("iqtisod"));
 
             pricesRepository.save(new Prices(1,10000, 20000, 40000,20000,25000));
 
@@ -56,8 +52,8 @@ public class DataLoader implements CommandLineRunner {
                             "1",
                             "admin",
                             passwordEncoder.encode("1"),
-                            roleRepository.findAllByIdIn(Collections.singletonList(1)),
-                            Collections.singletonList(categoryRepository.getById(1))
+                            roleRepository.findAllByIdIn(Collections.singletonList(1))
+//                            Collections.singletonList(categoryRepository.getById(1))
                     ));
             userRepository.save(
                     new User(
@@ -66,8 +62,8 @@ public class DataLoader implements CommandLineRunner {
                             "2",
                             "manager@",
                             passwordEncoder.encode("2"),
-                            roleRepository.findAllByIdIn(Collections.singletonList(2)),
-                            Collections.singletonList(categoryRepository.getById(1))
+                            roleRepository.findAllByIdIn(Collections.singletonList(2))
+//                            Collections.singletonList(categoryRepository.getById(1))
                     )
             );
             userRepository.save(
@@ -77,8 +73,8 @@ public class DataLoader implements CommandLineRunner {
                             "3",
                             "Qaxarjonov@",
                             passwordEncoder.encode("3"),
-                            roleRepository.findAllByIdIn(Collections.singletonList(3)),
-                            Collections.singletonList(categoryRepository.getById(1))
+                            roleRepository.findAllByIdIn(Collections.singletonList(3))
+//                            Collections.singletonList(categoryRepository.getById(1))
                     )
             );
             userRepository.save(
@@ -88,8 +84,8 @@ public class DataLoader implements CommandLineRunner {
                             "7" ,
                             "Atham@",
                             passwordEncoder.encode("7"),
-                            roleRepository.findAllByIdIn(Collections.singletonList(3)),
-                            Collections.singletonList(categoryRepository.getById(1))
+                            roleRepository.findAllByIdIn(Collections.singletonList(3))
+//                            Collections.singletonList(categoryRepository.getById(1))
                     )
             );
 
@@ -101,8 +97,8 @@ public class DataLoader implements CommandLineRunner {
                             "8",
                             "Jasur@",
                             passwordEncoder.encode("8"),
-                            roleRepository.findAllByIdIn(Collections.singletonList(3)),
-                            Collections.singletonList(categoryRepository.getById(1))
+                            roleRepository.findAllByIdIn(Collections.singletonList(3))
+//                            Collections.singletonList(categoryRepository.getById(1))
 
 
 
@@ -116,8 +112,8 @@ public class DataLoader implements CommandLineRunner {
                             "4",
                             "Ahmadxajayev@",
                             passwordEncoder.encode("4"),
-                            roleRepository.findAllByIdIn(Collections.singletonList(4)),
-                            Collections.singletonList(categoryRepository.getById(1))
+                            roleRepository.findAllByIdIn(Collections.singletonList(4))
+//                            Collections.singletonList(categoryRepository.getById(1))
                     )
             );
             userRepository.save(
@@ -128,8 +124,8 @@ public class DataLoader implements CommandLineRunner {
                             "Jajoliddin@",
 
                             passwordEncoder.encode("5"),
-                            roleRepository.findAllByIdIn(Collections.singletonList(4)),
-                            Collections.singletonList(categoryRepository.getById(1))
+                            roleRepository.findAllByIdIn(Collections.singletonList(4))
+//                            Collections.singletonList(categoryRepository.getById(1))
 
 
                     ));
@@ -141,10 +137,10 @@ public class DataLoader implements CommandLineRunner {
                             "6",
                             "Orif@",
                             passwordEncoder.encode("6"),
-                            roleRepository.findAllByIdIn(Collections.singletonList(1)),
-                            Collections.singletonList(categoryRepository.getById(1))
+                            roleRepository.findAllByIdIn(Collections.singletonList(1))
+//                            Collections.singletonList(categoryRepository.getById(1))
                     ));
-            articleRepository.save(new Article( categoryRepository.getById(1), "Tarix ", true,"dfds" ));
+//            articleRepository.save(new Article( "Tarix ", true,"dfds" ));
 //            articleRepository.save(new Article( categoryRepository.getById(1), "Matematika ", true,"dfds"));
 //            articleRepository.save(new Article(categoryRepository.getById(1), "Fizika ", true,"dfds"));
 //            articleRepository.save(new Article(categoryRepository.getById(1), "Sanoat ", true,"dfds"));

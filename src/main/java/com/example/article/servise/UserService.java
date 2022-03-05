@@ -130,7 +130,7 @@ public class UserService {
             user.setPhoneNumber(phoneNumber);
             user.setPassword(passwordEncoder.encode(password));
             user.setEmail(email);
-            user.setCategories(categoryRepository.findAllByDeletedTrueAndIdIn(categoryIdList));
+            user.setCategories(categoryRepository.findAllByDeletedTrueAndActiveTrueAndIdIn(categoryIdList));
             user.setWorkPlace(workPlace);
             user.setWorkExperience(workExperience);
             user.setScientificWork(singletonList(attachmentService.upload1(file)));

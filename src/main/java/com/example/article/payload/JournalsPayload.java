@@ -20,18 +20,33 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class JournalsPayload {
+
     private UUID id;
-    private String name;
-    private int numberOfThisYear;       /**BU YILGI SONI*/
-    private int generalNumber;          /**UMUMIY SONI*/
-    private Date receivedDate;  // maqolani qabul qilish sanasi
-    private UUID parentId;              /**QAYSI JURNALNING SONI*/
-    private String articleReviewers; // bu maqolani kimlar korib chiqish haqida ma'lumot bunda hamma reviwerlar haqida malumot ilmiy kengash haqida
-    private int printedDate;        /**NECHA KUNDA NASHR ETILISHI*/
+    private String title;
+    private int releaseNumberOfThisYear;
+    private String createdDate;
+    private String status;
+    /**
+     * BU YILGI SONI
+     */
+    private int allReleasesNumber;
+    /**
+     * UMUMIY SONI
+     */
+    private String deadline;  // maqolani qabul qilish sanasi
+    private UUID parentId;
+    /**
+     * QAYSI JURNALNING SONI
+     */
+    private String description; // bu maqolani kimlar korib chiqish haqida ma'lumot bunda hamma reviwerlar haqida malumot ilmiy kengash haqida
+    private int printedDate;
+    /**
+     * NECHA KUNDA NASHR ETILISHI
+     */
     private String issn;
     private String isbn;
-    private String certificateOfJournals;
+    private String certificateNumber;
     private int categoryId;
 
-
+    private Set<Article> articles;
 }

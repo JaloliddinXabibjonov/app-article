@@ -24,7 +24,7 @@ public class AttachmentService {
     @Autowired
     AttachmentContentRepository attachmentContentRepository;
 
-    public ApiResponse upload(MultipartHttpServletRequest request) throws IOException {
+    public Attachment upload(MultipartHttpServletRequest request) throws IOException {
         List<UUID> photoIds = new ArrayList<>();
         Iterator<String> fileNames = request.getFileNames();
         while (fileNames.hasNext()){
@@ -40,9 +40,10 @@ public class AttachmentService {
         content.setBytes(file.getBytes());
         attachmentContentRepository.save(content);
         photoIds.add(attechment.getId());
+     return  attechment;
         }
-        return new ApiResponse("ok", true, photoIds);
-    }
+  return null;
+   }
 
     public HttpEntity<?> download(UUID id) {
         Attachment byId = attachmentRepository.getById(id);

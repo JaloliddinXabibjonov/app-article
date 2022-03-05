@@ -36,7 +36,7 @@ public class NotificationService {
     }
 
 
-    public ApiResponse notificationList(User user) {
+    public List<NotificationFromUser> notificationList(User user) {
 
         String roleName = null;
         for (Role role : user.getRoles()) {
@@ -53,7 +53,7 @@ public class NotificationService {
             notificationList = fromUserRepository.findAllByUserIdAndReadFalse(user.getId());
 
         }
-        return new ApiResponse("Notification ", true, notificationList);
+        return notificationList;
 
     }
 
