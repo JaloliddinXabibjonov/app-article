@@ -54,12 +54,12 @@ public class InformationArticle extends AbsEntity {  //bu articldi kim va qachon
     @OneToOne
     private Attachment attachFile;
 
-//    public InformationArticle(User user, User byId, Date date, Watdou watdou) {
-//        this.chekUser = user;
-//        this.article = byId;
-//        this.watdou = watdou;
-//        this.whenAndWho = date;
-//    }
+    public InformationArticle(User user, Article article, Date date, String description) {
+        this.chekUser = user;
+        this.article = article;
+        this.whenAndWho = date;
+        this.description = description;
+    }
 
     public InformationArticle(User user, Article articleId, Date date, ArticleStatusName articleStatus, Attachment attachFile) {
         this.redactor = user;
@@ -119,7 +119,7 @@ public class InformationArticle extends AbsEntity {  //bu articldi kim va qachon
         this.articleStatusName = articleStatusName;
         this.massage = massage;
         this.attachFile = attachFile;
-        this.description=description;
+        this.description = description;
     }
 
 }

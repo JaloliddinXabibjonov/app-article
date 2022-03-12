@@ -84,4 +84,6 @@ public class InformationArticleService {
             return new ApiResponse("Xatolik yuz berdi, qayta urinib ko`ring", false);
         }
     }
+
+
 }

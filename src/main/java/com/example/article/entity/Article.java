@@ -9,6 +9,7 @@ import javax.persistence.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 
 @Getter
@@ -26,6 +27,8 @@ public class Article extends AbsEntity {
 
     @ManyToMany
     private Set<Authors> authors;
+
+//    private boolean deleted;
 
     private String titleArticle;
 
@@ -66,6 +69,16 @@ public class Article extends AbsEntity {
 
     @ManyToOne(fetch = FetchType.EAGER)
     private Category category;
+
+//    private UUID journalId;
+
+    @ManyToMany
+    private List<Journals> journals;
+
+    private  boolean journalsActive=false;
+
+    @OneToOne
+    private  Attachment publishedArticle;
 
 
 }

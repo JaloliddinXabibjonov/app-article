@@ -226,4 +226,9 @@ public class UserController {
 //    public List<Notifications> getMyNotifications(@CurrentUser User user){
 //        return userService.getMyNotifications(user);
 //    }
+
+    @GetMapping("/getAuthorByCode/{code}")
+    public String getAuthorByCode(@PathVariable Integer code){
+        return userService.getAuthorByCode(code);
+    }
 }

@@ -9,15 +9,13 @@ import java.util.UUID;
 @Getter
 @Setter
 public class AddArticleDto {
-  private UUID  journalsId;
-
+    private UUID journalsId;
     private String description;
     private String author;
     private String titleArticle;
     private boolean publicPrivate;
     private Integer categoryId;
     private List<Integer> authorsList;
-
     private int sahifaSoni;
     private int jurnaldaChopEtishSoni;
     private int bosmaJurnalSoni;
