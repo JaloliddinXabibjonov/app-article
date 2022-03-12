@@ -698,7 +698,7 @@ public class ArticleService {
             for (InformationArticle informationArticle : informationArticleList) {
                 ArticleAdminInfo articleAdminInfo = new ArticleAdminInfo();
                 String format = new SimpleDateFormat("dd-MMM-yyyy | HH:mm").format(informationArticle.getWhenAndWho());
-                if (informationArticle.getChekUser() == null) {
+                if (informationArticle.getChekUser() == null && informationArticle.getRedactor().getRoles().get(0).getRoleName().equals(RoleName.ROLE_REVIEWER.name())) {
                     articleAdminInfo.setFullName(informationArticle.getRedactor().getLastName() + " " + informationArticle.getRedactor().getFirstName());
                     articleAdminInfo.setRole(informationArticle.getRedactor().getRoles().get(0).getRoleName());
                     articleAdminInfo.setProcessDate(format);

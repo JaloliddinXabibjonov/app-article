@@ -51,6 +51,7 @@ public class InformationArticle extends AbsEntity {  //bu articldi kim va qachon
     private String description;
     private long deadline;
 
+
     @OneToOne
     private Attachment attachFile;
 
