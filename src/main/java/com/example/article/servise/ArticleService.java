@@ -7,6 +7,7 @@ import com.example.article.entity.enums.Watdou;
 import com.example.article.payload.*;
 import com.example.article.repository.*;
 
+import com.google.protobuf.Api;
 import lombok.SneakyThrows;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
@@ -102,26 +103,35 @@ public class ArticleService {
     public ApiResponse addArticle(AddArticleDto dto, User user, MultipartFile file) throws IOException {
         System.out.println("-------" + dto.isDoi());
         Article article = new Article();
+        Set<Authors> authorsList = new HashSet<>();
         Optional<Category> category = categoryRepository.findById(dto.getCategoryId());
         if (category.isPresent()) {
-            for (Integer s : dto.getAuthorsList()) {
-                Authors authors = new Authors();
-                authors.setCode(s);
-                User user1 = userRepository.findByCode(s).get();
-                authors.setAuthorId(user1);
-                authors.setFullname(user1.getLastName() + " " + user1.getFirstName());
-                authorsRepository.save(authors);
-                article.setAuthors(Collections.singleton(authors));
+            if (dto.getAuthorsList().size() != 0) {
+
+                for (Integer s : dto.getAuthorsList()) {
+                    Authors authors = new Authors();
+                    authors.setCode(s);
+                    User user1 = userRepository.findByCode(s).get();
+                    authors.setAuthorId(user1);
+                    authors.setFullname(user1.getLastName() + " " + user1.getFirstName());
+                    authorsRepository.save(authors);
+                    authorsList.add(authors);
+                }
+                authorsList.add(new Authors(user, user.getLastName() + " " + user.getFirstName(), user.getCode()));
+                article.setAuthors(authorsList);
             }
+
+            System.out.println("author" + dto.getAuthorsList());
 
             article.setDescription(dto.getDescription());
             article.setTitleArticle(dto.getTitleArticle());
             article.setPublicPrivate(dto.isPublicPrivate());
             article.setCategory(category.get());
             article.setUser(user);
-            article.setPay(false);
+            article.setPay(true);
             article.setViews(0);
             article.setFile(attachmentService.upload1(file));
+
             PricesOfArticle pricesOfArticle = new PricesOfArticle();
             pricesOfArticle.setSahifaSoni(dto.getSahifaSoni());
             pricesOfArticle.setJurnallardaChopEtishSoni(dto.getJurnaldaChopEtishSoni());
@@ -131,9 +141,8 @@ public class ArticleService {
             pricesOfArticle.setPrice(dto.getPrice());
             PricesOfArticle savedPrices = pricesRepository.save(pricesOfArticle);
             article.setPrice(savedPrices);
-//            Journals journals = journalsRepository.getByIdAndDeletedTrue(dto.getJournalsId());
-//            journals.setArticles(Collections.singleton(article));
-//            journalsRepository.save(journals);
+//            article.setJournalId(dto.getJournalsId());
+            article.setJournals(Collections.singletonList(journalsRepository.findByIdAndDeletedTrue(dto.getJournalsId())));
             articleRepository.save(article);
             return new ApiResponse("Maqola muvaffaqiyatli saqlandi", true);
         }
@@ -240,7 +249,7 @@ public class ArticleService {
                 informationArticleRepository.save(new InformationArticle(user, userId, article, new Date(), addRedactorDto
                         .isAddAndRemove() ? Watdou.ADD : Watdou.DELETE, ArticleStatusName.NULL));
                 editorArticleRepository.deleteByArticleIdAndRedactorId(article.getId(), userId.getId());
-                return new ApiResponse("Articledan shu  user o'chirildi", true);
+                return new ApiResponse("Articledan shu user o'chirildi", true);
             }
             if (editorsArticle.isEmpty()) {
 //            if (addRedactorDto.isAddAndRemove()) {
@@ -253,10 +262,10 @@ public class ArticleService {
                         .isAddAndRemove() ? ArticleStatusName.ADD : ArticleStatusName.REMOVE));
                 notificationFromUserRepository.save(new NotificationFromUser(article.getId(), addRedactorDto.getRedactorsAndReviewer(), false, not));
 
-                return new ApiResponse("Maqolaga user biriktirildi", true);
+                return new ApiResponse("Maqolaga tekshiruvchi biriktirildi", true);
             }
         }
-        return new ApiResponse("bu user oldin biriktirilgan  ", false);
+        return new ApiResponse("Bu tekshiruvchi oldin biriktirilgan  ", false);
 
 
 //        }
@@ -337,7 +346,7 @@ public class ArticleService {
 //        return new ApiResponse("habar yuborildi", true);
 //    }
 
-    //    // Articlaga redactor yo reviewrlar tomondan beriladigon statuslar
+    //    // Articlaga  reviewrlar tomondan beriladigon statuslar
     @SneakyThrows
     public ApiResponse statusesGivenToTheArticleByTheEditors(UUID userId, String description, UUID articleId, String status, MultipartFile file) {
         System.out.println(" papka    --" + file);
@@ -356,8 +365,7 @@ public class ArticleService {
                     informationArticleRepository.save(new InformationArticle(user, description, article, new Date(), ArticleStatusName.CHECK_AND_ACCEPT, file == null ? null : attachmentService.upload1(file)));
 
                     return new ApiResponse("Siz maqola tekshiruvini yakunladingiz", true);
-                } else if (status
-                        .equalsIgnoreCase(ArticleStatusName.CHECK_AND_CANCEL.name())) {
+                } else if (status.equalsIgnoreCase(ArticleStatusName.CHECK_AND_CANCEL.name())) {
                     informationArticleRepository.save(new InformationArticle(user, description, article, new Date(), ArticleStatusName.CHECK_AND_CANCEL, file == null ? null : attachmentService.upload1(file)));
                     return new ApiResponse("Siz maqolani rad qildingiz", true);
                 } else if (status
@@ -376,6 +384,8 @@ public class ArticleService {
                     return new ApiResponse("Sizga berilgan vaqt tugati ", false);
                 } else {
                     informationArticleRepository.save(new InformationArticle(user, description, article, new Date(), ArticleStatusName.PREPARED_FOR_PUBLICATION, file == null ? null : attachmentService.upload1(file)));
+                    article.setArticleStatusName(ArticleStatusName.PREPARED_FOR_PUBLICATION);
+                    articleRepository.save(article);
                     return new ApiResponse("Siz maqolani tasdiqladingiz", true);
                 }
             }
@@ -439,7 +449,7 @@ public class ArticleService {
     }
 
 
-    // adminstratorlar uchun articlarni statusiga qarab get qilish
+    //     adminstratorlar uchun articlarni statusiga qarab get qilish
     public ApiResponse newMyArticle(User user, ArticleStatusInAdmins articleStatusInAdmins) {
         System.out.println(">>>>>" + articleStatusInAdmins.getStatus());
         if (user == null) {
@@ -679,7 +689,7 @@ public class ArticleService {
         return new ApiResponse("Muvaffaqiyatli tahrirlandi", true);
     }
 
-    public ArticleInfo getArticleInfo(UUID articleId) {
+    public ArticleInfo getArticleInfoForAdmin(UUID articleId) {
         try {
             ArticleInfo articleInfo = new ArticleInfo();
             articleInfo.setArticle(articleRepository.findById(articleId).get());
@@ -688,24 +698,15 @@ public class ArticleService {
             for (InformationArticle informationArticle : informationArticleList) {
                 ArticleAdminInfo articleAdminInfo = new ArticleAdminInfo();
                 String format = new SimpleDateFormat("dd-MMM-yyyy | HH:mm").format(informationArticle.getWhenAndWho());
-                if (informationArticle.getChekUser() == null) {
+                if (informationArticle.getChekUser() == null && informationArticle.getRedactor().getRoles().get(0).getRoleName().equals(RoleName.ROLE_REVIEWER.name())) {
                     articleAdminInfo.setFullName(informationArticle.getRedactor().getLastName() + " " + informationArticle.getRedactor().getFirstName());
                     articleAdminInfo.setRole(informationArticle.getRedactor().getRoles().get(0).getRoleName());
-                } else if (informationArticle.getRedactor() == null) {
-                    articleAdminInfo.setFullName(informationArticle.getChekUser().getLastName() + " " + informationArticle.getChekUser().getFirstName());
-                    articleAdminInfo.setRole(informationArticle.getChekUser().getRoles().get(0).getRoleName());
-                } else {
-                    articleAdminInfo.setFullName(informationArticle.getChekUser().getLastName() + " " + informationArticle.getChekUser().getFirstName());
-                    articleAdminInfo.setRole(informationArticle.getChekUser().getRoles().get(0).getRoleName());
-                }
-                articleAdminInfo.setProcessDate(format);
-                if (informationArticle.getArticleStatusName().equals(ArticleStatusName.ADD))
-                    articleAdminInfo.setStatus(informationArticle.getArticleStatusName().name() + " (" + informationArticle.getRedactor().getLastName() + " " + informationArticle.getRedactor().getFirstName() + ")");
-                else
+                    articleAdminInfo.setProcessDate(format);
+                    articleAdminInfo.setComment(informationArticle.getDescription());
+                    articleAdminInfo.setFile(informationArticle.getAttachFile());
                     articleAdminInfo.setStatus(informationArticle.getArticleStatusName().name());
-                articleAdminInfo.setComment(informationArticle.getDescription());
-                articleAdminInfo.setFile(informationArticle.getAttachFile());
-                articleAdminInfoList.add(articleAdminInfo);
+                    articleAdminInfoList.add(articleAdminInfo);
+                }
             }
             articleInfo.setArticleAdminInfoList(articleAdminInfoList);
             return articleInfo;
@@ -761,6 +762,58 @@ public class ArticleService {
     public List<Article> getMyCopyRightedArticles(User user) {
         return articleRepository.findAllByAuthorsCode(user.getCode());
     }
+
+
+    public List<ArticleAdminInfo> getArticleInfoForRedactor(UUID articleId) {
+        List<InformationArticle> informationArticleList = informationArticleRepository.findAllByArticleStatusNameAndIdOrArticleStatusNameAndIdOrArticleStatusNameAndId(ArticleStatusName.CHECK_AND_ACCEPT, articleId, ArticleStatusName.CHECK_AND_CANCEL, articleId, ArticleStatusName.CHECK_AND_RECYCLE, articleId);
+        List<ArticleAdminInfo> articleAdminInfoList = new ArrayList<>();
+        for (InformationArticle informationArticle : informationArticleList) {
+            ArticleAdminInfo articleAdminInfo = new ArticleAdminInfo();
+            articleAdminInfo.setFullName(informationArticle.getRedactor().getLastName() + " " + informationArticle.getRedactor().getFirstName());
+            articleAdminInfo.setStatus(informationArticle.getArticleStatusName().name());
+            articleAdminInfo.setComment(informationArticle.getDescription());
+            articleAdminInfo.setFile(informationArticle.getAttachFile());
+            articleAdminInfoList.add(articleAdminInfo);
+        }
+        return articleAdminInfoList;
+    }
+
+
+    public ApiResponse redactorArticle(User user, ArticleRedactorDto redactorDto) {
+        Article article = articleRepository.findByConfirmTrueAndId(redactorDto.getArticleId());
+        InformationArticle informationArticle = informationArticleRepository.findByArticleId(redactorDto.getArticleId());
+        article.setPublishedArticle(redactorDto.getPublishedArticle());
+        informationArticle.setDescription(redactorDto.getDescription());
+        informationArticle.setRedactor(user);
+        informationArticleRepository.save(informationArticle);
+        articleRepository.save(article);
+        return new ApiResponse("saved ", true);
+    }
+
+
+    public ApiResponse articleStatusAdministrator(User user1, GiveStatusDto statusDto) {
+        Article article = articleRepository.findByConfirmTrueAndId(statusDto.getArticleId());
+        User user = userRepository.findByEnabledTrueAndId(article.getUser().getId());
+        String notification = statusDto.getStatus() + "--> " + statusDto.getDescription();
+        if (statusDto.getStatus().toString().equals("PUBLISHED")) {
+
+            article.setArticleStatusName(statusDto.getStatus());
+            article.setJournalsActive(true);
+            smsService.sendSms(user.getPhoneNumber(), notification);
+            notificationFromUserRepository.save(new NotificationFromUser(user.getId(), false, notification));
+            informationArticleRepository.save(new InformationArticle(user1, article, new Date(), notification));
+        } else {
+            article.setArticleStatusName(statusDto.getStatus());
+            smsService.sendSms(user.getPhoneNumber(), notification);
+            notificationFromUserRepository.save(new NotificationFromUser(user.getId(), false, notification));
+            informationArticleRepository.save(new InformationArticle(user1, article, new Date(), notification));
+        }
+        return new ApiResponse(" Ok ", true);
+    }
+
+//    public ApiResponse getArticleByStatus(User user, String status){
+//        articleRepository.findAllByArticleStatusName()
+//    }
 
 
 }

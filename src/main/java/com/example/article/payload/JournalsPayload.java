@@ -34,10 +34,9 @@ public class JournalsPayload {
      * UMUMIY SONI
      */
     private String deadline;  // maqolani qabul qilish sanasi
-    private UUID parentId;
-    /**
-     * QAYSI JURNALNING SONI
-     */
+    private UUID parentId;  /**QAYSI JURNALNING SONI*/
+
+
     private String description; // bu maqolani kimlar korib chiqish haqida ma'lumot bunda hamma reviwerlar haqida malumot ilmiy kengash haqida
     private int printedDate;
     /**

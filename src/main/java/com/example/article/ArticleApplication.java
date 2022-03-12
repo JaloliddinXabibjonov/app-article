@@ -9,6 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.time.ZoneId;
 import java.util.*;
 
 @SpringBootApplication
@@ -41,8 +42,15 @@ public class ArticleApplication {
 //                .build();
 //
 //        FirebaseApp.initializeApp(options);
-        Date date=new Date();
-        System.out.println("push notification"+date.toString());
+
+
+
+//        Set<String> zanId= ZoneId.getAvailableZoneIds();
+//        for (String s : zanId) {
+//            System.out.println(s);
+//        }
+        System.out.println("-----"+new Date().getTime());
+
     }
 
 }

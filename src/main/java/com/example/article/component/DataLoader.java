@@ -24,8 +24,7 @@ public class DataLoader implements CommandLineRunner {
     PasswordEncoder passwordEncoder;
     @Autowired
     CategoryRepository categoryRepository;
-    @Autowired
-    ArticleRepository articleRepository;
+
     @Autowired
     PricesRepository pricesRepository;
 

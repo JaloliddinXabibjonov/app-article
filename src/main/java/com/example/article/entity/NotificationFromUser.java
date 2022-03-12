@@ -40,6 +40,12 @@ public class NotificationFromUser {
         this.notificationName = notificationName;
     }
 
+    public NotificationFromUser( UUID userId, boolean read, String notificationName) {
+        this.userId = userId;
+        this.read = read;
+        this.notificationName = notificationName;
+    }
+
     public NotificationFromUser(UUID articleId, UUID userId, boolean read, String notificationName, UUID administratorId) {
         this.articleId = articleId;
         this.userId = userId;

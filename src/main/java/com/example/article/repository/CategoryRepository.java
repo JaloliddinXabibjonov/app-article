@@ -1,6 +1,7 @@
 package com.example.article.repository;
 
 import com.example.article.entity.Category;
+import org.apache.poi.sl.draw.geom.GuideIf;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,6 +18,7 @@ public interface CategoryRepository extends JpaRepository<Category, Integer> {
 
     Category getByIdAndDeletedTrue(Integer id);
     Category getByDeletedTrueAndActiveTrueAndId(Integer id);
+    Category findByDeletedTrueAndActiveTrueAndId(Integer id);
 
     List<Category> findAllByDeletedTrueAndNameContainingIgnoringCase(String name);
 
@@ -37,4 +39,6 @@ public interface CategoryRepository extends JpaRepository<Category, Integer> {
     Category getByDeletedTrueAndId(Integer id);
 
     List<Category> findAllByDeletedTrue();
+
+    Optional<Category> findByIdAndDeletedTrue(int categoryId);
 }

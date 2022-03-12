@@ -26,8 +26,8 @@ public class CategoryService {
     JournalsRepository journalsRepository;
     public ApiResponse saveOrEdit(CategoryDto dto) {
         boolean exists = categoryRepository.existsByNameAndDeletedTrueAndActiveTrue(dto.getName());
-        if (exists)
-            return new ApiResponse(dto.getName() + " nomli bo`lim avval qo`shilgan", false);
+//        if (exists)
+//            return new ApiResponse(dto.getName() + " nomli bo`lim avval qo`shilgan", false);
         try {
             Category category = new Category();
             if (dto.getId() != null) {

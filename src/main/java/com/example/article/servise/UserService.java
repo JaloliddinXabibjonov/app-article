@@ -581,4 +581,13 @@ public class UserService {
 //
 //
 //    }
+
+    public String getAuthorByCode(int code){
+        Optional<User> optionalUser = userRepository.findByCode(code);
+        if (optionalUser.isPresent()){
+            User user = optionalUser.get();
+            return user.getLastName()+" "+user.getFirstName()+" "+user.getFatherName();
+        }
+        return "Muallif topilmadi";
+    }
 }

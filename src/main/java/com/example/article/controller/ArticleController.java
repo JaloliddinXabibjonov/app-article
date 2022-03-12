@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.print.attribute.standard.Media;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -40,7 +41,7 @@ public class ArticleController {
     @PostMapping(value = "/addArticle")
     public HttpEntity<ApiResponse> save(@ModelAttribute AddArticleDto dto, @CurrentUser User user, @RequestPart MultipartFile file) throws IOException {
         ApiResponse apiResponse = articleService.addArticle(dto, user, file);
-        System.out.println("------"+dto.getAuthorsList().toString());
+        System.out.println("------" + dto.getAuthorsList().toString());
         return ResponseEntity.status(apiResponse.isSuccess() ? 201 : 409).body(apiResponse);
     }
 
@@ -189,7 +190,7 @@ public class ArticleController {
 
     @GetMapping("/articleInfoForAdmin/{id}")
     public ArticleInfo getArticleInfoForAdmin(@PathVariable UUID id) {
-        return articleService.getArticleInfo(id);
+        return articleService.getArticleInfoForAdmin(id);
     }
 
     @GetMapping("/getById/{id}")
@@ -250,6 +251,24 @@ public class ArticleController {
     @GetMapping("/myCopyrightedArticles")
     public List<Article> getMyCopyrightedArticles(@CurrentUser User user) {
         return articleService.getMyCopyRightedArticles(user);
+    }
+    @GetMapping("/getArticleInfoForRedactor/{id}")
+    public List<ArticleAdminInfo> getArticleInfoForRedactor(@PathVariable UUID id) {
+        return articleService.getArticleInfoForRedactor(id);
+    }
+
+
+    @PostMapping("/redactorArticle")
+    public ApiResponse redactorArticle(@CurrentUser User user, @RequestBody ArticleRedactorDto redactorDto) {
+        articleService.redactorArticle(user, redactorDto);
+        return new ApiResponse("ok ", true);
+    }
+
+
+    @PostMapping("/articleStatusAdministrator")
+    public ApiResponse articleStatusAdministrator(@CurrentUser User user, @RequestBody GiveStatusDto statusDto) {
+        articleService.articleStatusAdministrator(user, statusDto);
+        return new ApiResponse("ok ", true);
     }
 
 

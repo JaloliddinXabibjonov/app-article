@@ -8,11 +8,11 @@ import javax.persistence.Entity;
 import javax.persistence.OneToOne;
 import java.util.UUID;
 
-@EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Data
+@Getter
+@Setter
 public class Authors extends AbsEntity {
 
     @JsonIgnore
