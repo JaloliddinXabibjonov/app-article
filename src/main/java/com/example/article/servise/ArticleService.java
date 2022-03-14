@@ -134,7 +134,7 @@ public class ArticleService {
 
             PricesOfArticle pricesOfArticle = new PricesOfArticle();
             pricesOfArticle.setSahifaSoni(dto.getSahifaSoni());
-            pricesOfArticle.setJurnallardaChopEtishSoni(dto.getJurnaldaChopEtishSoni());
+//            pricesOfArticle.setJurnallardaChopEtishSoni(dto.getJurnaldaChopEtishSoni());
             pricesOfArticle.setBosmaJurnallarSoni(dto.getBosmaJurnalSoni());
             pricesOfArticle.setSertifikatlarSoni(dto.getSertifikatSoni());
             pricesOfArticle.setDoi(dto.isDoi());
@@ -190,7 +190,6 @@ public class ArticleService {
 
     //// bu articli redactorsAndReviewer larga biriktiradi va notifikatsiya cho'natadi
     public ApiResponse articleAddEditors(User user, NotificationForRedacktors redacktors) {
-
 
         List<User> allByIdIn = userRepository.findAllByEnabledTrueAndIdInAndDeleteFalse(redacktors.getRedactorsAndReviewer());
 
@@ -349,11 +348,13 @@ public class ArticleService {
     //    // Articlaga  reviewrlar tomondan beriladigon statuslar
     @SneakyThrows
     public ApiResponse statusesGivenToTheArticleByTheEditors(UUID userId, String description, UUID articleId, String status, MultipartFile file) {
-        System.out.println(" papka    --" + file);
+        System.out.println(" papka    --" + description);
         try {
+            User user = userRepository.findById(userId).get();
+//            informationArticleRepository.existsByArticleIdAndArticleStatusNameAndRedactorIdOrArticleIdAndArticleStatusNameAndRedactorIdOrArticleIdAndArticleStatusNameAndRedactorId(articleId, ArticleStatusName.CHECK_AND_ACCEPT, user, articleId, ArticleStatusName.CHECK_AND_ACCEPT, user, )
             InformationArticle informationArticle = informationArticleRepository.findByArticleIdAndRedactorIdAndArticleStatusName(articleId, userId, ArticleStatusName.I_ACCEPTED);
             System.out.println("---->" + articleId);
-            User user = userRepository.findById(userId).get();
+
             Integer roleId = user.getRoles().get(0).getId();
             if (roleId == 3) {
                 Article article = articleRepository.getById(informationArticle.getArticle().getId());
@@ -713,6 +714,21 @@ public class ArticleService {
         } catch (Exception e) {
             return new ArticleInfo();
         }
+    }
+
+    public List<ArticleAdminInfo> getArticleInfoAdmin(UUID articleId){
+        List<InformationArticle> informationArticleList = informationArticleRepository.findAllByArticleId(articleId);
+        List<ArticleAdminInfo> articleAdminInfoList = new ArrayList<>();
+        for (InformationArticle informationArticle : informationArticleList) {
+            ArticleAdminInfo articleAdminInfo = new ArticleAdminInfo();
+            String format = new SimpleDateFormat("dd-MMM-yyyy | HH:mm").format(informationArticle.getWhenAndWho());
+            if (informationArticle.getRedactor() == null) {
+                articleAdminInfo.setProcessDate(format);
+                articleAdminInfo.setStatus(informationArticle.getArticleStatusName().name());
+                articleAdminInfoList.add(articleAdminInfo);
+            }
+        }
+        return articleAdminInfoList;
     }
 
     public Article getById(UUID articleId) {

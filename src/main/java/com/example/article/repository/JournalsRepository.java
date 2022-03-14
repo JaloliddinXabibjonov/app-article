@@ -15,10 +15,13 @@ public interface JournalsRepository extends JpaRepository<Journals, UUID> {
     @Query(value = "select all_releases_number from journals  where parent_id=?1 or id=?1 order by created_at desc limit 1", nativeQuery = true)
     int findAllReleaseNumberByParentIdAndLastPublished(UUID parentId);
 
+
+    int findReleaseNumberOfThisYearByParentId(UUID parentId);
     List<Journals> findAllByDeletedTrueAndJournalsStatus(String journalsStatus);
 
 
     List<Journals> findAllByDeletedTrueAndParentIdNullAndCategoryId(Integer category_id);
+
     List<Journals> findAllByDeletedTrueAndParentIdNull();
 
     List<Journals> findAllByDeletedTrueAndParentId(UUID parentId);
@@ -32,7 +35,6 @@ public interface JournalsRepository extends JpaRepository<Journals, UUID> {
     Journals findByIdAndDeletedTrue(UUID id);
 
 
-
     List<Journals> findAllByDeletedTrueAndIdOrDeletedTrueAndId(UUID id, UUID id2);
 
 
@@ -41,15 +43,15 @@ public interface JournalsRepository extends JpaRepository<Journals, UUID> {
 
 //    List<Journals> findAllByDeletedTrueAndActiveTrue
 
-    List<Journals>findAllByDeletedTrueAndJournalsStatusAndId(String journalsStatus, UUID id);
+    List<Journals> findAllByDeletedTrueAndJournalsStatusAndId(String journalsStatus, UUID id);
 
 
-    @Query(value = "select  date_publication from  journals where (deleted=true and id=?1) or (deleted=true and parent_id=?1) order by date_publication desc",nativeQuery = true)
-   Set<Integer> findAllByDeletedTrueAndIdOrDeletedTrueAndParentId(UUID id, UUID parentId);
+    @Query(value = "select  date_publication from  journals where (deleted=true and id=?1) or (deleted=true and parent_id=?1) order by date_publication DESC ", nativeQuery = true)
+    Set<Integer> findAllByDeletedTrueAndIdOrDeletedTrueAndParentId(UUID id, UUID parentId);
 
-List<Journals> findAllByDeletedTrueAndDatePublicationAndIdOrDeletedTrueAndDatePublicationAndParentIdOrderByReleaseNumberOfThisYear(int datePublication, UUID id, int datePublication2, UUID parentId);
-List<Journals> findAllByDeletedTrueAndDatePublicationAndIdOrDeletedTrueAndDatePublicationAndParentId(int datePublication, UUID id, int datePublication2, UUID parentId);
+    List<Journals> findAllByDeletedTrueAndDatePublicationAndIdOrDeletedTrueAndDatePublicationAndParentIdOrderByReleaseNumberOfThisYear(int datePublication, UUID id, int datePublication2, UUID parentId);
 
+    List<Journals> findAllByDeletedTrueAndDatePublicationAndIdOrDeletedTrueAndDatePublicationAndParentId(int datePublication, UUID id, int datePublication2, UUID parentId);
 
 
 }

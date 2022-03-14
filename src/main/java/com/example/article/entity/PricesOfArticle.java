@@ -5,11 +5,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
-import org.yaml.snakeyaml.events.Event;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import java.util.UUID;
 
@@ -25,7 +23,6 @@ public class PricesOfArticle {
     private UUID id;
 
     private int sahifaSoni;
-    private int JurnallardaChopEtishSoni;
     private int BosmaJurnallarSoni;
     private int SertifikatlarSoni;
     private boolean doi;

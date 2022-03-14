@@ -35,6 +35,7 @@ public interface InformationArticleRepository extends JpaRepository<InformationA
 
     InformationArticle findByArticleIdAndRedactorIdAndArticleStatusName(UUID article_id, UUID redactor_id, ArticleStatusName articleStatusName);
 
+//    boolean existsByArticleIdAndArticleStatusNameAndRedactorIdOrArticleIdAndArticleStatusNameAndRedactorIdOrArticleIdAndArticleStatusNameAndRedactorId(UUID article_id, ArticleStatusName articleStatusName, UUID redactor_id, UUID article_id2, ArticleStatusName articleStatusName2, UUID redactor_id2, UUID article_id3, ArticleStatusName articleStatusName3, UUID redactor_id3);
 
     List<InformationArticle> findAllByArticleIdAndArticleStatusName(UUID article_id, ArticleStatusName articleStatusName);
 

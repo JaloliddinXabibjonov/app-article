@@ -1,7 +1,9 @@
 package com.example.article.controller;
 
+import com.example.article.entity.Prices;
 import com.example.article.payload.ApiResponse;
 import com.example.article.payload.PriceCounterDto;
+import com.example.article.payload.PricesOfArticlesDto;
 import com.example.article.servise.PricesOfArticlesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
@@ -31,5 +33,16 @@ public class PricesOfArticleController {
         return pricesService.pricesCounter(priceCounterDto);
     }
 
+
+    @GetMapping("/getPrice")
+    public Prices prices(){
+        return pricesService.getPrice();
+    }
+
+    @PostMapping("/editPrice")
+    public HttpEntity<ApiResponse>  editPrice(@RequestBody PricesOfArticlesDto pricesOfArticlesDto){
+        ApiResponse apiResponse = pricesService.editPrice(pricesOfArticlesDto);
+        return ResponseEntity.status(apiResponse.isSuccess()?200:409).body(apiResponse);
+    }
 
 }

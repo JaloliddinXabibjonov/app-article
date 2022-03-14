@@ -80,20 +80,22 @@ public class UserService {
     @Autowired
     DeadlineAdministratorRepository deadlineAdministratorRepository;
 
+    @Autowired
+    OtpService otpService;
+
+    @Autowired
+    SmsService smsService;
 
     public String register(SignUp signUp) {
         Optional<User> userOptional = userRepository.findByPhoneNumberAndDeleteFalse(signUp.getPhoneNumber());
         if (userOptional.isEmpty()) {
             User user = new User();
-            System.out.println("telefon   " + signUp.getPhoneNumber());
             user.setPhoneNumber(signUp.getPhoneNumber());
+            user.setCode(generatorCode());
             user.setPassword(passwordEncoder.encode(signUp.getPassword()));
             user.setRoles(roleRepository.findAllByRoleNameIn(singleton(RoleName.ROLE_USER.name())));
-           user.setFirebaseToken(signUp.getFirebaseToken());
-
+            user.setFirebaseToken(signUp.getFirebaseToken());
             userRepository.save(user);
-            System.out.println("telefon raqam" + signUp.getPhoneNumber());
-            System.out.println("password " + signUp.getPassword());
 
 //            var crudDto = new CrudDto();
 //            crudDto.setEmail(signUp.getEmail());
@@ -107,8 +109,6 @@ public class UserService {
 //            System.out.println(user.getId().toString());
 
             return (jwtProvider.generateJwtToken(user));
-
-
         }
         return ("User is already exist");
     }
@@ -181,19 +181,21 @@ public class UserService {
             user.setPhoneNumber(userDto.getPhoneNumber());
             user.setEnabled(true);
             user.setEmail(userDto.getEmail());
+            if (userDto.getRoleId() == 4)
+                user.setCode(generatorCode());
             user.setLanguages(userDto.getLanguages());
             user.setRoles(singletonList(roleRepository.getById(userDto.getRoleId())));
 
-            CrudDto crudDto = new CrudDto();
-            crudDto.setEmail(userDto.getEmail());
-            crudDto.setFatherName(userDto.getFatherName());
-            crudDto.setFirstName(userDto.getFirstName());
-            crudDto.setPhoneNumber(userDto.getPhoneNumber());
+//            CrudDto crudDto = new CrudDto();
+//            crudDto.setEmail(userDto.getEmail());
+//            crudDto.setFatherName(userDto.getFatherName());
+//            crudDto.setFirstName(userDto.getFirstName());
+//            crudDto.setPhoneNumber(userDto.getPhoneNumber());
+//
+//
+//            Firestore dbFirestore = FirestoreClient.getFirestore();
+//            ApiFuture<WriteResult> collectionsApiFuture = dbFirestore.collection("crud_user").document("rfgsfse").set(crudDto);
 
-
-            Firestore dbFirestore = FirestoreClient.getFirestore();
-            ApiFuture<WriteResult> collectionsApiFuture = dbFirestore.collection("crud_user").document("rfgsfse").set(crudDto);
-            System.out.println(user.getId().toString());
             userRepository.save(user);
 
 
@@ -567,7 +569,7 @@ public class UserService {
 
 
     public int generatorCode() {
-        int code = (int) (Math.random() * 10000000);
+        int code = (int) (Math.random() * 1000000);
         boolean exists = userRepository.existsByCode(code);
         if (exists) {
             return generatorCode();
@@ -582,12 +584,27 @@ public class UserService {
 //
 //    }
 
-    public String getAuthorByCode(int code){
+    public String getAuthorByCode(int code) {
         Optional<User> optionalUser = userRepository.findByCode(code);
-        if (optionalUser.isPresent()){
+        if (optionalUser.isPresent()) {
             User user = optionalUser.get();
-            return user.getLastName()+" "+user.getFirstName()+" "+user.getFatherName();
+            return user.getLastName() + " " + user.getFirstName();
         }
         return "Muallif topilmadi";
+    }
+
+    public ApiResponse createNewPassword(String phoneNumber) {
+        try {
+            Optional<User> user = userRepository.findByPhoneNumberAndDeleteFalse(phoneNumber);
+            int OTPCode = otpService.generateOTP(user.get().getPhoneNumber());
+
+            smsService.sendSms(user.get().getPhoneNumber(), String.valueOf(OTPCode));
+
+            user.get().setPassword(passwordEncoder.encode(String.valueOf(OTPCode)));
+            userRepository.save(user.get());
+            return new ApiResponse("SAved", true);
+        } catch (Exception e) {
+            return new ApiResponse(" O'xshamadi", false);
+        }
     }
 }

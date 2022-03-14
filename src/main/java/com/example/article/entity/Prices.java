@@ -15,8 +15,6 @@ public class Prices {
     @Column(nullable = false)
     private double sahifaNarxi;
     @Column(nullable = false)
-    private double bittaJurnaldaChopEtishNarxi;
-    @Column(nullable = false)
     private double bittaBosmaJunalNarxi;
     @Column(nullable = false)
     private double bittaSertifikatNarxi;

@@ -231,4 +231,12 @@ public class UserController {
     public String getAuthorByCode(@PathVariable Integer code){
         return userService.getAuthorByCode(code);
     }
+
+
+    @PostMapping("/createNewPassword/{phoneNumber}")
+    public ApiResponse createNewPassword(@PathVariable String phoneNumber){
+        userService.createNewPassword(phoneNumber);
+        return new ApiResponse("O'xshadi",true);
+
+    }
 }

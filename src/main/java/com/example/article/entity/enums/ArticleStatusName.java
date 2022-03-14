@@ -9,6 +9,7 @@ public enum ArticleStatusName {
             PUBLISHED,                          //NASHR ETILGAN
             REJECTED,                           //CHOP ETISHGA NOLOYIQ
             RECYCLE,                            //MAQOLANI QAYTA ISHLOVGA BERISH
+            RECYCLED,
 
     /**-----------REDACTOR VA REVIEWERLAR TOMONIDAN BERILADIGAN STATUSLAR--------*/
     I_ACCEPTED,                                 // maqolanin tekshirishga qabul qildim

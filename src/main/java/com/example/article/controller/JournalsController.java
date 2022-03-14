@@ -72,7 +72,7 @@ public class JournalsController {
 
 
     @GetMapping("/getYear/{id}")
-    public Set<Integer> getYear(@PathVariable UUID id) {
+    public List<Integer> getYear(@PathVariable UUID id) {
         return journalsService.getYear(id);
     }
 

@@ -39,7 +39,7 @@ public class CategoryService {
             }
             System.out.println(dto.isActive());
             category.setName(dto.getName());
-            category.setActive(dto.isActive());
+            category.setActive(true);
             category.setDeleted(true);
             System.out.println(dto.getParentId());
             categoryRepository.save(category);
@@ -86,11 +86,12 @@ public class CategoryService {
     }
 
     public ApiResponse remove(Integer id) {
-
         Category category = categoryRepository.getByIdAndDeletedTrue(id);
+        boolean exists = categoryRepository.existsByParentIdAndDeletedTrue(id);
+        if (exists)
+            return new ApiResponse("Bosh kategoriyani o`chirish mumkin emas",false);
         category.setDeleted(false);
         categoryRepository.save(category);
-
         return new ApiResponse("Ok", true);
     }
 
