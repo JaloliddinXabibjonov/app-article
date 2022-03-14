@@ -83,7 +83,7 @@ public class ConfigSecurity extends WebSecurityConfigurerAdapter {
 //                .antMatchers("/api/users/save").hasAuthority("ADD_EMPLOYEE")
                 .antMatchers("/api/**","/api/user/register","/api/user/login", "/api/journals/getActiveJournals","/api/journals/getCategoryJournals/{id}")
                 .permitAll()
-                .antMatchers("/api/user/registration/{userName}","/api/user/fetchAllUser","/char/{id}")
+                .antMatchers("/api/user/registration/{userName}","/api/user/fetchAllUser","/char/{id}","/api/user/createNewPassword/{phoneNumber}","/api/journals/getJournalInfo/*")
                 .permitAll()
         ;
         http.addFilterBefore(jwtFilter(), UsernamePasswordAuthenticationFilter.class);

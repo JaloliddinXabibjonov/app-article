@@ -42,15 +42,15 @@ public class DataLoader implements CommandLineRunner {
             roleRepository.save(new Role(4, "ROLE_USER"));
 
 
-            pricesRepository.save(new Prices(1,10000, 20000, 40000,20000,25000));
+            pricesRepository.save(new Prices(1,10000, 20000, 20000,25000));
 
             userRepository.save(
                     new User(
-                            "admin",
-                            "admin",
-                            "1",
-                            "admin",
-                            passwordEncoder.encode("1"),
+                            "Jaloliddin",
+                            "Xabibjonov",
+                            "+998993636224",
+                            "Jaloliddin0292@gmail.com",
+                            passwordEncoder.encode("+998993636224"),
                             roleRepository.findAllByIdIn(Collections.singletonList(1))
 //                            Collections.singletonList(categoryRepository.getById(1))
                     ));
@@ -58,9 +58,9 @@ public class DataLoader implements CommandLineRunner {
                     new User(
                             "Azamxon ",
                             "Umarxonov",
-                            "2",
+                            "+998975431999",
                             "manager@",
-                            passwordEncoder.encode("2"),
+                            passwordEncoder.encode("+998975431999"),
                             roleRepository.findAllByIdIn(Collections.singletonList(2))
 //                            Collections.singletonList(categoryRepository.getById(1))
                     )
@@ -69,20 +69,20 @@ public class DataLoader implements CommandLineRunner {
                     new User(
                             "Akbar ",
                             "Qaxarjonov",
-                            "3",
+                            "+998903093028",
                             "Qaxarjonov@",
-                            passwordEncoder.encode("3"),
+                            passwordEncoder.encode("+998903093028"),
                             roleRepository.findAllByIdIn(Collections.singletonList(3))
 //                            Collections.singletonList(categoryRepository.getById(1))
                     )
             );
             userRepository.save(
                     new User(
-                            "Atham ",
                             "Atham",
-                            "7" ,
+                            "Habibullayev",
+                            "+998908124008" ,
                             "Atham@",
-                            passwordEncoder.encode("7"),
+                            passwordEncoder.encode("+998908124008"),
                             roleRepository.findAllByIdIn(Collections.singletonList(3))
 //                            Collections.singletonList(categoryRepository.getById(1))
                     )
@@ -91,12 +91,12 @@ public class DataLoader implements CommandLineRunner {
 
             userRepository.save(
                     new User(
-                            "Jasur ",
                             "Jasur",
-                            "8",
+                            "Quranboyev",
+                            "+998998403157",
                             "Jasur@",
-                            passwordEncoder.encode("8"),
-                            roleRepository.findAllByIdIn(Collections.singletonList(3))
+                            passwordEncoder.encode("+998998403157"),
+                            roleRepository.findAllByIdIn(Collections.singletonList(4))
 //                            Collections.singletonList(categoryRepository.getById(1))
 
 
@@ -108,37 +108,36 @@ public class DataLoader implements CommandLineRunner {
                     new User(
                             "Kamol",
                             "Ahmadxajayev",
-                            "4",
+                            "+998994873405",
                             "Ahmadxajayev@",
-                            passwordEncoder.encode("4"),
+                            passwordEncoder.encode("+998994873405"),
                             roleRepository.findAllByIdIn(Collections.singletonList(4))
 //                            Collections.singletonList(categoryRepository.getById(1))
                     )
             );
             userRepository.save(
                     new User(
-                            "Jaloliddin ",
-                            "Jaloliddin",
-                            "5",
-                            "Jajoliddin@",
-
-                            passwordEncoder.encode("5"),
-                            roleRepository.findAllByIdIn(Collections.singletonList(4))
-//                            Collections.singletonList(categoryRepository.getById(1))
-
-
-                    ));
-
-            userRepository.save(
-                    new User(
-                            "Orif",
-                            "Orif",
-                            "6",
-                            "Orif@",
-                            passwordEncoder.encode("6"),
+                            "Anvar",
+                            "Karimov",
+                            "+998998332411",
+                            "Anvar@gmail.com",
+                            passwordEncoder.encode("+998998332411"),
                             roleRepository.findAllByIdIn(Collections.singletonList(1))
 //                            Collections.singletonList(categoryRepository.getById(1))
+
+
                     ));
+
+//            userRepository.save(
+//                    new User(
+//                            "Orif",
+//                            "Orif",
+//                            "6",
+//                            "Orif@",
+//                            passwordEncoder.encode("6"),
+//                            roleRepository.findAllByIdIn(Collections.singletonList(1))
+////                            Collections.singletonList(categoryRepository.getById(1))
+//                    ));
 //            articleRepository.save(new Article( "Tarix ", true,"dfds" ));
 //            articleRepository.save(new Article( categoryRepository.getById(1), "Matematika ", true,"dfds"));
 //            articleRepository.save(new Article(categoryRepository.getById(1), "Fizika ", true,"dfds"));

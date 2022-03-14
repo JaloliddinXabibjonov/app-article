@@ -17,6 +17,7 @@ public interface CategoryRepository extends JpaRepository<Category, Integer> {
 //    Category getById(Integer id);
 
     Category getByIdAndDeletedTrue(Integer id);
+    boolean existsByParentIdAndDeletedTrue(Integer parent_id);
     Category getByDeletedTrueAndActiveTrueAndId(Integer id);
     Category findByDeletedTrueAndActiveTrueAndId(Integer id);
 

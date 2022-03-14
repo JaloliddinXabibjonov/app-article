@@ -6,7 +6,9 @@ import com.example.article.entity.Journals;
 import com.example.article.entity.enums.JournalsStatus;
 import com.example.article.payload.*;
 import com.example.article.repository.*;
+import org.hibernate.criterion.Order;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -59,7 +61,18 @@ public class JournalsService {
                 journals.setDatePublication(year);
                 journals.setJournalsStatus(JournalsStatus.PUBLISHED.name());
                 journals.setDateOfPublication(cal.getTime());
-                System.out.println("------>>>>>" + journalsDto.getStatus());
+                if (journalsDto.getParentId() != null) {
+                    int allReleaseNumber = journalsRepository.findAllReleaseNumberByParentIdAndLastPublished(journalsDto.getParentId());
+
+//                    journals.setReleaseNumberOfThisYear();
+                    journals.setAllReleasesNumber(allReleaseNumber+1);
+                } else {
+                    journals.setReleaseNumberOfThisYear(1);
+                    journals.setAllReleasesNumber(1);
+
+                }
+
+
             } else {
                 journals.setJournalsStatus(JournalsStatus.NEW_JOURNALS.name());
                 String date = journalsDto.getDeadline();
@@ -88,8 +101,6 @@ public class JournalsService {
 
             journals.setCategory(categoryRepository.findByIdAndDeletedTrue(journalsDto.getCategoryId()).get());
             journals.setJournalsStatus(JournalsStatus.valueOf(journalsDto.getStatus()).toString());
-            journals.setReleaseNumberOfThisYear(journalsDto.getReleaseNumberOfThisYear());
-            journals.setAllReleasesNumber(journalsDto.getAllReleasesNumber());
 
 
             journals.setDescription(journalsDto.getDescription());
@@ -193,7 +204,12 @@ public class JournalsService {
         if (optionalJournals.isPresent()) {
             GetJournalById getJournalById = new GetJournalById();
             DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-            String deadline = dateFormat.format(optionalJournals.get().getDeadline());
+            String deadline;
+            if (optionalJournals.get().getDeadline()!=null){
+                 deadline = dateFormat.format(optionalJournals.get().getDeadline());
+            }
+            else
+                 deadline = dateFormat.format(new Date());
             getJournalById.setDeadline(deadline);
             getJournalById.setJournals(optionalJournals.get());
             List<Article> articles = articleRepository.journalArticles(id);
@@ -241,7 +257,7 @@ public class JournalsService {
             ActiveJournalsDto activeJournalsDto = new ActiveJournalsDto();
 //            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 //            String deadline = dateFormat.format(journals.getDeadline());
-            activeJournalsDto.setDeadline(journals.getDeadline());
+            activeJournalsDto.setDeadline(journals.getDateOfPublication());
             activeJournalsDto.setTitle(journals.getTitle());
             activeJournalsDto.setCover(journals.getCover());
             activeJournalsDto.setId(journals.getId());
@@ -251,16 +267,33 @@ public class JournalsService {
     }
 
 
-    public Set<Integer> getYear(UUID id) {
-        return journalsRepository.findAllByDeletedTrueAndIdOrDeletedTrueAndParentId(id, id);
+    public List<Integer> getYear(UUID id) {
+
+        Journals optionalJournals = journalsRepository.findByIdAndDeletedTrue(id);
+
+        System.out.println("---->"+id);
+        List<Integer> years = new ArrayList<>();
+        for (Integer integer : journalsRepository.findAllByDeletedTrueAndIdOrDeletedTrueAndParentId(optionalJournals.getParentId()!=null?optionalJournals.getParentId():optionalJournals.getId(),optionalJournals.getParentId()!=null?optionalJournals.getParentId():optionalJournals.getId())) {
+            System.out.println("====>>>"+integer);
+            if (integer != 0)
+                years.add(integer);
+        }
+        years.sort(Collections.reverseOrder());
+        return years ;
     }
 
 
     public List<ActiveJournalsDto> getYearJournals(UUID id, Integer year) {
+        UUID uuid;
+        Journals journals1 = journalsRepository.findByIdAndDeletedTrue(id);
+        if (journals1.getParentId()!=null)
+            uuid=journals1.getParentId();
+        else
+            uuid=journals1.getId();
         List<ActiveJournalsDto> activeJournalsDtoList = new ArrayList<>();
-        List<Journals> journalsList = journalsRepository.findAllByDeletedTrueAndDatePublicationAndIdOrDeletedTrueAndDatePublicationAndParentId(year, id, year, id);
-        ActiveJournalsDto activeJournalsDto = new ActiveJournalsDto();
+        List<Journals> journalsList = journalsRepository.findAllByDeletedTrueAndDatePublicationAndIdOrDeletedTrueAndDatePublicationAndParentId(year, uuid, year, uuid);
         for (Journals journals : journalsList) {
+            ActiveJournalsDto activeJournalsDto = new ActiveJournalsDto();
             activeJournalsDto.setTitle(journals.getTitle());
             activeJournalsDto.setCover(journals.getCover());
             activeJournalsDto.setId(journals.getId());
@@ -301,8 +334,7 @@ public class JournalsService {
             article.setJournalsActive(action);
             articleRepository.save(article);
             return new ApiResponse("Muvaffaqiyatli bajarildi", true);
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             return new ApiResponse("Xatolik yuz berdi", false);
         }
 
