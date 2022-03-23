@@ -12,6 +12,7 @@ import lombok.Setter;
 
 public class ArticleStatusInAdmins {
     private String status;
-    private String status1;
+
+//    private String articleStatus;
 
 }

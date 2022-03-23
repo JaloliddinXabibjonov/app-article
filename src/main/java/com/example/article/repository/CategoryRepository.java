@@ -35,6 +35,8 @@ public interface CategoryRepository extends JpaRepository<Category, Integer> {
     @Query(value = "select * from category where  deleted=true and parent_id IS NULL and active=true", nativeQuery = true)
     List<Category> parentCategory();
 
+    @Query(value = "select * from category c inner join journals j on j.journals_status='PUBLISHED' and j.category_id=c.id and c.parent_id is null",nativeQuery = true)
+    Set<Category> findAllParentCategoryByJournalStatus();
     List<Category> findAllByDeletedTrueAndActiveTrueAndParentId(Integer parent_id);
 
     Category getByDeletedTrueAndId(Integer id);
@@ -42,4 +44,6 @@ public interface CategoryRepository extends JpaRepository<Category, Integer> {
     List<Category> findAllByDeletedTrue();
 
     Optional<Category> findByIdAndDeletedTrue(int categoryId);
+
+
 }

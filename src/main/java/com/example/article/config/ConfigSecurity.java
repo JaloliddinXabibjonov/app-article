@@ -28,6 +28,8 @@ import org.springframework.web.client.RestTemplate;
 public class ConfigSecurity extends WebSecurityConfigurerAdapter {
 
     @Autowired
+    JwtFilter jwtFilter;
+    @Autowired
     AuthService authService;
 
     @Bean
@@ -36,10 +38,7 @@ public class ConfigSecurity extends WebSecurityConfigurerAdapter {
         return super.authenticationManagerBean();
     }
 
-    @Bean
-    public JwtFilter jwtFilter() {
-        return new JwtFilter();
-    }
+
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -83,10 +82,10 @@ public class ConfigSecurity extends WebSecurityConfigurerAdapter {
 //                .antMatchers("/api/users/save").hasAuthority("ADD_EMPLOYEE")
                 .antMatchers("/api/**","/api/user/register","/api/user/login", "/api/journals/getActiveJournals","/api/journals/getCategoryJournals/{id}")
                 .permitAll()
-                .antMatchers("/api/user/registration/{userName}","/api/user/fetchAllUser","/char/{id}","/api/user/createNewPassword/{phoneNumber}","/api/journals/getJournalInfo/*")
+                .antMatchers("/api/user/registration/{userName}","/api/user/fetchAllUser","/char/{id}","/api/user/createNewPassword/{phoneNumber}","/api/journals/getJournalInfo/*","/api/fileRead/getFile/{id}")
                 .permitAll()
         ;
-        http.addFilterBefore(jwtFilter(), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
     }
 }

@@ -13,9 +13,10 @@ import java.util.UUID;
 
 public class ArticleDto {
 
-    private UUID id;
+    private UUID    journalsId;
+    private UUID    id;
     private String description;
-    private String author;
+    private List<Integer> authorsList;
     private String titleArticle;
     private boolean publicPrivate;
     private Integer categoryId;
@@ -23,14 +24,14 @@ public class ArticleDto {
 
     private boolean active = false;
     private boolean confirm = false;
-    private List<String> authorsList;
+    private Double price;
 
     /**
      * NARXNI HISOBLASH PARAMETRLARI
      */
-    private int sahifaSoni;
-    private int JurnaldaChopEtishSoni;
-    private int BosmaJurnalSoni;
-    private int SertifikatSoni;
+    private Integer sahifaSoni;
+    private Integer JurnaldaChopEtishSoni;
+    private Integer BosmaJurnalSoni;
+    private Integer SertifikatSoni;
     private boolean doi;
 }

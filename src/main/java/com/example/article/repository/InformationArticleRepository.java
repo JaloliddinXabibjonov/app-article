@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 public interface InformationArticleRepository extends JpaRepository<InformationArticle, UUID> {
@@ -81,8 +82,11 @@ public interface InformationArticleRepository extends JpaRepository<InformationA
 
     List<InformationArticle> findAllByRedactorIdAndArticleStatusName(UUID redactor_id, ArticleStatusName articleStatusName);
 
+
     boolean existsByArticleIdAndArticleStatusNameAndRedactorId(UUID article_id, ArticleStatusName articleStatusName, UUID redactor_id);
 
+    @Query(value = "select deadline from information_article where article_status_name=?2 and article_id=?1 and redactor_id=?3 order by created_at limit 1",nativeQuery = true)
+    long findByArticleIdAndArticleStatusNameAndRedactorIdOrderByCreatedAtLimit1(UUID article_id, String articleStatusName, UUID redactor_id);
     boolean existsByArticleIdAndRedactorIdAndArticleStatusNameOrArticleIdAndRedactorIdAndArticleStatusNameOrArticleIdAndRedactorIdAndArticleStatusName(UUID article_id, UUID redactor_id, ArticleStatusName articleStatusName, UUID article_id2, UUID redactor_id2, ArticleStatusName articleStatusName2, UUID article_id3, UUID redactor_id3, ArticleStatusName articleStatusName3);
 
     @Query(value = "select a.* from article a inner join information_article ia on a.id = ia.article_id and ia.article_status_name=:status and ia.redactor_id=:redactorId where ia.created_at between :start and :end", nativeQuery = true)
@@ -97,6 +101,9 @@ public interface InformationArticleRepository extends JpaRepository<InformationA
     List<InformationArticle> findAllByArticleStatusNameAndIdOrArticleStatusNameAndIdOrArticleStatusNameAndId(ArticleStatusName articleStatusName, UUID id, ArticleStatusName articleStatusName2, UUID id2, ArticleStatusName articleStatusName3, UUID id3);
 
 
+    List<InformationArticle> findAllByRedactorIdAndArticleStatusNameOrRedactorIdAndArticleStatusNameOrRedactorIdAndArticleStatusName(UUID redactor_id, ArticleStatusName articleStatusName, UUID redactor_id2, ArticleStatusName articleStatusName2, UUID redactor_id3, ArticleStatusName articleStatusName3);
+
     InformationArticle findByRedactorId(UUID redactor_id);
+
 
 }

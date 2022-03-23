@@ -37,28 +37,45 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     Page<User> findAllByDeleteFalse(Pageable pageable);
 
+    List<User> findAllByDeleteFalse();
     @Query(value = "select ur.roles_id from users_roles ur where users_id=?1", nativeQuery = true)
     Integer findByUserIdAndDeleteFalse(UUID id);
 
     //    @Query(value = "select * from users inner join users_roles on users.id = users_roles.users_id and users_roles.roles_id=?1 inner join users_categories uc on users.id=uc.users_id and uc.categories_id=?2 and users.delete=false",nativeQuery = true)
-    List<User> findAllByEnabledTrueAndRolesIdAndCategoriesIdAndDeleteFalse(Integer roleId, Integer categories_id);
+//    List<User> findAllByEnabledTrueAndRolesIdAndCategoriesIdAndDeleteFalse(Integer roleId, Integer categories_id);
+    List<User> findAllByEnabledTrueAndActiveTrueAndRolesIdAndCategoriesIdAndDeleteFalse(Integer roleId, Integer categories_id);
+
+
+    List<User> findAllByEnabledTrueAndRolesIdAndDeleteFalse(Integer roleId);
+    List<User> findAllByEnabledTrueAndActiveTrueAndRolesIdAndDeleteFalse(Integer roleId);
+
 
 //    List<User> findAllByRolesIdAndCategoriesId(Integer roles_id, Integer categories_id);
 
-    Page<User> findAllByRolesIdAndDeleteFalseAndCategoriesIdInAndEnabledAndFirstNameContainingIgnoringCaseOrRolesIdAndDeleteFalseAndCategoriesIdInAndEnabledAndLastNameContainingIgnoringCaseOrRolesIdAndDeleteFalseAndCategoriesIdInAndEnabledAndFatherNameContainingIgnoringCaseOrRolesIdAndDeleteFalseAndCategoriesIdInAndEnabledAndEmailContainingIgnoringCaseOrRolesIdAndDeleteFalseAndCategoriesIdInAndEnabledAndPhoneNumberContainingIgnoringCase(Integer roles_id, Collection<Integer> categories_id, boolean enabled, String firstName, Integer roles_id2, Collection<Integer> categories_id2, boolean enabled2, String lastName, Integer roles_id3, Collection<Integer> categories_id3, boolean enabled3, String fatherName, Integer roles_id4, Collection<Integer> categories_id4, boolean enabled4, String email, Integer roles_id5, Collection<Integer> categories_id5, boolean enabled5, String phoneNumber, Pageable pageable);
+//    Page<User> findAllByRolesIdAndDeleteFalseAndCategoriesIdInAndEnabledAndFirstNameContainingIgnoringCaseOrRolesIdAndDeleteFalseAndCategoriesIdInAndEnabledAndLastNameContainingIgnoringCaseOrRolesIdAndDeleteFalseAndCategoriesIdInAndEnabledAndFatherNameContainingIgnoringCaseOrRolesIdAndDeleteFalseAndCategoriesIdInAndEnabledAndEmailContainingIgnoringCaseOrRolesIdAndDeleteFalseAndCategoriesIdInAndEnabledAndPhoneNumberContainingIgnoringCase(Integer roles_id, Collection<Integer> categories_id, boolean enabled, String firstName, Integer roles_id2, Collection<Integer> categories_id2, boolean enabled2, String lastName, Integer roles_id3, Collection<Integer> categories_id3, boolean enabled3, String fatherName, Integer roles_id4, Collection<Integer> categories_id4, boolean enabled4, String email, Integer roles_id5, Collection<Integer> categories_id5, boolean enabled5, String phoneNumber, Pageable pageable);
 
-    Page<User> findAllByEnabledAndFirstNameContainingIgnoringCaseAndDeleteFalseOrEnabledAndLastNameContainingIgnoringCaseAndDeleteFalseOrEnabledAndFatherNameContainingIgnoringCaseAndDeleteFalseOrEnabledAndEmailContainingIgnoringCaseAndDeleteFalseOrEnabledAndPhoneNumberContainingIgnoringCase(boolean enabled, String firstName, boolean enabled1, String lastName, boolean enabled2, String fatherName, boolean enabled3, String email, boolean enabled4, String phoneNumber, Pageable pageable);
+    List<User> findAllByActiveTrueAndRolesIdAndDeleteFalseAndCategoriesIdInAndEnabledAndFirstNameContainingIgnoringCaseOrActiveTrueAndRolesIdAndDeleteFalseAndCategoriesIdInAndEnabledAndLastNameContainingIgnoringCaseOrActiveTrueAndRolesIdAndDeleteFalseAndCategoriesIdInAndEnabledAndFatherNameContainingIgnoringCaseOrActiveTrueAndRolesIdAndDeleteFalseAndCategoriesIdInAndEnabledAndEmailContainingIgnoringCaseOrActiveTrueAndRolesIdAndDeleteFalseAndCategoriesIdInAndEnabledAndPhoneNumberContainingIgnoringCase(Integer roles_id, Collection<Integer> categories_id, boolean enabled, String firstName, Integer roles_id2, Collection<Integer> categories_id2, boolean enabled2, String lastName, Integer roles_id3, Collection<Integer> categories_id3, boolean enabled3, String fatherName, Integer roles_id4, Collection<Integer> categories_id4, boolean enabled4, String email, Integer roles_id5, Collection<Integer> categories_id5, boolean enabled5, String phoneNumber);
+//    Page<User> findAllByEnabledAndFirstNameContainingIgnoringCaseAndDeleteFalseOrEnabledAndLastNameContainingIgnoringCaseAndDeleteFalseOrEnabledAndFatherNameContainingIgnoringCaseAndDeleteFalseOrEnabledAndEmailContainingIgnoringCaseAndDeleteFalseOrEnabledAndPhoneNumberContainingIgnoringCase(boolean enabled, String firstName, boolean enabled1, String lastName, boolean enabled2, String fatherName, boolean enabled3, String email, boolean enabled4, String phoneNumber, Pageable pageable);
 
-    Page<User> findAllByRolesIdAndDeleteFalseAndEnabledAndFirstNameContainingIgnoringCaseOrRolesIdAndDeleteFalseAndEnabledAndLastNameContainingIgnoringCaseOrRolesIdAndDeleteFalseAndEnabledAndFatherNameContainingIgnoringCaseOrRolesIdAndDeleteFalseAndEnabledAndEmailContainingIgnoringCaseOrRolesIdAndDeleteFalseAndEnabledAndPhoneNumberContainingIgnoringCase(Integer roles_id, boolean enabled, String firstName, Integer roles_id2, boolean enabled2, String lastName, Integer roles_id3, boolean enabled3, String fatherName, Integer roles_id4, boolean enabled4, String email, Integer roles_id5, boolean enabled5, String phoneNumber, Pageable pageable);
+    List<User> findAllByActiveTrueAndEnabledAndFirstNameContainingIgnoringCaseAndDeleteFalseOrActiveTrueAndEnabledAndLastNameContainingIgnoringCaseAndDeleteFalseOrActiveTrueAndEnabledAndFatherNameContainingIgnoringCaseAndDeleteFalseOrActiveTrueAndEnabledAndEmailContainingIgnoringCaseAndDeleteFalseOrActiveTrueAndEnabledAndPhoneNumberContainingIgnoringCase
+            (boolean enabled, String firstName, boolean enabled2, String lastName, boolean enabled3, String fatherName, boolean enabled4, String email, boolean enabled5, String phoneNumber);
+//    Page<User> findAllByRolesIdAndDeleteFalseAndEnabledAndFirstNameContainingIgnoringCaseOrRolesIdAndDeleteFalseAndEnabledAndLastNameContainingIgnoringCaseOrRolesIdAndDeleteFalseAndEnabledAndFatherNameContainingIgnoringCaseOrRolesIdAndDeleteFalseAndEnabledAndEmailContainingIgnoringCaseOrRolesIdAndDeleteFalseAndEnabledAndPhoneNumberContainingIgnoringCase(Integer roles_id, boolean enabled, String firstName, Integer roles_id2, boolean enabled2, String lastName, Integer roles_id3, boolean enabled3, String fatherName, Integer roles_id4, boolean enabled4, String email, Integer roles_id5, boolean enabled5, String phoneNumber, Pageable pageable);
+List<User> findAllByActiveTrueAndRolesIdAndDeleteFalseAndEnabledAndFirstNameContainingIgnoringCaseOrActiveTrueAndRolesIdAndDeleteFalseAndEnabledAndLastNameContainingIgnoringCaseOrActiveTrueAndRolesIdAndDeleteFalseAndEnabledAndFatherNameContainingIgnoringCaseOrActiveTrueAndRolesIdAndDeleteFalseAndEnabledAndEmailContainingIgnoringCaseOrActiveTrueAndRolesIdAndDeleteFalseAndEnabledAndPhoneNumberContainingIgnoringCase(Integer roles_id, boolean enabled, String firstName, Integer roles_id2, boolean enabled2, String lastName, Integer roles_id3, boolean enabled3, String fatherName, Integer roles_id4, boolean enabled4, String email, Integer roles_id5, boolean enabled5, String phoneNumber);
+//    Page<User> findAllByCategoriesIdInAndDeleteFalseAndEnabledAndFirstNameContainingIgnoringCaseOrCategoriesIdInAndDeleteFalseAndEnabledAndLastNameContainingIgnoringCaseOrCategoriesIdInAndDeleteFalseAndEnabledAndFatherNameContainingIgnoringCaseOrCategoriesIdInAndDeleteFalseAndEnabledAndEmailContainingIgnoringCaseOrCategoriesIdInAndDeleteFalseAndEnabledAndPhoneNumberContainingIgnoringCase(Collection<Integer> categories_id, boolean enabled, String firstName, Collection<Integer> categories_id2, boolean enabled2, String lastName, Collection<Integer> categories_id3, boolean enabled3, String fatherName, Collection<Integer> categories_id4, boolean enabled4, String email, Collection<Integer> categories_id5, boolean enabled5, String phoneNumber, Pageable pageable);
 
-    Page<User> findAllByCategoriesIdInAndDeleteFalseAndEnabledAndFirstNameContainingIgnoringCaseOrCategoriesIdInAndDeleteFalseAndEnabledAndLastNameContainingIgnoringCaseOrCategoriesIdInAndDeleteFalseAndEnabledAndFatherNameContainingIgnoringCaseOrCategoriesIdInAndDeleteFalseAndEnabledAndEmailContainingIgnoringCaseOrCategoriesIdInAndDeleteFalseAndEnabledAndPhoneNumberContainingIgnoringCase(Collection<Integer> categories_id, boolean enabled, String firstName, Collection<Integer> categories_id2, boolean enabled2, String lastName, Collection<Integer> categories_id3, boolean enabled3, String fatherName, Collection<Integer> categories_id4, boolean enabled4, String email, Collection<Integer> categories_id5, boolean enabled5, String phoneNumber, Pageable pageable);
+    List<User> findAllByActiveTrueAndCategoriesIdInAndDeleteFalseAndEnabledAndFirstNameContainingIgnoringCaseOrActiveTrueAndCategoriesIdInAndDeleteFalseAndEnabledAndLastNameContainingIgnoringCaseOrActiveTrueAndCategoriesIdInAndDeleteFalseAndEnabledAndFatherNameContainingIgnoringCaseOrActiveTrueAndCategoriesIdInAndDeleteFalseAndEnabledAndEmailContainingIgnoringCaseOrActiveTrueAndCategoriesIdInAndDeleteFalseAndEnabledAndPhoneNumberContainingIgnoringCase(Collection<Integer> categories_id, boolean enabled, String firstName, Collection<Integer> categories_id2, boolean enabled2, String lastName, Collection<Integer> categories_id3, boolean enabled3, String fatherName, Collection<Integer> categories_id4, boolean enabled4, String email, Collection<Integer> categories_id5, boolean enabled5, String phoneNumber);
+//    @Query(value = "select * from users u inner join  users_roles ur on u.id=ur.users_id and ur.roles_id=?2 and u.enabled=?1 and  u.delete=false", nativeQuery = true)
+//    Page<User> findAllByEnabledAndRolesIdAndDeleteFalse(boolean enabled, Integer roles_id, boolean delete, Pageable pageable);
 
     @Query(value = "select * from users u inner join  users_roles ur on u.id=ur.users_id and ur.roles_id=?2 and u.enabled=?1 and  u.delete=false", nativeQuery = true)
-    Page<User> findAllByEnabledAndRolesIdAndDeleteFalse(boolean enabled, Integer roles_id, boolean delete, Pageable pageable);
+    List<User> findAllActiveTrueAndByEnabledAndRolesIdAndDeleteFalse(boolean enabled, Integer roles_id, boolean delete);
 
-    Page<User> findAllByEnabledAndDeleteFalseAndCategoriesIdIn(boolean enabled, Collection<Integer> categories_id, Pageable pageable);
+//    Page<User> findAllByEnabledAndDeleteFalseAndCategoriesIdIn(boolean enabled, Collection<Integer> categories_id, Pageable pageable);
+List<User> findAllByActiveTrueAndEnabledAndDeleteFalseAndCategoriesIdIn(boolean enabled, Collection<Integer> categories_id);
+//    Page<User> findAllByEnabledAndDeleteFalseAndCategoriesIdInAndRolesId(boolean enabled, Collection<Integer> categories_id, Integer roles_id, Pageable pageable);
+List<User> findAllByActiveTrueAndEnabledAndDeleteFalseAndCategoriesIdInAndRolesId(boolean enabled, Collection<Integer> categories_id, Integer roles_id);
 
-    Page<User> findAllByEnabledAndDeleteFalseAndCategoriesIdInAndRolesId(boolean enabled, Collection<Integer> categories_id, Integer roles_id, Pageable pageable);
+   List<User>findAllByEnabledAndActiveFalse(boolean enabled);
 
     Page<User> findAllById(UUID id, Pageable pageable);
 
@@ -81,4 +98,9 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     boolean existsByPhoneNumber(String phoneNumber);
 
     Optional<User> findByCode(Integer code);
+
+    Optional<User> findByIdAndDeleteFalse(UUID id);
+
+    @Query(value = "select * from users u inner join users_roles ur on u.id = ur.users_id and ur.roles_id=3 and u.active=false",nativeQuery = true)
+    List<User> findAllByActiveFalse();
 }

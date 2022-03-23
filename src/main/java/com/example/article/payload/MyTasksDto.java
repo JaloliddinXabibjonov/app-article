@@ -14,6 +14,13 @@ public class MyTasksDto {
     private String sendDate;
     private String deadLine;
 
+//    public MyTasksDto(Article article, String sendDate, long deadLine) {
+//        this.article = article;
+//        this.sendDate = sendDate;
+//        this.deadLine = deadLine;
+//    }
+
+
     public MyTasksDto(Article article, String sendDate, String deadLine) {
         this.article = article;
         this.sendDate = sendDate;

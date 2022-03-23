@@ -13,6 +13,8 @@ public class Prices {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     @Column(nullable = false)
+    private double chopEtishNarxi;
+    @Column(nullable = false)
     private double sahifaNarxi;
     @Column(nullable = false)
     private double bittaBosmaJunalNarxi;

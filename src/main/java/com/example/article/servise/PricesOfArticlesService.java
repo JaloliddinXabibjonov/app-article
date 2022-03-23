@@ -52,10 +52,11 @@ public class PricesOfArticlesService {
         Optional<Prices> optionalPrices = pricesRepository.findById(1);
         if (optionalPrices.isPresent()) {
             Prices prices = optionalPrices.get();
-            prices.setDoi(pricesDto.getDoi());
-            prices.setBittaBosmaJunalNarxi(pricesDto.getBittaBosmaJunalNarxi());
-            prices.setSahifaNarxi(pricesDto.getSahifaNarxi());
-            prices.setBittaSertifikatNarxi(pricesDto.getBittaSertifikatNarxi());
+            prices.setDoi(pricesDto.getDoi()==null? prices.getDoi() : pricesDto.getDoi());
+            prices.setBittaBosmaJunalNarxi(pricesDto.getBittaBosmaJunalNarxi()==null?prices.getBittaBosmaJunalNarxi(): pricesDto.getBittaBosmaJunalNarxi());
+            prices.setSahifaNarxi(pricesDto.getSahifaNarxi()==null?prices.getSahifaNarxi(): pricesDto.getSahifaNarxi());
+            prices.setBittaSertifikatNarxi(pricesDto.getBittaSertifikatNarxi()==null?prices.getBittaSertifikatNarxi(): pricesDto.getBittaSertifikatNarxi());
+            prices.setChopEtishNarxi(pricesDto.getChopEtishNarxi()==null? prices.getChopEtishNarxi() : pricesDto.getChopEtishNarxi());
             pricesRepository.save(prices);
             return new ApiResponse("Tahrirlandi", true);
         }
@@ -67,9 +68,9 @@ public class PricesOfArticlesService {
         double p1 = pricesDto.getSertifikatSoni() * prices.getBittaSertifikatNarxi();
         double p2 = pricesDto.isDoi() ? prices.getDoi() : 0;
         double p3 = pricesDto.getSahifaSoni() * prices.getSahifaNarxi();
-//        double p4 = pricesDto.getJurnaldaChopEtishSoni() * prices.getBittaJurnaldaChopEtishNarxi();
+        double p4 = prices.getChopEtishNarxi();
         double p5 = pricesDto.getBosmaJurnalSoni() * prices.getBittaBosmaJunalNarxi();
-        double ob = p1 + p2 + p3 + p5;
+        double ob = p1 + p2 + p3 +p4+ p5;
 
         return new ApiResponse("ok ", true, ob);
     }

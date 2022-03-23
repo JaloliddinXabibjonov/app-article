@@ -11,10 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 
 @Service
@@ -24,6 +21,7 @@ public class CategoryService {
 
     @Autowired
     JournalsRepository journalsRepository;
+
     public ApiResponse saveOrEdit(CategoryDto dto) {
         boolean exists = categoryRepository.existsByNameAndDeletedTrueAndActiveTrue(dto.getName());
 //        if (exists)
@@ -64,7 +62,7 @@ public class CategoryService {
             }
         }
 //        return new ApiResponse(true, "CategoryPage", categories.stream().map(this::getCategoryDto).collect(Collectors.toList()), totalElements);
-        return new ApiResponse( "CategoryPage",true);
+        return new ApiResponse("CategoryPage", true);
     }
 
 //    public CategoryDto getCategoryDto(Category category) {
@@ -89,7 +87,7 @@ public class CategoryService {
         Category category = categoryRepository.getByIdAndDeletedTrue(id);
         boolean exists = categoryRepository.existsByParentIdAndDeletedTrue(id);
         if (exists)
-            return new ApiResponse("Bosh kategoriyani o`chirish mumkin emas",false);
+            return new ApiResponse("Bosh kategoriyani o`chirish mumkin emas", false);
         category.setDeleted(false);
         categoryRepository.save(category);
         return new ApiResponse("Ok", true);
@@ -105,13 +103,25 @@ public class CategoryService {
         return categoryRepository.parentCategory();
     }
 
+    public ApiResponse parentCategories() {
+        Set<Category> categoryList = categoryRepository.findAllParentCategoryByJournalStatus();
+        if (categoryList.size()!=0)
+            return new ApiResponse("OK", true, categoryList);
+        return new ApiResponse("Bunday bo`lim topilmadi", true, new HashSet<Category>());
+    }
 
-    public List<Category> allChildrenCategory(UUID journalId) {
+
+    public List<Category> allChildrenCategoryByJournalId(UUID journalId) {
         Optional<Journals> optionalJournals = journalsRepository.findByDeletedTrueAndId(journalId);
-        if (optionalJournals.isPresent()){
+        if (optionalJournals.isPresent()) {
             Integer id = optionalJournals.get().getCategory().getId();
             return categoryRepository.findAllByDeletedTrueAndActiveTrueAndParentId(id);
         }
         return new ArrayList<>();
     }
+
+    public List<Category> categoriesForAddReviewers() {
+        return categoryRepository.findAllByDeletedTrue();
+    }
+
 }

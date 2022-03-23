@@ -21,7 +21,7 @@ public class UserDto {
     private String password;
     private String workPlace;
     private String workExperience;
-    private String languages;
+    private List<Integer> languages;
     private String academicDegree;
     private Integer roleId;
     private List<Integer> role;

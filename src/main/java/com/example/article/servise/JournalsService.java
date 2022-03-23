@@ -3,6 +3,7 @@ package com.example.article.servise;
 import com.example.article.entity.Article;
 import com.example.article.entity.InformationArticle;
 import com.example.article.entity.Journals;
+import com.example.article.entity.enums.ArticleStatusName;
 import com.example.article.entity.enums.JournalsStatus;
 import com.example.article.payload.*;
 import com.example.article.repository.*;
@@ -50,8 +51,6 @@ public class JournalsService {
 
 
         try {
-//
-
 //            if (deadline.getTime() <= System.currentTimeMillis())
 //                return new ApiResponse("Maqola qabul qilish muddati hozirgi vaqtdan keyingi vaqt bo`lishi kerak!", true);
             Journals journals = new Journals();
@@ -61,20 +60,22 @@ public class JournalsService {
                 journals.setDatePublication(year);
                 journals.setJournalsStatus(JournalsStatus.PUBLISHED.name());
                 journals.setDateOfPublication(cal.getTime());
+
                 if (journalsDto.getParentId() != null) {
                     int allReleaseNumber = journalsRepository.findAllReleaseNumberByParentIdAndLastPublished(journalsDto.getParentId());
-
 //                    journals.setReleaseNumberOfThisYear();
-                    journals.setAllReleasesNumber(allReleaseNumber+1);
+                    journals.setAllReleasesNumber(allReleaseNumber + 1);
+
                 } else {
                     journals.setReleaseNumberOfThisYear(1);
                     journals.setAllReleasesNumber(1);
 
                 }
-
-
             } else {
                 journals.setJournalsStatus(JournalsStatus.NEW_JOURNALS.name());
+                Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("Asia/Tashkent"));
+                int year = cal.get(Calendar.YEAR);
+                journals.setDatePublication(year);
                 String date = journalsDto.getDeadline();
                 Date deadline = new SimpleDateFormat("yyyy-MM-dd").parse(date);
                 journals.setDeadline(deadline);
@@ -133,7 +134,6 @@ public class JournalsService {
 
 
     public ApiResponse edit(UUID id, JournalsPayload journalsDto, MultipartFile cover, MultipartFile file) {
-        System.out.println("=========> " + journalsDto.getPrintedDate());
         try {
             Journals journals = journalsRepository.findByIdAndDeletedTrue(id);
             System.out.println(" journals  " + journals);
@@ -156,18 +156,21 @@ public class JournalsService {
                 journals.setDatePublication(0);
             }
 //            journals.setReleaseNumberOfThisYear();
-            if (journals.getParentId() == null)
+            if (journals.getParentId() == null) {
                 journals.setAllReleasesNumber(1);
-            else
-                journals.setAllReleasesNumber(journalsRepository.findAllReleaseNumberByParentIdAndLastPublished(journalsDto.getParentId()) + 1);
+                journals.setReleaseNumberOfThisYear(1);
+            } else {
+                journals.setAllReleasesNumber(journalsRepository.findAllReleaseNumberByParentIdAndLastPublished(journals.getParentId()) + 1);
+//                journals.setReleaseNumberOfThisYear(journalsRepository.findByReleaseNumberOfThisYear(journals.getParentId(), Calendar.getInstance(TimeZone.getTimeZone("Asia/Tashkent")).get(Calendar.YEAR), journals.getTitle()) );
+            }
             journals.setDeadline(deadline);
             journals.setDescription(journalsDto.getDescription());
             journals.setPrintedDate(journalsDto.getPrintedDate() == 0 ? 10 : journalsDto.getPrintedDate());
             journals.setISSN(journalsDto.getIssn());
             journals.setISBN(journalsDto.getIsbn());
             journals.setCertificateNumber(journalsDto.getCertificateNumber());
-//            journals.setCover(attachmentService.upload1(cover));
-//           journals.setFile(attachmentService.upload1(file));
+            journals.setCover(attachmentService.upload1(cover));
+            journals.setFile(attachmentService.upload1(file));
             journals.setDeleted(true);
             journalsRepository.save(journals);
             return new ApiResponse("Muvaffaqiyatli bajarildi", true);
@@ -185,11 +188,20 @@ public class JournalsService {
         return journalsRepository.findAllByDeletedTrueAndParentId(null);
     }
 
+    public List<Journals> getPublishedParentJournals() {
+        return journalsRepository.findAllByDeletedTrueAndParentIdAndJournalsStatus(null, JournalsStatus.PUBLISHED.name());
+    }
+
     public List<ActiveJournalsDto> getActiveJournals() {
+        System.out.println("journals ");
         List<ActiveJournalsDto> activeJournalsDtoList = new ArrayList<>();
         List<Journals> journalsList = journalsRepository.findAllByDeletedTrueAndJournalsStatus(JournalsStatus.NEW_JOURNALS.name());
         for (Journals journals : journalsList) {
             ActiveJournalsDto activeJournalsDto = new ActiveJournalsDto();
+            if (journals.getDeadline().getTime() <= System.currentTimeMillis()) {
+                journals.setJournalsStatus(JournalsStatus.DEADLINE_OVER.name());
+                journalsRepository.save(journals);
+            }
             activeJournalsDto.setId(journals.getId());
             activeJournalsDto.setTitle(journals.getTitle());
             activeJournalsDto.setCover(journals.getCover());
@@ -205,15 +217,15 @@ public class JournalsService {
             GetJournalById getJournalById = new GetJournalById();
             DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
             String deadline;
-            if (optionalJournals.get().getDeadline()!=null){
-                 deadline = dateFormat.format(optionalJournals.get().getDeadline());
+            if (optionalJournals.get().getDeadline() != null) {
+                deadline = dateFormat.format(optionalJournals.get().getDeadline());
+            } else {
+                deadline = dateFormat.format(new Date());
             }
-            else
-                 deadline = dateFormat.format(new Date());
+
             getJournalById.setDeadline(deadline);
             getJournalById.setJournals(optionalJournals.get());
             List<Article> articles = articleRepository.journalArticles(id);
-
             getJournalById.setArticles(articles);
             return new ApiResponse("OK", true, getJournalById);
         }
@@ -235,11 +247,7 @@ public class JournalsService {
     }
 
     public List<Journals> getAllJournals(UUID journalId) {
-
-        List<Journals> journals = journalsRepository.findAllByDeletedTrueAndIdAndParentIdOrDeletedTrueAndIdOrDeletedTrueAndParentId(journalId, journalId, journalId, journalId);
-
-        return journals;
-
+        return journalsRepository.findAllByDeletedTrueAndIdAndParentIdOrDeletedTrueAndIdOrDeletedTrueAndParentId(journalId, journalId, journalId, journalId);
     }
 
     public List<ActiveJournalsDto> getCategoryJournals(Integer categoryId) {
@@ -266,30 +274,90 @@ public class JournalsService {
         return journalByIds;
     }
 
+    public List<ActiveJournalsDto> getPublishedCategoryJournals(Integer categoryId) {
+        List<ActiveJournalsDto> journalByIds = new ArrayList<>();
+        List<Journals> journalsList = null;
+        System.out.println(" category id " + categoryId);
+        if (categoryId == 0) {
+            journalsList = journalsRepository.findAllByDeletedTrueAndParentIdNullAndJournalsStatus(JournalsStatus.PUBLISHED.name());
+
+        } else {
+            journalsList = journalsRepository.findAllByDeletedTrueAndParentIdNullAndCategoryIdAndJournalsStatus(categoryId, JournalsStatus.PUBLISHED.name());
+        }
+
+
+        for (Journals journals : journalsList) {
+            ActiveJournalsDto activeJournalsDto = new ActiveJournalsDto();
+//            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+//            String deadline = dateFormat.format(journals.getDeadline());
+            activeJournalsDto.setDeadline(journals.getDateOfPublication());
+            activeJournalsDto.setTitle(journals.getTitle());
+            activeJournalsDto.setCover(journals.getCover());
+            activeJournalsDto.setId(journals.getId());
+            journalByIds.add(activeJournalsDto);
+        }
+        return journalByIds;
+    }
+
+
+    public List<ActiveJournalsDto> getCategoryJournalsForUsers(Integer categoryId) {
+        List<ActiveJournalsDto> journalByIds = new ArrayList<>();
+        List<Journals> journalsList;
+
+        if (categoryId == 0) {
+            journalsList = journalsRepository.findAllByDeletedTrueAndParentIdNullAndJournalsStatus(JournalsStatus.PUBLISHED.name());
+        } else {
+            journalsList = journalsRepository.findAllByDeletedTrueAndParentIdNullAndCategoryIdAndJournalsStatus(categoryId, JournalsStatus.PUBLISHED.name());
+        }
+        for (Journals journals : journalsList) {
+            ActiveJournalsDto activeJournalsDto = new ActiveJournalsDto();
+//            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+//            String deadline = dateFormat.format(journals.getDeadline());
+            activeJournalsDto.setDeadline(journals.getDateOfPublication());
+            activeJournalsDto.setTitle(journals.getTitle());
+            activeJournalsDto.setCover(journals.getCover());
+            activeJournalsDto.setId(journals.getId());
+            journalByIds.add(activeJournalsDto);
+        }
+        return journalByIds;
+    }
+
 
     public List<Integer> getYear(UUID id) {
-
         Journals optionalJournals = journalsRepository.findByIdAndDeletedTrue(id);
-
-        System.out.println("---->"+id);
         List<Integer> years = new ArrayList<>();
-        for (Integer integer : journalsRepository.findAllByDeletedTrueAndIdOrDeletedTrueAndParentId(optionalJournals.getParentId()!=null?optionalJournals.getParentId():optionalJournals.getId(),optionalJournals.getParentId()!=null?optionalJournals.getParentId():optionalJournals.getId())) {
-            System.out.println("====>>>"+integer);
+        for (Integer integer : journalsRepository.findAllByDeletedTrueAndIdOrDeletedTrueAndParentId(optionalJournals.getParentId() != null ? optionalJournals.getParentId() : optionalJournals.getId(), optionalJournals.getParentId() != null ? optionalJournals.getParentId() : optionalJournals.getId())) {
+            System.out.println("====>>>" + integer);
             if (integer != 0)
                 years.add(integer);
         }
         years.sort(Collections.reverseOrder());
-        return years ;
+        return years;
+    }
+
+    public List<Integer> getPublishedYears(UUID id) {
+        Journals optionalJournals = journalsRepository.findByIdAndDeletedTrue(id);
+        List<Integer> years = new ArrayList<>();
+        for (Integer integer : journalsRepository.findAllByDeletedTrueAndIdAndPublishedOrDeletedTrueAndParentIdAndPublished(optionalJournals.getParentId() != null ? optionalJournals.getParentId() : optionalJournals.getId(), optionalJournals.getParentId() != null ? optionalJournals.getParentId() : optionalJournals.getId())) {
+            if (integer != 0)
+                years.add(integer);
+        }
+        if (years.size() != 0) {
+            years.sort(Collections.reverseOrder());
+            return years;
+        }
+
+        return years;
     }
 
 
     public List<ActiveJournalsDto> getYearJournals(UUID id, Integer year) {
         UUID uuid;
         Journals journals1 = journalsRepository.findByIdAndDeletedTrue(id);
-        if (journals1.getParentId()!=null)
-            uuid=journals1.getParentId();
+        if (journals1.getParentId() != null)
+            uuid = journals1.getParentId();
         else
-            uuid=journals1.getId();
+            uuid = journals1.getId();
         List<ActiveJournalsDto> activeJournalsDtoList = new ArrayList<>();
         List<Journals> journalsList = journalsRepository.findAllByDeletedTrueAndDatePublicationAndIdOrDeletedTrueAndDatePublicationAndParentId(year, uuid, year, uuid);
         for (Journals journals : journalsList) {
@@ -305,7 +373,8 @@ public class JournalsService {
         return activeJournalsDtoList;
     }
 
-    public JournalInfo getJournalInfo(UUID id) {
+    public JournalInfo getJournalInfoForUsers(UUID id) {
+        System.out.println("juuuurrrrrrrnaaaaall" + id);
         JournalInfo journalInfo = new JournalInfo();
         Journals journals = journalsRepository.findByIdAndDeletedTrue(id);
         List<Article> articles = articleRepository.journalArticlesForJournals(id);
@@ -317,12 +386,16 @@ public class JournalsService {
             articleInfoForJournal.setFileId(article.getPublishedArticle().getId());
             articleInfoForJournal.setContentType(article.getPublishedArticle().getContentType());
             articleInfoForJournal.setOriginalName(article.getPublishedArticle().getOriginalName());
+            articleInfoForJournal.setArticleViews(article.getViews());
             articleInfoForJournalList.add(articleInfoForJournal);
         }
         journalInfo.setArticleInfoForJournal(articleInfoForJournalList);
         journalInfo.setReleaseNumberOfThisYear(journals.getReleaseNumberOfThisYear());
         journalInfo.setPublishedDate(String.valueOf(journals.getDateOfPublication()));
-        journalInfo.setFile(journals.getFile());
+        journalInfo.setJournalId(journals.getFile().getId());
+        journalInfo.setOriginalName(journals.getFile().getOriginalName());
+        journalInfo.setContentType(journals.getFile().getContentType());
+        journalInfo.setCover(journals.getCover());
         return journalInfo;
     }
 
@@ -331,6 +404,8 @@ public class JournalsService {
         try {
             Optional<Article> optionalArticle = articleRepository.findById(id);
             Article article = optionalArticle.get();
+            if (action)
+                article.setArticleStatusName(ArticleStatusName.PUBLISHED);
             article.setJournalsActive(action);
             articleRepository.save(article);
             return new ApiResponse("Muvaffaqiyatli bajarildi", true);
@@ -339,5 +414,45 @@ public class JournalsService {
         }
 
 
+    }
+
+    public List<ActiveJournalsDto> deadlineOver() {
+        List<Journals> journals = journalsRepository.findAllByDeletedTrueAndJournalsStatus(JournalsStatus.DEADLINE_OVER.name());
+        List<ActiveJournalsDto> activeJournals = new ArrayList<>();
+
+        for (Journals journal : journals) {
+            ActiveJournalsDto activeJournalsDto = new ActiveJournalsDto();
+            activeJournalsDto.setId(journal.getId());
+            activeJournalsDto.setCover(journal.getCover());
+            activeJournalsDto.setReleaseNumberOfThisYear(journal.getReleaseNumberOfThisYear());
+            activeJournalsDto.setAllReleaseNumber(journal.getAllReleasesNumber());
+            activeJournalsDto.setTitle(journal.getTitle());
+            activeJournals.add(activeJournalsDto);
+
+        }
+        return activeJournals;
+    }
+
+
+    public List<ActiveJournalsDto> getPublishedJournalsByYear(UUID id, Integer year) {
+        UUID uuid;
+        Journals journals1 = journalsRepository.findByIdAndDeletedTrue(id);
+        if (journals1.getParentId() != null)
+            uuid = journals1.getParentId();
+        else
+            uuid = journals1.getId();
+        List<ActiveJournalsDto> activeJournalsDtoList = new ArrayList<>();
+        List<Journals> journalsList = journalsRepository.findAllByDeletedTrueAndDatePublicationAndIdAndJournalsStatusOrDeletedTrueAndDatePublicationAndParentIdAndJournalsStatus(year, uuid, JournalsStatus.PUBLISHED.name(), year, uuid, JournalsStatus.PUBLISHED.name());
+        for (Journals journals : journalsList) {
+            ActiveJournalsDto activeJournalsDto = new ActiveJournalsDto();
+            activeJournalsDto.setTitle(journals.getTitle());
+            activeJournalsDto.setCover(journals.getCover());
+            activeJournalsDto.setId(journals.getId());
+            activeJournalsDto.setYear(journals.getDatePublication());
+            activeJournalsDto.setAllReleaseNumber(journals.getAllReleasesNumber());
+            activeJournalsDto.setReleaseNumberOfThisYear(journals.getReleaseNumberOfThisYear());
+            activeJournalsDtoList.add(activeJournalsDto);
+        }
+        return activeJournalsDtoList;
     }
 }
