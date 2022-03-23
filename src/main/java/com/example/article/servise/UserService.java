@@ -17,9 +17,7 @@ import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.WriteResult;
 import com.google.firebase.cloud.FirestoreClient;
 import lombok.SneakyThrows;
-import org.antlr.v4.misc.Graph;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.SpringApplication;
 import org.springframework.data.domain.Page;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -27,15 +25,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
 import static java.util.Collections.*;
 
@@ -85,10 +79,14 @@ public class UserService {
 
     @Autowired
     SmsService smsService;
+    @Autowired
+    VerifyPasswordRepository verifyPasswordRepository;
 
+    @Autowired
+    LanguageRepository languageRepository;
     public String register(SignUp signUp) {
-        Optional<User> userOptional = userRepository.findByPhoneNumberAndDeleteFalse(signUp.getPhoneNumber());
-        if (userOptional.isEmpty()) {
+        boolean exists = userRepository.existsByPhoneNumber(signUp.getPhoneNumber());
+        if (!exists) {
             User user = new User();
             user.setPhoneNumber(signUp.getPhoneNumber());
             user.setCode(generatorCode());
@@ -118,7 +116,7 @@ public class UserService {
      */
     @SneakyThrows
     public ApiResponse registerReviewer(String lastName, String firstName, String fathersName, String phoneNumber, String password, String email, Set<Integer> categoryIdList,
-                                        String workPlace, String workExperience, MultipartFile file, String academicDegree, String languages, MultipartFile passport) {
+                                        String workPlace, String workExperience, MultipartFile file, String academicDegree, List<Integer> languages, MultipartFile passport) {
         boolean exists = userRepository.existsByPhoneNumber(phoneNumber);
         if (exists)
             return new ApiResponse("Bunday telefon raqam orqali avval ro`yxatdan o`tilgan", false);
@@ -135,11 +133,20 @@ public class UserService {
             user.setWorkExperience(workExperience);
             user.setScientificWork(singletonList(attachmentService.upload1(file)));
             user.setAcademicDegree(academicDegree);
-            user.setLanguages(languages);
+
+            if(languages.size()!=0) {
+                List<Languages> languagesList = new ArrayList<>();
+                for (Integer id : languages) {
+                    Languages languages1 = languageRepository.findByDeletedFalseAndId(id).get();
+                    languagesList.add(languages1);
+                }
+                user.setLanguages(languagesList);
+            }
+
             user.setRoles(singletonList(roleRepository.findById(3).get()));
             user.setEnabled(true);
-            user.setActive(true);
-            user.setPhotos(singletonList(attachmentService.upload1(passport)));
+            user.setActive(false);
+            user.setPassport(attachmentService.upload1(passport));
             System.out.println("----" + password);
             System.out.println("-----" + phoneNumber);
             userRepository.save(user);
@@ -164,7 +171,7 @@ public class UserService {
     /**
      * ADMIN TOMONIDAN YANGI USER QO`SHISH
      */
-    public ApiResponse addEmployee(UserDto userDto) throws ExecutionException, IllegalAccessException {
+    public ApiResponse addEmployee(UserDto userDto) {
         try {
             boolean exists = userRepository.existsByPhoneNumber(userDto.getPhoneNumber());
             if (exists)
@@ -183,7 +190,14 @@ public class UserService {
             user.setEmail(userDto.getEmail());
             if (userDto.getRoleId() == 4)
                 user.setCode(generatorCode());
-            user.setLanguages(userDto.getLanguages());
+            if(userDto.getLanguages().size()!=0) {
+                List<Languages> languagesList = new ArrayList<>();
+                for (Integer id : userDto.getLanguages()) {
+                    Languages languages1 = languageRepository.findByDeletedFalseAndId(id).get();
+                    languagesList.add(languages1);
+                }
+                user.setLanguages(languagesList);
+            }
             user.setRoles(singletonList(roleRepository.getById(userDto.getRoleId())));
 
 //            CrudDto crudDto = new CrudDto();
@@ -206,7 +220,7 @@ public class UserService {
     }
 
 
-    public String createCRUD(SignIn crud) throws ExecutionException, InterruptedException {
+    public String createCRUD(SignIn crud)  {
         try {
             Firestore dbFirestore = FirestoreClient.getFirestore();
             ApiFuture<WriteResult> collectionsApiFuture = dbFirestore.collection("crud_user").document("777").set(crud);
@@ -215,36 +229,15 @@ public class UserService {
 
             return "xato";
         }
-
-
 //        return collectionsApiFuture.get().getUpdateTime().toString();
-
-
     }
-
-
-    // user rasm qoyish uchun
-    public ApiResponse userAddPhoto(UUID userId, MultipartFile file) {
-        try {
-            User user = userRepository.getById(userId);
-            user.setPhotos(Collections.singletonList(attachmentService.upload1(file)));
-            userRepository.save(user);
-            return new ApiResponse(" Photo saved ", true);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ApiResponse(" Not save photo");
-        }
-    }
-
 
     public String login(SignIn signIn) {
         Authentication authenticate = manager.authenticate(
-                new UsernamePasswordAuthenticationToken(signIn.getPassword(), signIn.getPhoneNumber())
+                new UsernamePasswordAuthenticationToken(signIn.getPhoneNumber(), signIn.getPassword())
         );
         SecurityContextHolder.getContext().setAuthentication(authenticate);
         User principal = (User) authenticate.getPrincipal();
-
-
         return jwtProvider.generateJwtToken(principal);
     }
 
@@ -265,7 +258,14 @@ public class UserService {
             user.setFirstName(signUp.getFirstName().equals("") ? user.getFirstName() : signUp.getFirstName());
             user.setFatherName(signUp.getFatherName().equals("") ? user.getFatherName() : signUp.getFatherName());
             user.setEmail(signUp.getEmail().equals("") ? user.getEmail() : signUp.getEmail());
-            user.setLanguages(signUp.getLanguages().equals("") ? user.getLanguages() : signUp.getLanguages());
+            if(signUp.getLanguages().size()!=0) {
+                List<Languages> languagesList = new ArrayList<>();
+                for (Integer id : signUp.getLanguages()) {
+                    Languages languages1 = languageRepository.findByDeletedFalseAndId(id).get();
+                    languagesList.add(languages1);
+                }
+                user.setLanguages(languagesList);
+            }
             user.setAcademicDegree(signUp.getAcademicDegree().equals("") ? user.getAcademicDegree() : signUp.getAcademicDegree());
             user.setWorkExperience(signUp.getWorkExperience().equals("") ? user.getWorkExperience() : signUp.getWorkExperience());
             user.setWorkPlace(signUp.getWorkPlace().equals("") ? user.getWorkPlace() : signUp.getWorkPlace());
@@ -277,7 +277,6 @@ public class UserService {
             informationUser.setRedactorAndReviewer(user);
             informationUserRepository.save(informationUser);
             userRepository.save(user);
-
             System.out.println("Password:" + signUp.getPassword());
             System.out.println("phone:" + signUp.getPhoneNumber());
             System.out.println("tt->" + "");
@@ -324,7 +323,15 @@ public class UserService {
             user.setLastName(signUp.getLastName().equals("") ? user.getLastName() : signUp.getLastName());
             user.setFirstName(signUp.getFirstName().equals("") ? user.getFirstName() : signUp.getFirstName());
             user.setFatherName(signUp.getFatherName().equals("") ? user.getFatherName() : signUp.getFatherName());
-            user.setLanguages(signUp.getLanguages().equals("") ? user.getLanguages() : signUp.getLanguages());
+
+            if (signUp.getLanguages().size()!=0) {
+                List<Languages> languagesList=new ArrayList<>();
+                for (Integer sign : signUp.getLanguages()) {
+                    Languages languages = languageRepository.findByDeletedFalseAndId(sign).get();
+                    languagesList.add(languages);
+                }
+                user.setLanguages(languagesList);
+            }
 //            user.setPhoneNumber(signUp.getPhoneNumber().equals("") ? user.getPhoneNumber() : signUp.getPhoneNumber());
             user.setAcademicDegree(signUp.getAcademicDegree().equals("") ? user.getAcademicDegree() : signUp.getAcademicDegree());
             user.setWorkExperience(signUp.getWorkExperience().equals("") ? user.getWorkExperience() : signUp.getWorkExperience());
@@ -356,48 +363,11 @@ public class UserService {
         return new ApiResponse("Xatolik yuz berdi", false);
     }
 
-//    public ApiResponse searchUser(String search, Integer roles_id, boolean enabled, Integer categoryId, Integer page, Integer size)
-//            throws IllegalAccessException {
-//        Page<User> users = null;
-//        System.out.println(search);
-//
-//// search ishlidi
-//        if (roles_id == 10 && categoryId == null && !search.equals("777")) {
-//            users = userRepository.findAllByEnabledAndFirstNameContainingIgnoringCaseOrLastNameContainingIgnoringCaseOrFatherNameContainingIgnoringCaseOrEmailContainingIgnoringCaseOrPhoneNumberContainingIgnoringCase
-//                    (enabled, search, search, search, search, search, CommonUtills.simplePageable(page, size));
-//        } else if
-//            //  role ishlidi
-//        (categoryId == null && search.equals("777") && roles_id != null) {
-//            users = userRepository.findAllByEnabledAndRolesId(enabled, roles_id, CommonUtills.simplePageable(page, size));
-//
-////             categorya ishlidi
-//        } else if (roles_id == null && search.equals("777") && categoryId != null) {
-//            users = userRepository.findAllByEnabledAndCategoriesIdIn(enabled, singleton(categoryId), CommonUtills.simplePageable(page, size));
-//
-//            // categorya bn role ishlidi
-//        } else if (roles_id != null && categoryId != null && search.equals("777")) {
-//            users = userRepository.findAllByEnabledAndCategoriesIdInAndRolesId(enabled, singleton(categoryId), roles_id, CommonUtills.simplePageable(page, size));
-//
-//            // categorya va role search ham ishlidi
-//        } else if (roles_id != null && categoryId != null && !search.equals("777")) {
-//            users = userRepository.findAllByRolesIdAndCategoriesIdInAndEnabledAndFirstNameContainingIgnoringCaseOrLastNameContainingIgnoringCaseOrFatherNameContainingIgnoringCaseOrEmailContainingIgnoringCaseOrPhoneNumberContainingIgnoringCase(roles_id, Collections.singleton(categoryId), enabled, search, search, search, search, search, CommonUtills.simplePageable(page, size));
-//
-//            // role bn search
-//        } else if (categoryId == null && roles_id != null && !search.equals("777")) {
-//
-//            users = userRepository.findAllByRolesIdAndEnabledAndFirstNameContainingIgnoringCaseOrLastNameContainingIgnoringCaseOrFatherNameContainingIgnoringCaseOrEmailContainingIgnoringCaseOrPhoneNumberContainingIgnoringCase(roles_id, enabled, search, search, search, search, search, CommonUtills.simplePageable(page, size));
-//
-//            //  category bn search
-//        } else if (roles_id == null && categoryId != null && !search.equals("777")) {
-//            users = userRepository.findAllByCategoriesIdInAndEnabledAndFirstNameContainingIgnoringCaseOrLastNameContainingIgnoringCaseOrFatherNameContainingIgnoringCaseOrEmailContainingIgnoringCaseOrPhoneNumberContainingIgnoringCase(Collections.singleton((categoryId)), enabled, search, search, search, search, search, CommonUtills.simplePageable(page, size));
-//        }
-//        return new ApiResponse("All user ", true, users);
-//    }
 
+    public ApiResponse search(SearchUser searchUser) {
 
-    public ApiResponse search(SearchUser searchUser) throws IllegalAccessException {
-
-        Page<User> users = userRepository.findAllByDeleteFalse(CommonUtills.simplePageable(AppConstants.DEFAULT_PAGE_NUMBER1, AppConstants.DEFAULT_PAGE_SIZE1));
+        List<User> users = userRepository.findAllByDeleteFalse();
+//        Page<User users = userRepository.findAllByDeleteFalse(CommonUtills.simplePageable(AppConstants.DEFAULT_PAGE_NUMBER1, AppConstants.DEFAULT_PAGE_SIZE1));
 //
 //        System.out.println(" categor id  " + searchUser.getCategoryId());
 //        System.out.println(" role id  " + searchUser.getRoles_id());
@@ -406,52 +376,63 @@ public class UserService {
 
         // search ishlidi
         if (searchUser.getRoles_id() == null && searchUser.getCategoryId() == null && !searchUser.getSearch().equals("777")) {
-            users = userRepository.findAllByEnabledAndFirstNameContainingIgnoringCaseAndDeleteFalseOrEnabledAndLastNameContainingIgnoringCaseAndDeleteFalseOrEnabledAndFatherNameContainingIgnoringCaseAndDeleteFalseOrEnabledAndEmailContainingIgnoringCaseAndDeleteFalseOrEnabledAndPhoneNumberContainingIgnoringCase(
-                    searchUser.isEnabled(), searchUser.getSearch(), searchUser.isEnabled(), searchUser.getSearch(), searchUser.isEnabled(), searchUser.getSearch(), searchUser.isEnabled(), searchUser.getSearch(), searchUser.isEnabled(), searchUser.getSearch(), CommonUtills.simplePageable(searchUser.getPage(), searchUser.getSize()));
+            users = userRepository.findAllByActiveTrueAndEnabledAndFirstNameContainingIgnoringCaseAndDeleteFalseOrActiveTrueAndEnabledAndLastNameContainingIgnoringCaseAndDeleteFalseOrActiveTrueAndEnabledAndFatherNameContainingIgnoringCaseAndDeleteFalseOrActiveTrueAndEnabledAndEmailContainingIgnoringCaseAndDeleteFalseOrActiveTrueAndEnabledAndPhoneNumberContainingIgnoringCase(
+                    searchUser.isEnabled(), searchUser.getSearch(), searchUser.isEnabled(), searchUser.getSearch(), searchUser.isEnabled(), searchUser.getSearch(), searchUser.isEnabled(), searchUser.getSearch(), searchUser.isEnabled(), searchUser.getSearch());
             System.out.println("search ishladi");
         }
+
         //  role ishlidi
         else if (searchUser.getCategoryId() == null && searchUser.getSearch().equals("777") && searchUser.getRoles_id() != null) {
             System.out.println(searchUser.getRoles_id() + "-------" + searchUser.isEnabled());
-            users = userRepository.findAllByEnabledAndRolesIdAndDeleteFalse(searchUser.isEnabled(), searchUser.getRoles_id(), false, CommonUtills.simplePageable(searchUser.getPage(), searchUser.getSize()));
-
+            users = userRepository.findAllActiveTrueAndByEnabledAndRolesIdAndDeleteFalse(searchUser.isEnabled(), searchUser.getRoles_id(), false);
             System.out.println("role ishladi  ");
             return new ApiResponse(" role  ", true, users);
         }
+
         //categorya ishlidi
         else if (searchUser.getRoles_id() == null && searchUser.getSearch().equals("777") && searchUser.getCategoryId() != null) {
-            users = userRepository.findAllByEnabledAndDeleteFalseAndCategoriesIdIn(searchUser.isEnabled(), singleton(searchUser.getCategoryId()), CommonUtills.simplePageable(searchUser.getPage(), searchUser.getSize()));
+//            users = userRepository.findAllByEnabledAndDeleteFalseAndCategoriesIdIn(searchUser.isEnabled(), singleton(searchUser.getCategoryId()), CommonUtills.simplePageable(searchUser.getPage(), searchUser.getSize()));
+            users = userRepository.findAllByActiveTrueAndEnabledAndDeleteFalseAndCategoriesIdIn(searchUser.isEnabled(), singleton(searchUser.getCategoryId()));
             System.out.println("categor ishladi  ");
         }
+
         // categorya bn role ishlidi
         else if (searchUser.getRoles_id() != null && searchUser.getCategoryId() != null && searchUser.getSearch().equals("777")) {
-            users = userRepository.findAllByEnabledAndDeleteFalseAndCategoriesIdInAndRolesId(searchUser.isEnabled(), singleton(searchUser.getCategoryId()), searchUser.getRoles_id(), CommonUtills.simplePageable(searchUser.getPage(), searchUser.getSize()));
+            users = userRepository.findAllByActiveTrueAndEnabledAndDeleteFalseAndCategoriesIdInAndRolesId(searchUser.isEnabled(), singleton(searchUser.getCategoryId()), searchUser.getRoles_id());
             for (User user : users) {
                 System.out.println(user.getFirstName() + " " + user.getCategories().get(0).getName());
             }
 
             System.out.println("category bn role ishladi  ");
         }
+
         // categorya va role search ham ishlidi
         else if (searchUser.getRoles_id() != null && searchUser.getCategoryId() != null && !searchUser.getSearch().equals("777")) {
-            users = userRepository.findAllByRolesIdAndDeleteFalseAndCategoriesIdInAndEnabledAndFirstNameContainingIgnoringCaseOrRolesIdAndDeleteFalseAndCategoriesIdInAndEnabledAndLastNameContainingIgnoringCaseOrRolesIdAndDeleteFalseAndCategoriesIdInAndEnabledAndFatherNameContainingIgnoringCaseOrRolesIdAndDeleteFalseAndCategoriesIdInAndEnabledAndEmailContainingIgnoringCaseOrRolesIdAndDeleteFalseAndCategoriesIdInAndEnabledAndPhoneNumberContainingIgnoringCase(searchUser.getRoles_id(), singleton(searchUser.getCategoryId()), searchUser.isEnabled(), searchUser.getSearch(), searchUser.getRoles_id(), singleton(searchUser.getCategoryId()), searchUser.isEnabled(), searchUser.getSearch(), searchUser.getRoles_id(), singleton(searchUser.getCategoryId()), searchUser.isEnabled(), searchUser.getSearch(), searchUser.getRoles_id(), singleton(searchUser.getCategoryId()), searchUser.isEnabled(), searchUser.getSearch(), searchUser.getRoles_id(), singleton(searchUser.getCategoryId()), searchUser.isEnabled(), searchUser.getSearch(), CommonUtills.simplePageable(searchUser.getPage(), searchUser.getSize()));
+//            users = userRepository.findAllByRolesIdAndDeleteFalseAndCategoriesIdInAndEnabledAndFirstNameContainingIgnoringCaseOrRolesIdAndDeleteFalseAndCategoriesIdInAndEnabledAndLastNameContainingIgnoringCaseOrRolesIdAndDeleteFalseAndCategoriesIdInAndEnabledAndFatherNameContainingIgnoringCaseOrRolesIdAndDeleteFalseAndCategoriesIdInAndEnabledAndEmailContainingIgnoringCaseOrRolesIdAndDeleteFalseAndCategoriesIdInAndEnabledAndPhoneNumberContainingIgnoringCase(searchUser.getRoles_id(), singleton(searchUser.getCategoryId()), searchUser.isEnabled(), searchUser.getSearch(), searchUser.getRoles_id(), singleton(searchUser.getCategoryId()), searchUser.isEnabled(), searchUser.getSearch(), searchUser.getRoles_id(), singleton(searchUser.getCategoryId()), searchUser.isEnabled(), searchUser.getSearch(), searchUser.getRoles_id(), singleton(searchUser.getCategoryId()), searchUser.isEnabled(), searchUser.getSearch(), searchUser.getRoles_id(), singleton(searchUser.getCategoryId()), searchUser.isEnabled(), searchUser.getSearch(), CommonUtills.simplePageable(searchUser.getPage(), searchUser.getSize()));
+            users = userRepository.findAllByActiveTrueAndRolesIdAndDeleteFalseAndCategoriesIdInAndEnabledAndFirstNameContainingIgnoringCaseOrActiveTrueAndRolesIdAndDeleteFalseAndCategoriesIdInAndEnabledAndLastNameContainingIgnoringCaseOrActiveTrueAndRolesIdAndDeleteFalseAndCategoriesIdInAndEnabledAndFatherNameContainingIgnoringCaseOrActiveTrueAndRolesIdAndDeleteFalseAndCategoriesIdInAndEnabledAndEmailContainingIgnoringCaseOrActiveTrueAndRolesIdAndDeleteFalseAndCategoriesIdInAndEnabledAndPhoneNumberContainingIgnoringCase(searchUser.getRoles_id(), singleton(searchUser.getCategoryId()), searchUser.isEnabled(), searchUser.getSearch(), searchUser.getRoles_id(), singleton(searchUser.getCategoryId()), searchUser.isEnabled(), searchUser.getSearch(), searchUser.getRoles_id(), singleton(searchUser.getCategoryId()), searchUser.isEnabled(), searchUser.getSearch(), searchUser.getRoles_id(), singleton(searchUser.getCategoryId()), searchUser.isEnabled(), searchUser.getSearch(), searchUser.getRoles_id(), singleton(searchUser.getCategoryId()), searchUser.isEnabled(), searchUser.getSearch());
             System.out.println("category bn role va search  ishladi  ");
         }
+
         // role bn search
         else if (searchUser.getCategoryId() == null && searchUser.getRoles_id() != null && !searchUser.getSearch().equals("777")) {
             System.out.println("search bn role ishladi  ");
-            users = userRepository.findAllByRolesIdAndDeleteFalseAndEnabledAndFirstNameContainingIgnoringCaseOrRolesIdAndDeleteFalseAndEnabledAndLastNameContainingIgnoringCaseOrRolesIdAndDeleteFalseAndEnabledAndFatherNameContainingIgnoringCaseOrRolesIdAndDeleteFalseAndEnabledAndEmailContainingIgnoringCaseOrRolesIdAndDeleteFalseAndEnabledAndPhoneNumberContainingIgnoringCase(searchUser.getRoles_id(), searchUser.isEnabled(), searchUser.getSearch(), searchUser.getRoles_id(), searchUser.isEnabled(), searchUser.getSearch(), searchUser.getRoles_id(), searchUser.isEnabled(), searchUser.getSearch(), searchUser.getRoles_id(), searchUser.isEnabled(), searchUser.getSearch(), searchUser.getRoles_id(), searchUser.isEnabled(), searchUser.getSearch(), CommonUtills.simplePageable(searchUser.getPage(), searchUser.getSize()));
+//            users = userRepository.findAllByRolesIdAndDeleteFalseAndEnabledAndFirstNameContainingIgnoringCaseOrRolesIdAndDeleteFalseAndEnabledAndLastNameContainingIgnoringCaseOrRolesIdAndDeleteFalseAndEnabledAndFatherNameContainingIgnoringCaseOrRolesIdAndDeleteFalseAndEnabledAndEmailContainingIgnoringCaseOrRolesIdAndDeleteFalseAndEnabledAndPhoneNumberContainingIgnoringCase(searchUser.getRoles_id(), searchUser.isEnabled(), searchUser.getSearch(), searchUser.getRoles_id(), searchUser.isEnabled(), searchUser.getSearch(), searchUser.getRoles_id(), searchUser.isEnabled(), searchUser.getSearch(), searchUser.getRoles_id(), searchUser.isEnabled(), searchUser.getSearch(), searchUser.getRoles_id(), searchUser.isEnabled(), searchUser.getSearch(), CommonUtills.simplePageable(searchUser.getPage(), searchUser.getSize()));
+            users = userRepository.findAllByActiveTrueAndRolesIdAndDeleteFalseAndEnabledAndFirstNameContainingIgnoringCaseOrActiveTrueAndRolesIdAndDeleteFalseAndEnabledAndLastNameContainingIgnoringCaseOrActiveTrueAndRolesIdAndDeleteFalseAndEnabledAndFatherNameContainingIgnoringCaseOrActiveTrueAndRolesIdAndDeleteFalseAndEnabledAndEmailContainingIgnoringCaseOrActiveTrueAndRolesIdAndDeleteFalseAndEnabledAndPhoneNumberContainingIgnoringCase(searchUser.getRoles_id(), searchUser.isEnabled(), searchUser.getSearch(), searchUser.getRoles_id(), searchUser.isEnabled(), searchUser.getSearch(), searchUser.getRoles_id(), searchUser.isEnabled(), searchUser.getSearch(), searchUser.getRoles_id(), searchUser.isEnabled(), searchUser.getSearch(), searchUser.getRoles_id(), searchUser.isEnabled(), searchUser.getSearch());
             return new ApiResponse(" role va searech ", true, users);
         }
+
         //  category bn search
         else if (searchUser.getRoles_id() == null && searchUser.getCategoryId() != null && !searchUser.getSearch().equals("777")) {
-            users = userRepository.findAllByCategoriesIdInAndDeleteFalseAndEnabledAndFirstNameContainingIgnoringCaseOrCategoriesIdInAndDeleteFalseAndEnabledAndLastNameContainingIgnoringCaseOrCategoriesIdInAndDeleteFalseAndEnabledAndFatherNameContainingIgnoringCaseOrCategoriesIdInAndDeleteFalseAndEnabledAndEmailContainingIgnoringCaseOrCategoriesIdInAndDeleteFalseAndEnabledAndPhoneNumberContainingIgnoringCase(singleton(searchUser.getCategoryId()), searchUser.isEnabled(), searchUser.getSearch(), singleton(searchUser.getCategoryId()), searchUser.isEnabled(), searchUser.getSearch(), singleton(searchUser.getCategoryId()), searchUser.isEnabled(), searchUser.getSearch(), singleton(searchUser.getCategoryId()), searchUser.isEnabled(), searchUser.getSearch(), singleton(searchUser.getCategoryId()), searchUser.isEnabled(), searchUser.getSearch(), CommonUtills.simplePageable(searchUser.getPage(), searchUser.getSize()));
+//            users = userRepository.findAllByCategoriesIdInAndDeleteFalseAndEnabledAndFirstNameContainingIgnoringCaseOrCategoriesIdInAndDeleteFalseAndEnabledAndLastNameContainingIgnoringCaseOrCategoriesIdInAndDeleteFalseAndEnabledAndFatherNameContainingIgnoringCaseOrCategoriesIdInAndDeleteFalseAndEnabledAndEmailContainingIgnoringCaseOrCategoriesIdInAndDeleteFalseAndEnabledAndPhoneNumberContainingIgnoringCase(singleton(searchUser.getCategoryId()), searchUser.isEnabled(), searchUser.getSearch(), singleton(searchUser.getCategoryId()), searchUser.isEnabled(), searchUser.getSearch(), singleton(searchUser.getCategoryId()), searchUser.isEnabled(), searchUser.getSearch(), singleton(searchUser.getCategoryId()), searchUser.isEnabled(), searchUser.getSearch(), singleton(searchUser.getCategoryId()), searchUser.isEnabled(), searchUser.getSearch(), CommonUtills.simplePageable(searchUser.getPage(), searchUser.getSize()));
+            users = userRepository.findAllByActiveTrueAndCategoriesIdInAndDeleteFalseAndEnabledAndFirstNameContainingIgnoringCaseOrActiveTrueAndCategoriesIdInAndDeleteFalseAndEnabledAndLastNameContainingIgnoringCaseOrActiveTrueAndCategoriesIdInAndDeleteFalseAndEnabledAndFatherNameContainingIgnoringCaseOrActiveTrueAndCategoriesIdInAndDeleteFalseAndEnabledAndEmailContainingIgnoringCaseOrActiveTrueAndCategoriesIdInAndDeleteFalseAndEnabledAndPhoneNumberContainingIgnoringCase(singleton(searchUser.getCategoryId()), searchUser.isEnabled(), searchUser.getSearch(), singleton(searchUser.getCategoryId()), searchUser.isEnabled(), searchUser.getSearch(), singleton(searchUser.getCategoryId()), searchUser.isEnabled(), searchUser.getSearch(), singleton(searchUser.getCategoryId()), searchUser.isEnabled(), searchUser.getSearch(), singleton(searchUser.getCategoryId()), searchUser.isEnabled(), searchUser.getSearch());
 
             for (User user : users) {
                 System.out.println(user.getFirstName() + " " + user.getCategories().get(0).getName());
             }
             System.out.println("category bn search ishladi");
         }
+
+
         return new ApiResponse("All users: ", true, users);
     }
 
@@ -482,8 +463,7 @@ public class UserService {
         if (optionalUser.isPresent()) {
             User user1 = optionalUser.get();
             if (reviewerDto.isActive())
-                user1.setActive(reviewerDto.isActive());
-            user1.setEnabled(reviewerDto.isActive());
+                user1.setEnabled(reviewerDto.isActive());
             userRepository.save(user1);
             informationUserRepository.save(new InformationUser(user, user1, new Date(), UserStatus.ACCEPTED));
             return new ApiResponse(reviewerDto.isActive() ? "Foydalanuvchi faollashtirildi" : "Foydalanuvchi bloklandi", true);
@@ -516,6 +496,7 @@ public class UserService {
         forDashboard.setNumberOfReadyOfPublicationArticles(articleRepository.countAllByArticleStatusName(ArticleStatusName.PREPARED_FOR_PUBLICATION));      //nashrga tayyor maqolalar soni
         forDashboard.setNumberOfFreeAndPublishedArticles(articleRepository.countAllByPublicPrivateAndArticleStatusName(false, ArticleStatusName.PUBLISHED));        //nashr qilingan va bepul maqolalar soni
         forDashboard.setNumberOfPaidAndPublishedArticles(articleRepository.countAllByPublicPrivateAndArticleStatusName(true, ArticleStatusName.PUBLISHED));           //nashr qilingan va pullik maqolalar soni
+        forDashboard.setNumberOfNewAndPayTrue(articleRepository.countAllByPayTrue());         //hali puli to`lanmagan maqolalar soni
         forDashboard.setNumberOfNewAndPayFalse(articleRepository.countAllByPayFalse());         //hali puli to`lanmagan maqolalar soni
         forDashboard.setNumberOfRejectedArticles(articleRepository.countAllByArticleStatusName(ArticleStatusName.REJECTED));
         forDashboard.setNumberOfRecycleArticles(articleRepository.countAllByArticleStatusName(ArticleStatusName.RECYCLE));
@@ -563,7 +544,7 @@ public class UserService {
     }
 
     public ApiResponse getById(UUID id) {
-        Optional<User> optionalUser = userRepository.findById(id);
+        Optional<User> optionalUser = userRepository.findByIdAndDeleteFalse(id);
         return optionalUser.map(user -> new ApiResponse("Muvaffaqiyatli bajarildi", true, user)).orElseGet(() -> new ApiResponse("Foydalanuvchi topilmadi", false));
     }
 
@@ -584,27 +565,88 @@ public class UserService {
 //
 //    }
 
-    public String getAuthorByCode(int code) {
+    public ApiResponse getAuthorByCode(int code) {
         Optional<User> optionalUser = userRepository.findByCode(code);
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
-            return user.getLastName() + " " + user.getFirstName();
+            return new ApiResponse(user.getLastName() + " " + user.getFirstName(), true);
         }
-        return "Muallif topilmadi";
+        return new ApiResponse("Muallif topilmadi", false);
     }
 
     public ApiResponse createNewPassword(String phoneNumber) {
-        try {
-            Optional<User> user = userRepository.findByPhoneNumberAndDeleteFalse(phoneNumber);
-            int OTPCode = otpService.generateOTP(user.get().getPhoneNumber());
-
-            smsService.sendSms(user.get().getPhoneNumber(), String.valueOf(OTPCode));
-
-            user.get().setPassword(passwordEncoder.encode(String.valueOf(OTPCode)));
-            userRepository.save(user.get());
-            return new ApiResponse("SAved", true);
-        } catch (Exception e) {
-            return new ApiResponse(" O'xshamadi", false);
+        Optional<User> optionalUser = userRepository.findByPhoneNumberAndDeleteFalse(phoneNumber);
+        if (optionalUser.isPresent()) {
+            int OTPCode = otpService.generateOTP(optionalUser.get().getPhoneNumber());
+            smsService.sendSms(optionalUser.get().getPhoneNumber(), String.valueOf(OTPCode));
+            VerifyPassword verifyPassword = new VerifyPassword();
+            verifyPassword.setVerifyCode(OTPCode);
+            verifyPassword.setPhoneNumber(phoneNumber);
+            verifyPassword.setVerifyTime(System.currentTimeMillis() + 2 * 1000 * 60);
+            verifyPasswordRepository.save(verifyPassword);
+            userRepository.save(optionalUser.get());
+            return new ApiResponse("Tasdiqlash kodi yuborildi", true,jwtProvider.generateJwtToken(optionalUser.get()));
         }
+        return new ApiResponse("Bunday telefon raqam mavjud emas", false);
+    }
+
+    public ApiResponse verifyCode(User user, VerifyCode verifyCode) {
+
+        System.out.println("userlar "+user);
+        System.out.println("code "+verifyCode.getCode());
+        System.out.println("password "+verifyCode.getPassword());
+        Optional<VerifyPassword> optionalVerifyPassword = verifyPasswordRepository.findByVerifyCodeAndPhoneNumber(verifyCode.getCode(), user.getPhoneNumber());
+        if (optionalVerifyPassword.isPresent()) {
+            VerifyPassword verifyPassword = optionalVerifyPassword.get();
+            if (verifyPassword.getVerifyTime() >= System.currentTimeMillis()) {
+                if (verifyPassword.getVerifyCode().equals(verifyCode.getCode())) {
+                    verifyPasswordRepository.deleteById(verifyPassword.getId());
+                    user.setPassword(passwordEncoder.encode(verifyCode.getPassword()));
+                    userRepository.save(user);
+                    return new ApiResponse("Tasdiqlandi", true, jwtProvider.generateJwtToken(user));
+                }
+                return new ApiResponse("Tasdiqlash kodi noto'g'ri", false);
+            }
+            verifyPasswordRepository.deleteById(optionalVerifyPassword.get().getId());
+            return new ApiResponse("Tasdiqlash muddati tugagan", false);
+        }
+        return new ApiResponse("Ushbu foydalanuvchiga tasdiqlash kodi yuborilmagan", false);
+    }
+
+//    public ApiResponse editPassword(User user, String password) {
+//        try {
+//            user.setPassword(password);
+//            userRepository.save(user);
+//            return new ApiResponse("Muvaffaqiyatli bajarildi", true);
+//        } catch (Exception e) {
+//            return new ApiResponse("Xatolik yuz berdi", false);
+//        }
+//    }
+
+    public ApiResponse addPhoto(User user, MultipartFile file) {
+        try {
+            Attachment attachment = attachmentService.upload1(file);
+            user.setPhotos(singletonList(attachment));
+            userRepository.save(user);
+            return new ApiResponse("Yuklandi", true);
+        } catch (IOException e) {
+            return new ApiResponse("Xatolik yuz berdi", false);
+        }
+    }
+
+    public List<User> allNewReviewers() {
+        System.out.println("kkkrwerwe");
+        return userRepository.findAllByActiveFalse();
+    }
+
+
+
+    public ApiResponse activeEdite(UUID id){
+
+        User user=userRepository.findByEnabledTrueAndId(id);
+        user.setActive(true);
+        userRepository.save(user);
+
+        return new ApiResponse("Active", true);
     }
 }

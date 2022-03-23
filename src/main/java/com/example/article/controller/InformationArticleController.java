@@ -24,10 +24,10 @@ public class InformationArticleController {
     @Autowired
     ArticleService articleService;
 
-    @GetMapping("/timeLine/{articleId}")
-    public List<TimeLine> getByArticleId(@PathVariable UUID articleId) {
-        return informationArticleService.getByArticleId(articleId);
-    }
+//    @GetMapping("/timeLine/{articleId}")
+//    public List<TimeLine> getByArticleId(@PathVariable UUID articleId) {
+//        return informationArticleService.getByArticleId(articleId);
+//    }
 
     @GetMapping("/getInfoBySelectDate")
     public List<InformationArticle> getAllByMonth(@RequestParam  long start, @RequestParam long end) {
@@ -36,9 +36,6 @@ public class InformationArticleController {
 
     /**
      * Ma'lum vaqt oralig'idagi bajarilgan ishlarni olib kelish uchun
-     * @param redactorId
-     * @param start
-     * @param end
      */
     @GetMapping("/getByArticleIdAndCreatedDateBetween/{redactorId}")
     public List<InformationArticle> getByRedactorIdAndCreatedAt(@PathVariable UUID redactorId, @RequestParam long start, @RequestParam long end){

@@ -49,6 +49,7 @@ public class InformationArticle extends AbsEntity {  //bu articldi kim va qachon
     private String massage;
 
     private String description;
+
     private long deadline;
 
 
@@ -59,6 +60,13 @@ public class InformationArticle extends AbsEntity {  //bu articldi kim va qachon
         this.chekUser = user;
         this.article = article;
         this.whenAndWho = date;
+        this.description = description;
+    }
+public InformationArticle(User user, Article article, Date date,ArticleStatusName status, String description) {
+        this.chekUser = user;
+        this.article = article;
+        this.whenAndWho = date;
+        this.articleStatusName=status;
         this.description = description;
     }
 
@@ -87,9 +95,10 @@ public class InformationArticle extends AbsEntity {  //bu articldi kim va qachon
 
     }
 
-    public InformationArticle(User user, User redactors, Article byId, Date date, Watdou watdou, ArticleStatusName statusName) {
+    public InformationArticle(User user, User redactors, long deadline,Article byId, Date date, Watdou watdou, ArticleStatusName statusName) {
         this.chekUser = user;
         this.redactor = redactors;
+        this.deadline=deadline;
         this.article = byId;
         this.watdou = watdou;
         this.whenAndWho = date;
@@ -105,9 +114,10 @@ public class InformationArticle extends AbsEntity {  //bu articldi kim va qachon
         this.articleStatusName = aNull;
     }
 
-    public InformationArticle(User chekUser, Article article, Date whenAndWho, ArticleStatusName articleStatusName, String massage) {
+    public InformationArticle(User chekUser, Article article,long deadline, Date whenAndWho, ArticleStatusName articleStatusName, String massage) {
         this.redactor = chekUser;
         this.article = article;
+        this.deadline=deadline;
         this.whenAndWho = whenAndWho;
         this.articleStatusName = articleStatusName;
         this.massage = massage;

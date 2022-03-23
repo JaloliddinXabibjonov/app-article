@@ -9,22 +9,23 @@ import org.hibernate.annotations.Type;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.OneToOne;
 import java.util.UUID;
 
-@Entity
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class PricesOfArticle {
+@Data
+@Entity
+public class VerifyPassword {
     @Id
     @Type(type = "org.hibernate.type.PostgresUUIDType")
     @GeneratedValue(generator = "uuid2")
     @GenericGenerator(name = "uuid2", strategy = "org.hibernate.id.UUIDGenerator")
     private UUID id;
 
-    private int sahifaSoni;
-    private int BosmaJurnallarSoni;
-    private int SertifikatlarSoni;
-    private boolean doi;
-    private double price;
+    private Integer verifyCode;
+
+    private String phoneNumber;
+
+    private long verifyTime;
 }

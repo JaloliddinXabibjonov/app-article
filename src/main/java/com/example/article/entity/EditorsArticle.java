@@ -32,12 +32,11 @@ public class EditorsArticle extends AbsEntity {
 
     private boolean did = false;
 
-    public EditorsArticle(User whoAdd, User redactor, Article article,Integer roleId, Date deadline) {
+    public EditorsArticle(User whoAdd, User redactor, Article article,Integer roleId) {
         this.whoAdd = whoAdd;
         this.redactor = redactor;
         this.article = article;
         this.roleId = roleId;
-        this.deadline=deadline;
 
 
     }

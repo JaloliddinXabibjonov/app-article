@@ -14,6 +14,7 @@ public class ArticleInfoForJournal {
     private UUID fileId;
     private String originalName;
     private String contentType;
+    private int articleViews;
 
 
 }

@@ -9,4 +9,5 @@ public interface AppConstants {
     int MAX_PAGE_SIZE = 20;
     Integer DEFAULT_PAGE_NUMBER1=0;
 Integer DEFAULT_PAGE_SIZE1=10;
+Long DEADLINE_DEFAULT_VALUE= Long.valueOf(3);
 }

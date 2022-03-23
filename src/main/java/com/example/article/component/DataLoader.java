@@ -42,7 +42,7 @@ public class DataLoader implements CommandLineRunner {
             roleRepository.save(new Role(4, "ROLE_USER"));
 
 
-            pricesRepository.save(new Prices(1,10000, 20000, 20000,25000));
+            pricesRepository.save(new Prices(1,50000, 10000, 20000,20000,10000));
 
             userRepository.save(
                     new User(
@@ -68,9 +68,9 @@ public class DataLoader implements CommandLineRunner {
             userRepository.save(
                     new User(
                             "Akbar ",
-                            "Qaxarjonov",
+                            "QAHHORJONOV",
                             "+998903093028",
-                            "Qaxarjonov@",
+                            "QAHHORJONOV@",
                             passwordEncoder.encode("+998903093028"),
                             roleRepository.findAllByIdIn(Collections.singletonList(3))
 //                            Collections.singletonList(categoryRepository.getById(1))

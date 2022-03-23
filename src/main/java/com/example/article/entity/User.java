@@ -24,11 +24,11 @@ public class User extends AbsEntity implements UserDetails {
     @Column(nullable = false, unique = true)
     private String phoneNumber;
 
-//    @JsonIgnore
+    //    @JsonIgnore
     @Column(nullable = false)
     private String password;
 
-    private boolean delete=false;
+    private boolean delete = false;
 
     @ManyToMany(fetch = FetchType.EAGER)
     private List<Role> roles;
@@ -37,23 +37,26 @@ public class User extends AbsEntity implements UserDetails {
     private String firstName;
     private String lastName;
 
-    private  String firebaseToken;
+    private String firebaseToken;
 
-//    @JsonIgnore
+    //    @JsonIgnore
     private String email;
 
-//    @JsonIgnore
-@OneToMany
+    //    @JsonIgnore
+    @OneToMany
     private List<Attachment> photos;
 
-//    @JsonIgnore
-@ManyToMany
+    @OneToOne
+    private Attachment passport;
+    //    @JsonIgnore
+    @ManyToMany
     private List<Category> categories;
 
     private String workPlace;
     private String workExperience;
     private String academicDegree;
-    private String languages;
+    @ManyToMany
+    private List<Languages> languages;
 
     private Integer code;
 
@@ -102,14 +105,14 @@ public class User extends AbsEntity implements UserDetails {
     }
 
 
-    @JsonIgnore
+
     private boolean active;
 
-    @JsonIgnore
+
     private boolean accountNonExpired = true;
-    @JsonIgnore
+
     private boolean accountNonLocked = true;
-    @JsonIgnore
+
     private boolean credentialsNonExpired = true;
     private boolean enabled = true;
 

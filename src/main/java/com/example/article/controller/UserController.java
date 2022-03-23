@@ -7,6 +7,7 @@ import com.example.article.payload.*;
 import com.example.article.repository.UserRepository;
 import com.example.article.secret.CurrentUser;
 import com.example.article.servise.UserService;
+import io.swagger.models.auth.In;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
@@ -54,11 +55,11 @@ public class UserController {
         return ResponseEntity.ok(userService.register(signUp));
     }
 
+    /**REVIEWERLARNI ADMIN TOMONIDAN RO`YXATDAN O`TKAZISH*/
     @SneakyThrows
     @PostMapping(value = "/registerReviewer")
     public HttpEntity<?> registerReviewer(@RequestParam String lastName, @RequestParam String firstName, @RequestParam String fathersName, @RequestParam String phoneNumber, @RequestParam String password, @RequestParam String email, @RequestParam Set<Integer> categoryIdList,
-                                          @RequestParam String workPlace, @RequestParam String workExperience, @RequestPart MultipartFile file, @RequestParam String academicDegree, @RequestParam String languages, @RequestPart MultipartFile passport) {
-        System.out.println(" register " + lastName + " " + firstName + " " + fathersName + " " + Double.valueOf(workExperience));
+                                          @RequestParam String workPlace, @RequestParam String workExperience, @RequestPart MultipartFile file, @RequestParam String academicDegree, @RequestParam List<Integer> languages, @RequestPart MultipartFile passport) {
         ApiResponse apiResponse = userService.registerReviewer(lastName, firstName, fathersName, phoneNumber, password, email, categoryIdList, workPlace, workExperience, file, academicDegree, languages, passport);
         return ResponseEntity.status(apiResponse.isSuccess() ? 201 : 409).body(apiResponse);
     }
@@ -71,15 +72,16 @@ public class UserController {
     }
 
 
-    @PostMapping("/editUserFromAdmin")
-    public HttpEntity<ApiResponse> editUserFromAdmin(@CurrentUser User currentUser, @RequestBody SignUp userDto) {
-        ApiResponse apiResponse = userService.editUserFromAdmin(currentUser, userDto);
-        return ResponseEntity.status(apiResponse.isSuccess() ? 202 : 409).body(apiResponse);
-    }
-
     @PostMapping("/edit")
     public HttpEntity<?> edit(@CurrentUser User user, @RequestBody SignUp signUp) {
         ApiResponse apiResponse = userService.edit(user, signUp);
+        return ResponseEntity.status(apiResponse.isSuccess() ? 202 : 409).body(apiResponse);
+    }
+
+    /** ADMIN TOMONIDAN USERLARNI EDIT QILISH */
+    @PostMapping("/editUserFromAdmin")
+    public HttpEntity<ApiResponse> editUserFromAdmin(@CurrentUser User currentUser, @RequestBody SignUp userDto) {
+        ApiResponse apiResponse = userService.editUserFromAdmin(currentUser, userDto);
         return ResponseEntity.status(apiResponse.isSuccess() ? 202 : 409).body(apiResponse);
     }
 
@@ -89,6 +91,7 @@ public class UserController {
     }
 
 
+    /** USERLARNI ADMIN TOMONIDAN O'CHIRIB TASHLASH */
     @DeleteMapping("/delete/{id}")
     public HttpEntity<?> delete(@PathVariable UUID id) {
         ApiResponse apiResponse = userService.delete(id);
@@ -102,6 +105,7 @@ public class UserController {
         return ResponseEntity.status(user != null ? 200 : 409).body(user1);
     }
 
+    /** ADMIN TOMONIDAN TIZIMGA XODIM QO`SHISH */
     @PostMapping("/addEmployee")
     public HttpEntity<ApiResponse> addEmployee(@RequestBody UserDto userDto) throws ExecutionException, IllegalAccessException {
         ApiResponse apiResponse = userService.addEmployee(userDto);
@@ -136,19 +140,20 @@ public class UserController {
 //    }
 
 
+    /** ADMIN TOMONIDAN TIZIM FOYDALANUVCHILARINI QIDIRISH */
     @PostMapping("/search")
     public HttpEntity<?> search(@RequestBody SearchUser searchUser) throws IllegalAccessException {
         ApiResponse apiResponse = userService.search(searchUser);
         return ResponseEntity.status(apiResponse.isSuccess() ? 200 : 409).body(apiResponse);
     }
 
-
+    /** YANGI QO`SHILGAN REVIEWERLARNI OLIB KELISH */
     @GetMapping("/getNewReviewer")
     public ApiResponse getNewReviewer() {
         return new ApiResponse("Yangi qo'shilgan reviewerlar", true, userService.getNewReviewer());
     }
 
-    /***/
+    /** TIZIMGA YANGI QO`SHILGAN REVIEWERLAR SONINI OLIB KELISH */
     @GetMapping("/getNewReviewerCount")
     public Integer getNewReviewerCount() {
         return userService.getNewReviewerCount();
@@ -180,7 +185,7 @@ public class UserController {
     }
 
     /**
-     * method adminstratorlar defoult deadline beradi
+     *  adminstratorlar defoult deadline beradi
      */
     @PostMapping("/defaultDeadlineAddAdministrator")
     public HttpEntity<?> defaultDeadlineAddAdministrator(@RequestBody DeadlineAdministratorDto defaultDeadlineAddAdministrator) {
@@ -205,12 +210,14 @@ public class UserController {
         return userService.getStatisticsArticlesForUsers(id);
     }
 
+    /** USERNI ID SI BO`YICHA GET QILISH */
     @GetMapping("getById/{id}")
     public HttpEntity<?> getById(@PathVariable UUID id) {
         ApiResponse apiResponse = userService.getById(id);
         return ResponseEntity.status(apiResponse.isSuccess() ? 200 : 409).body(apiResponse);
     }
 
+    /** RO`YXATDAN O`TAYOTGAN ROLE_USER GA MUALLIFLIK KODINI TAKRORLANMAS HOLDA GENERATSIYA QILIB BERISH */
     @GetMapping("/code")
     public Integer generator() {
         return userService.generatorCode();
@@ -227,16 +234,49 @@ public class UserController {
 //        return userService.getMyNotifications(user);
 //    }
 
+    /** MUALLIFNI MUALLIFLIK KODI ORQALI OLIB KELISH */
     @GetMapping("/getAuthorByCode/{code}")
-    public String getAuthorByCode(@PathVariable Integer code){
-        return userService.getAuthorByCode(code);
+    public HttpEntity<ApiResponse> getAuthorByCode(@PathVariable Integer code){
+        ApiResponse apiResponse = userService.getAuthorByCode(code);
+        return ResponseEntity.status(apiResponse.isSuccess()?200:201).body(apiResponse);
     }
 
-
+    /** PAROL TIKLASH uchun tasdiqlash kodi yuborish */
     @PostMapping("/createNewPassword/{phoneNumber}")
     public ApiResponse createNewPassword(@PathVariable String phoneNumber){
-        userService.createNewPassword(phoneNumber);
-        return new ApiResponse("O'xshadi",true);
-
+        return   userService.createNewPassword(phoneNumber);
     }
+
+    /** YUBORILGAN KODNI TASDIQLASH */
+    @PostMapping("/verifyCode")
+    public HttpEntity<ApiResponse> verifyCode(@CurrentUser User user, @RequestBody VerifyCode verifyCode){
+        ApiResponse apiResponse = userService.verifyCode(user, verifyCode);
+        return ResponseEntity.status(apiResponse.isSuccess()?200:409).body(apiResponse);
+    }
+
+//    /** PAROL TIKLASH */
+//    @PutMapping("/editPassword/{password}")
+//    public HttpEntity<ApiResponse> editNewPassword(@CurrentUser User user, @PathVariable String password){
+//        ApiResponse apiResponse=userService.editPassword(user,password);
+//        return ResponseEntity.status(apiResponse.isSuccess()?202:409).body(apiResponse);
+//    }
+
+    /** PROFILGA RASM QO`YISH */
+    @PostMapping("/addPhoto")
+    public HttpEntity<ApiResponse> addPhoto(@CurrentUser User user,@RequestPart MultipartFile file){
+        return ResponseEntity.status(userService.addPhoto(user, file).isSuccess()?200:409).body(userService.addPhoto(user, file));
+    }
+
+    /** Barcha yangi  reviewerlarni olib kelish */
+    @GetMapping("/allNewReviewers")
+    public List<User> allNewReviewers(){
+        return userService.allNewReviewers();
+    }
+
+    @PostMapping("/activeEdite/{id}")
+    public ApiResponse activeEdite(@PathVariable UUID id){
+       return userService.activeEdite(id);
+    }
+
+
 }

@@ -28,11 +28,12 @@ public class Article extends AbsEntity {
     @ManyToMany
     private Set<Authors> authors;
 
-//    private boolean deleted;
+
+    private boolean deleted;
 
     private String titleArticle;
 
-    private  boolean publicPrivate;
+    private boolean publicPrivate;
 
     private boolean active = false;//Admin  o'zi o'zgartiradi  va edit qilishga aloqasi yoq
 
@@ -48,14 +49,6 @@ public class Article extends AbsEntity {
 
 
 
-    public Article(Category category, String title, boolean pay,String description) {
-        this.category = category;
-        this.titleArticle=title;
-        this.pay=pay;
-        this.description=description;
-
-    }
-
 
     @Enumerated(EnumType.STRING)
     private ArticleStatusName articleStatusName;
@@ -70,15 +63,28 @@ public class Article extends AbsEntity {
     @ManyToOne(fetch = FetchType.EAGER)
     private Category category;
 
-//    private UUID journalId;
+
 
     @ManyToMany
     private List<Journals> journals;
 
-    private  boolean journalsActive=false;
+    private boolean journalsActive = false;
 
     @OneToOne
-    private  Attachment publishedArticle;
+    private Attachment publishedArticle;
+
+    @OneToOne
+    private Attachment certificate;
 
 
+    @OneToMany
+    private  List<ArticleEditArxiv>articleEditArxiv;
+
+    public Article(Category category, String title, boolean pay, String description) {
+        this.category = category;
+        this.titleArticle = title;
+        this.pay = pay;
+        this.description = description;
+
+    }
 }

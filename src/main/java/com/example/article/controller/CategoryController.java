@@ -33,30 +33,47 @@ public class CategoryController {
         return ResponseEntity.ok(categoryService.allByPageable(page, size, search));
     }
 
+    /** KATEGORIYANI AKTIVLASHTIRISH VA BLOKLASH */
     @GetMapping("/changeActive/{id}")
     public HttpEntity<ApiResponse> changeActive(@PathVariable Integer id) {
         return ResponseEntity.ok(categoryService.changeActive(id));
     }
 
+    /** KATEGORIYANI O'CHIRISH */
     @GetMapping("/delete/{id}")
     public HttpEntity<ApiResponse> remove(@PathVariable Integer id) {
         return ResponseEntity.ok(categoryService.remove(id));
     }
 
+    /** BARCHA KATEGORIYALARNI OLIB KELISH */
     @GetMapping("/all")
     public List<Category> forJournals() {
         return categoryService.all();
     }
 
 
+    /** BARCHA PARENT KATEGORIYALARNI OLIB KELISH UCHUN */
     @GetMapping("/allParentCategory")
     public List<Category> allParentCategory() {
         return categoryService.allParentCategory();
     }
 
+    /** BARCHA CHOP ETILGAN JURNALLARNI  KATEGORIYALARNI OLIB KELISH UCHUN */
+    @GetMapping("/parentCategories")
+    public HttpEntity<ApiResponse> parentCategories() {
+        ApiResponse apiResponse = categoryService.parentCategories();
+        return ResponseEntity.status(apiResponse.isSuccess()?200:409).body(apiResponse);
+    }
+
+    /**  */
     @GetMapping("/allChildrenCategory/{journalId}")
     public List<Category> allChildrenCategory(@PathVariable UUID journalId){
-        return categoryService.allChildrenCategory(journalId);
+        return categoryService.allChildrenCategoryByJournalId(journalId);
+    }
+
+    @GetMapping("/categoriesForAddReviewers")
+    public List<Category> categoriesForAddReviewers(){
+        return categoryService.categoriesForAddReviewers();
     }
 
 }

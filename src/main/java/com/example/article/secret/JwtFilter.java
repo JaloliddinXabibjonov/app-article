@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -14,7 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.UUID;
-
+@Component
 public class JwtFilter extends OncePerRequestFilter {
 
     @Autowired
@@ -33,7 +34,8 @@ public class JwtFilter extends OncePerRequestFilter {
                 && user.isAccountNonExpired()
                 && user.isAccountNonLocked()
                 && user.isCredentialsNonExpired()
-                && user.isEnabled()) {
+                && user.isEnabled())
+        {
             UsernamePasswordAuthenticationToken authenticate = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authenticate);
         }
@@ -51,9 +53,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 User user = userRepository.getById(uuid);
                 return user;
             }
-
         }
-
         return null;
     }
 //    public User getUserFromRequest(HttpServletRequest request) {

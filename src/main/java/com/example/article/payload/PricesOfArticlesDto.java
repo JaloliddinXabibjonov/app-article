@@ -7,8 +7,10 @@ import lombok.Setter;
 @Setter
 public class PricesOfArticlesDto {
 
-    private double sahifaNarxi;
-    private double bittaBosmaJunalNarxi;
-    private double bittaSertifikatNarxi;
-    private double doi;
+    private Double sahifaNarxi;
+    private Double bittaBosmaJunalNarxi;
+    private Double bittaSertifikatNarxi;
+    private Double doi;
+    private Double chopEtishNarxi;
+
 }

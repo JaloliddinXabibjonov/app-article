@@ -12,6 +12,7 @@ public class ForDashboard {
     private Integer numberOfReviewers;                          //REVIEWERLAR SONI
     private Integer numberOfRedactors;                          //REDACTORLAR SONI
 
+    private Integer numberOfNewAndPayTrue;                     //hali puli to`lanmagan maqolalar
     private Integer numberOfNewAndPayFalse;                     //hali puli to`lanmagan maqolalar
     private Integer numberOfNewArticles;                        //yangi puli to`langan maqolalar soni
     private Integer numberOfIsBeingEditedArticles;              //tahrirlanayotgan maqolalar soni
@@ -21,5 +22,7 @@ public class ForDashboard {
     private Integer numberOfPaidAndPublishedArticles;           //nashr qilingan va pullik maqolalar soni
     private Integer numberOfRecycleArticles;                    //QAYTA ISHLASHGA YUBORILGAN MAQOLALAR SONI
     private Integer numberOfRejectedArticles;                    //BEKOR QILINGAN MAQOLALAR SONI
+    private Integer numberAllArticles;                    //BEKOR QILINGAN MAQOLALAR SONI
+
 
 }
