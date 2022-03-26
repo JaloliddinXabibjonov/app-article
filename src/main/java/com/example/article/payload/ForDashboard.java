@@ -22,7 +22,7 @@ public class ForDashboard {
     private Integer numberOfPaidAndPublishedArticles;           //nashr qilingan va pullik maqolalar soni
     private Integer numberOfRecycleArticles;                    //QAYTA ISHLASHGA YUBORILGAN MAQOLALAR SONI
     private Integer numberOfRejectedArticles;                    //BEKOR QILINGAN MAQOLALAR SONI
-    private Integer numberAllArticles;                    //BEKOR QILINGAN MAQOLALAR SONI
+    private Integer numberAllArticles;                          //Tizimdagi MAQOLALAR SONI
 
 
 }

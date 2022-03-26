@@ -128,6 +128,7 @@ public class UserService {
             user.setPhoneNumber(phoneNumber);
             user.setPassword(passwordEncoder.encode(password));
             user.setEmail(email);
+            System.out.println(categoryIdList+"====---");
             user.setCategories(categoryRepository.findAllByDeletedTrueAndActiveTrueAndIdIn(categoryIdList));
             user.setWorkPlace(workPlace);
             user.setWorkExperience(workExperience);
@@ -311,6 +312,9 @@ public class UserService {
                     return new ApiResponse("Ushbu telefon raqam orqali avval ro`yxatdan o`tilgan", false);
                 else
                     user.setPhoneNumber(signUp.getPhoneNumber().equals("") ? user.getPhoneNumber() : signUp.getPhoneNumber());
+            }
+            if (signUp.getCategoryIdList().size()!=0){
+                user.setCategories(categoryRepository.findAllByDeletedTrueAndActiveTrueAndIdIn(signUp.getCategoryIdList()));
             }
             if (!signUp.getPassword().equals("")) {
                 boolean exists = userRepository.existsByPasswordAndIdNot(passwordEncoder.encode(signUp.getPassword()), user.getId());
@@ -500,6 +504,7 @@ public class UserService {
         forDashboard.setNumberOfNewAndPayFalse(articleRepository.countAllByPayFalse());         //hali puli to`lanmagan maqolalar soni
         forDashboard.setNumberOfRejectedArticles(articleRepository.countAllByArticleStatusName(ArticleStatusName.REJECTED));
         forDashboard.setNumberOfRecycleArticles(articleRepository.countAllByArticleStatusName(ArticleStatusName.RECYCLE));
+        forDashboard.setNumberAllArticles(articleRepository.countAllByArticleStatusName(ArticleStatusName.PUBLISHED));
         System.out.println(forDashboard);
         return forDashboard;
 //        } catch (Exception e) {
