@@ -111,6 +111,33 @@ public class UserService {
         return ("User is already exist");
     }
 
+    public String registerAdmin(SignUp signUp) {
+        boolean exists = userRepository.existsByPhoneNumber(signUp.getPhoneNumber());
+        if (!exists) {
+            User user = new User();
+            user.setPhoneNumber(signUp.getPhoneNumber());
+//            user.setCode(generatorCode());
+            user.setPassword(passwordEncoder.encode(signUp.getPassword()));
+            user.setRoles(roleRepository.findAllByRoleNameIn(singleton(RoleName.ROLE_ADMINISTRATOR.name())));
+            user.setFirebaseToken(signUp.getFirebaseToken());
+            userRepository.save(user);
+
+//            var crudDto = new CrudDto();
+//            crudDto.setEmail(signUp.getEmail());
+//            crudDto.setFatherName(signUp.getFatherName());
+//            crudDto.setFirstName(signUp.getFirstName());
+//            crudDto.setPhoneNumber(signUp.getPhoneNumber());
+//
+//
+//            Firestore dbFirestore = FirestoreClient.getFirestore();
+//            ApiFuture<WriteResult> collectionsApiFuture = dbFirestore.collection("crud_user").document("rfgsfse").set(crudDto);
+//            System.out.println(user.getId().toString());
+
+            return (jwtProvider.generateJwtToken(user));
+        }
+        return ("User is already exist");
+    }
+
     /**
      * Yangi Reviewer qo`shish
      */
