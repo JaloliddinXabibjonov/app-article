@@ -28,20 +28,20 @@ public class FileReadService {
     public HttpEntity<?> byteFileQuality(UUID id) throws IOException {
 
 //        try {
-            Attachment one = attachmentRepository.findById(id).orElseThrow(() -> new ResolutionException("getAttachmentID"));
-        AttachmentContent attachmentContent=contentRepository.findByAttachment(one);
-
-            System.out.println(one);
-
-            return ResponseEntity.ok()
-                    .contentType(MediaType.parseMediaType(one.getContentType()))
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + one.getOriginalName() + "\"")
-                    .body(Files.readAllBytes(Paths.get(one.getContentType())));
+//            Attachment one = attachmentRepository.findById(id).orElseThrow(() -> new ResolutionException("getAttachmentID"));
+//        AttachmentContent attachmentContent=contentRepository.findByAttachment(one);
+//
+//            System.out.println(one);
+//
+//            return ResponseEntity.ok()
+//                    .contentType(MediaType.parseMediaType(one.getContentType()))
+//                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + one.getOriginalName() + "\"")
+//                    .body(Files.readAllBytes(Paths.get(one.getContentType())));
 
 
 //        } catch (Exception e) {
 //
-//            return ResponseEntity.ok().body("oxshamadi");
+            return ResponseEntity.ok().body("oxshamadi");
 //
 //
 //        }

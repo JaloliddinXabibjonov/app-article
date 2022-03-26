@@ -16,7 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.parameters.P;
 
 import java.io.*;
-import java.lang.module.ResolutionException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.ZoneId;
@@ -29,34 +28,31 @@ public class ArticleApplication {
     @SneakyThrows
     public static void main(String[] args) {
 
-
-
-
         SpringApplication.run(ArticleApplication.class, args);
 
-task1();
+//task1();
 
     }
 
-    @SneakyThrows
-public static void  task1(){
-       try (  FileInputStream in=new FileInputStream("E:/1234.jpg");
-              FileOutputStream out=new FileOutputStream("E:/12345.jpg");
-       ){
-        int c;
-        while ((c=in.read())!=-1){
-
-        }
-
-       }catch (FileNotFoundException e){
-           e.printStackTrace();
-       }catch (IOException e ){
-           e.printStackTrace();
-       }
-
-
+//    @SneakyThrows
+//public static void  task1(){
+//       try (  FileInputStream in=new FileInputStream("E:/1234.jpg");
+//              FileOutputStream out=new FileOutputStream("E:/12345.jpg");
+//       ){
+//        int c;
+//        while ((c=in.read())!=-1){
+//
+//        }
+//
+//       }catch (FileNotFoundException e){
+//           e.printStackTrace();
+//       }catch (IOException e ){
+//           e.printStackTrace();
+//       }
 
 
 
-}
+
+
+//}
 }
