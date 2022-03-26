@@ -30,20 +30,6 @@ public class UserController {
     UserRepository userRepository;
 
 
-    @GetMapping("/registration/{userName}")
-    public ResponseEntity<Void> registration(@PathVariable String userName) {
-        System.out.println("handling register user request : " + userName);
-
-        try {
-            UserStorage.getInstance().setUser(userName);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().build();
-        }
-        return null;
-    }
-
-
     @GetMapping("/fetchAllUser")
     public Set<String> fetchAll() {
         return UserStorage.getInstance().getUsers();
@@ -55,7 +41,15 @@ public class UserController {
         return ResponseEntity.ok(userService.register(signUp));
     }
 
-    /**REVIEWERLARNI ADMIN TOMONIDAN RO`YXATDAN O`TKAZISH*/
+    @PostMapping("/registerAdmin")
+    public HttpEntity<?> registerAdmin(@RequestBody SignUp signUp) {
+        return ResponseEntity.ok(userService.registerAdmin(signUp));
+    }
+
+
+    /**
+     * REVIEWERLARNI ADMIN TOMONIDAN RO`YXATDAN O`TKAZISH
+     */
     @SneakyThrows
     @PostMapping(value = "/registerReviewer")
     public HttpEntity<?> registerReviewer(@RequestParam String lastName, @RequestParam String firstName, @RequestParam String fathersName, @RequestParam String phoneNumber, @RequestParam String password, @RequestParam String email, @RequestParam Set<Integer> categoryIdList,
@@ -63,6 +57,7 @@ public class UserController {
         ApiResponse apiResponse = userService.registerReviewer(lastName, firstName, fathersName, phoneNumber, password, email, categoryIdList, workPlace, workExperience, file, academicDegree, languages, passport);
         return ResponseEntity.status(apiResponse.isSuccess() ? 201 : 409).body(apiResponse);
     }
+
 
     // bu userni to'liq ma'lumotlarini kiritish uchun
     @PostMapping("/buildProfile")
@@ -78,7 +73,9 @@ public class UserController {
         return ResponseEntity.status(apiResponse.isSuccess() ? 202 : 409).body(apiResponse);
     }
 
-    /** ADMIN TOMONIDAN USERLARNI EDIT QILISH */
+    /**
+     * ADMIN TOMONIDAN USERLARNI EDIT QILISH
+     */
     @PostMapping("/editUserFromAdmin")
     public HttpEntity<ApiResponse> editUserFromAdmin(@CurrentUser User currentUser, @RequestBody SignUp userDto) {
         ApiResponse apiResponse = userService.editUserFromAdmin(currentUser, userDto);
@@ -91,7 +88,9 @@ public class UserController {
     }
 
 
-    /** USERLARNI ADMIN TOMONIDAN O'CHIRIB TASHLASH */
+    /**
+     * USERLARNI ADMIN TOMONIDAN O'CHIRIB TASHLASH
+     */
     @DeleteMapping("/delete/{id}")
     public HttpEntity<?> delete(@PathVariable UUID id) {
         ApiResponse apiResponse = userService.delete(id);
@@ -105,7 +104,9 @@ public class UserController {
         return ResponseEntity.status(user != null ? 200 : 409).body(user1);
     }
 
-    /** ADMIN TOMONIDAN TIZIMGA XODIM QO`SHISH */
+    /**
+     * ADMIN TOMONIDAN TIZIMGA XODIM QO`SHISH
+     */
     @PostMapping("/addEmployee")
     public HttpEntity<ApiResponse> addEmployee(@RequestBody UserDto userDto) throws ExecutionException, IllegalAccessException {
         ApiResponse apiResponse = userService.addEmployee(userDto);
@@ -140,20 +141,26 @@ public class UserController {
 //    }
 
 
-    /** ADMIN TOMONIDAN TIZIM FOYDALANUVCHILARINI QIDIRISH */
+    /**
+     * ADMIN TOMONIDAN TIZIM FOYDALANUVCHILARINI QIDIRISH
+     */
     @PostMapping("/search")
     public HttpEntity<?> search(@RequestBody SearchUser searchUser) throws IllegalAccessException {
         ApiResponse apiResponse = userService.search(searchUser);
         return ResponseEntity.status(apiResponse.isSuccess() ? 200 : 409).body(apiResponse);
     }
 
-    /** YANGI QO`SHILGAN REVIEWERLARNI OLIB KELISH */
+    /**
+     * YANGI QO`SHILGAN REVIEWERLARNI OLIB KELISH
+     */
     @GetMapping("/getNewReviewer")
     public ApiResponse getNewReviewer() {
         return new ApiResponse("Yangi qo'shilgan reviewerlar", true, userService.getNewReviewer());
     }
 
-    /** TIZIMGA YANGI QO`SHILGAN REVIEWERLAR SONINI OLIB KELISH */
+    /**
+     * TIZIMGA YANGI QO`SHILGAN REVIEWERLAR SONINI OLIB KELISH
+     */
     @GetMapping("/getNewReviewerCount")
     public Integer getNewReviewerCount() {
         return userService.getNewReviewerCount();
@@ -185,7 +192,7 @@ public class UserController {
     }
 
     /**
-     *  adminstratorlar defoult deadline beradi
+     * adminstratorlar defoult deadline beradi
      */
     @PostMapping("/defaultDeadlineAddAdministrator")
     public HttpEntity<?> defaultDeadlineAddAdministrator(@RequestBody DeadlineAdministratorDto defaultDeadlineAddAdministrator) {
@@ -210,14 +217,18 @@ public class UserController {
         return userService.getStatisticsArticlesForUsers(id);
     }
 
-    /** USERNI ID SI BO`YICHA GET QILISH */
+    /**
+     * USERNI ID SI BO`YICHA GET QILISH
+     */
     @GetMapping("getById/{id}")
     public HttpEntity<?> getById(@PathVariable UUID id) {
         ApiResponse apiResponse = userService.getById(id);
         return ResponseEntity.status(apiResponse.isSuccess() ? 200 : 409).body(apiResponse);
     }
 
-    /** RO`YXATDAN O`TAYOTGAN ROLE_USER GA MUALLIFLIK KODINI TAKRORLANMAS HOLDA GENERATSIYA QILIB BERISH */
+    /**
+     * RO`YXATDAN O`TAYOTGAN ROLE_USER GA MUALLIFLIK KODINI TAKRORLANMAS HOLDA GENERATSIYA QILIB BERISH
+     */
     @GetMapping("/code")
     public Integer generator() {
         return userService.generatorCode();
@@ -225,7 +236,7 @@ public class UserController {
 
     @SneakyThrows
     @PostMapping("/firebase")
-    public void createCrud(@RequestBody SignIn signIn){
+    public void createCrud(@RequestBody SignIn signIn) {
         userService.createCRUD(signIn);
     }
 
@@ -234,24 +245,30 @@ public class UserController {
 //        return userService.getMyNotifications(user);
 //    }
 
-    /** MUALLIFNI MUALLIFLIK KODI ORQALI OLIB KELISH */
+    /**
+     * MUALLIFNI MUALLIFLIK KODI ORQALI OLIB KELISH
+     */
     @GetMapping("/getAuthorByCode/{code}")
-    public HttpEntity<ApiResponse> getAuthorByCode(@PathVariable Integer code){
+    public HttpEntity<ApiResponse> getAuthorByCode(@PathVariable Integer code) {
         ApiResponse apiResponse = userService.getAuthorByCode(code);
-        return ResponseEntity.status(apiResponse.isSuccess()?200:201).body(apiResponse);
+        return ResponseEntity.status(apiResponse.isSuccess() ? 200 : 201).body(apiResponse);
     }
 
-    /** PAROL TIKLASH uchun tasdiqlash kodi yuborish */
+    /**
+     * PAROL TIKLASH uchun tasdiqlash kodi yuborish
+     */
     @PostMapping("/createNewPassword/{phoneNumber}")
-    public ApiResponse createNewPassword(@PathVariable String phoneNumber){
-        return   userService.createNewPassword(phoneNumber);
+    public ApiResponse createNewPassword(@PathVariable String phoneNumber) {
+        return userService.createNewPassword(phoneNumber);
     }
 
-    /** YUBORILGAN KODNI TASDIQLASH */
+    /**
+     * YUBORILGAN KODNI TASDIQLASH
+     */
     @PostMapping("/verifyCode")
-    public HttpEntity<ApiResponse> verifyCode(@CurrentUser User user, @RequestBody VerifyCode verifyCode){
+    public HttpEntity<ApiResponse> verifyCode(@CurrentUser User user, @RequestBody VerifyCode verifyCode) {
         ApiResponse apiResponse = userService.verifyCode(user, verifyCode);
-        return ResponseEntity.status(apiResponse.isSuccess()?200:409).body(apiResponse);
+        return ResponseEntity.status(apiResponse.isSuccess() ? 200 : 409).body(apiResponse);
     }
 
 //    /** PAROL TIKLASH */
@@ -261,21 +278,25 @@ public class UserController {
 //        return ResponseEntity.status(apiResponse.isSuccess()?202:409).body(apiResponse);
 //    }
 
-    /** PROFILGA RASM QO`YISH */
+    /**
+     * PROFILGA RASM QO`YISH
+     */
     @PostMapping("/addPhoto")
-    public HttpEntity<ApiResponse> addPhoto(@CurrentUser User user,@RequestPart MultipartFile file){
-        return ResponseEntity.status(userService.addPhoto(user, file).isSuccess()?200:409).body(userService.addPhoto(user, file));
+    public HttpEntity<ApiResponse> addPhoto(@CurrentUser User user, @RequestPart MultipartFile file) {
+        return ResponseEntity.status(userService.addPhoto(user, file).isSuccess() ? 200 : 409).body(userService.addPhoto(user, file));
     }
 
-    /** Barcha yangi  reviewerlarni olib kelish */
+    /**
+     * Barcha yangi  reviewerlarni olib kelish
+     */
     @GetMapping("/allNewReviewers")
-    public List<User> allNewReviewers(){
+    public List<User> allNewReviewers() {
         return userService.allNewReviewers();
     }
 
     @PostMapping("/activeEdite/{id}")
-    public ApiResponse activeEdite(@PathVariable UUID id){
-       return userService.activeEdite(id);
+    public ApiResponse activeEdite(@PathVariable UUID id) {
+        return userService.activeEdite(id);
     }
 
 
