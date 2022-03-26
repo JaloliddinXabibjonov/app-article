@@ -455,4 +455,10 @@ public class JournalsService {
         }
         return activeJournalsDtoList;
     }
+
+    public Set<JournalsDir> getJournalsCategories() {
+        Set<JournalsDir> journalDirectionsSet = journalsRepository.findAllByJournalsStatusAndParentIdIsNull();
+       System.out.println("====>"+"-----"+journalDirectionsSet);
+        return journalDirectionsSet.size()!=0?journalDirectionsSet:new HashSet<>();
+    }
 }

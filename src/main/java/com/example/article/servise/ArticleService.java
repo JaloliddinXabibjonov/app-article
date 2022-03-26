@@ -385,7 +385,6 @@ public class ArticleService {
     public ApiResponse getReviewerAndRedactorRandom(GetUsersRoleId getUsersRoleId) {
 //        Article article = articleRepository.findByConfirmTrueAndId(getUsersRoleId.getArticleId());
 
-
         if (getUsersRoleId.getArticleId() != null) {
             List<User> users = new ArrayList<>();
             System.out.println("article id " + getUsersRoleId.getArticleId());

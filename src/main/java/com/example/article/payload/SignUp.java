@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 
@@ -16,6 +17,7 @@ import java.util.UUID;
 public class SignUp {
     private UUID userId;
     private List<Integer> languages;
+    private Set<Integer> categoryIdList;
     private String academicDegree;
     private String workExperience;
     private String workPlace;

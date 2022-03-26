@@ -184,5 +184,9 @@ public class JournalsController {
         return journalsService.getPublishedJournalsByYear(id, year);
     }
 
+    @GetMapping("/getJournalsCategories")
+    public Set<JournalsDir> getJournalsCategories(){
+        return journalsService.getJournalsCategories();
+    }
 
 }

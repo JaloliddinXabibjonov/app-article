@@ -1,6 +1,9 @@
 package com.example.article.repository;
 
+import com.example.article.entity.Category;
 import com.example.article.entity.Journals;
+import com.example.article.payload.JournalDirections;
+import com.example.article.payload.JournalsDir;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -68,6 +71,8 @@ public interface JournalsRepository extends JpaRepository<Journals, UUID> {
     List<Journals> findAllByDeletedTrueAndDatePublicationAndIdOrDeletedTrueAndDatePublicationAndParentId(int datePublication, UUID id, int datePublication2, UUID parentId);
     List<Journals> findAllByDeletedTrueAndDatePublicationAndIdAndJournalsStatusOrDeletedTrueAndDatePublicationAndParentIdAndJournalsStatus(int datePublication, UUID id, String journalsStatus, int datePublication2, UUID parentId, String journalsStatus2);
 
+    @Query(value = "select title, description from journals where journals_status='PUBLISHED' AND parent_id is null", nativeQuery = true)
+    Set<JournalsDir> findAllByJournalsStatusAndParentIdIsNull();
 
 
 
