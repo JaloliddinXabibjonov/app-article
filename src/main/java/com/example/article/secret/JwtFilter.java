@@ -50,8 +50,7 @@ public class JwtFilter extends OncePerRequestFilter {
             boolean validateToken = jwtProvider.validateJwtToken(auth);
             if (validateToken) {
                 UUID uuid = UUID.fromString(jwtProvider.getUserIdFromToken(auth));
-                User user = userRepository.getById(uuid);
-                return user;
+                return userRepository.getById(uuid);
             }
         }
         return null;
