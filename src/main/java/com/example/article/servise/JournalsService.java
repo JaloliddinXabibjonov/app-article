@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -54,39 +55,44 @@ public class JournalsService {
 //            if (deadline.getTime() <= System.currentTimeMillis())
 //                return new ApiResponse("Maqola qabul qilish muddati hozirgi vaqtdan keyingi vaqt bo`lishi kerak!", true);
             Journals journals = new Journals();
-            if (journalsDto.getStatus().equalsIgnoreCase(String.valueOf(JournalsStatus.PUBLISHED))) {
-                Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("Asia/Tashkent"));
-                int year = cal.get(Calendar.YEAR);
-                journals.setDatePublication(year);
-                journals.setJournalsStatus(JournalsStatus.PUBLISHED.name());
-                journals.setDateOfPublication(cal.getTime());
-
-                if (journalsDto.getParentId() != null) {
-                    int allReleaseNumber = journalsRepository.findAllReleaseNumberByParentIdAndLastPublished(journalsDto.getParentId());
-//                    journals.setReleaseNumberOfThisYear();
-                    journals.setAllReleasesNumber(allReleaseNumber + 1);
-
-                } else {
-                    journals.setReleaseNumberOfThisYear(1);
-                    journals.setAllReleasesNumber(1);
-
-                }
+            if (journalsDto.getPrintedDate() == 0) {
+                journals.setPrintedDate(10);
             } else {
-                journals.setJournalsStatus(JournalsStatus.NEW_JOURNALS.name());
-                Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("Asia/Tashkent"));
-                int year = cal.get(Calendar.YEAR);
-                journals.setDatePublication(year);
-                String date = journalsDto.getDeadline();
-                Date deadline = new SimpleDateFormat("yyyy-MM-dd").parse(date);
-                journals.setDeadline(deadline);
+                journals.setPrintedDate(journalsDto.getPrintedDate());
             }
-            if (journalsDto.getParentId() != null && journalsDto.getTitle().equals("")) {
+            journals.setJournalsStatus(JournalsStatus.NEW_JOURNALS.name());
+            Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("Asia/Tashkent"));
+            String date = journalsDto.getDeadline();
+            Date deadline = new SimpleDateFormat("yyyy-MM-dd").parse(date);
+            journals.setDeadline(deadline);
+            long dead = deadline.getTime() + journalsDto.getPrintedDate() * 1000 * 3600 * 24L;
+            cal.setTimeInMillis(dead);
+            int year = cal.get(Calendar.YEAR);
+
+            if (journalsDto.getParentId() != null) {
+                int allReleaseNumber = journalsRepository.findAllReleaseNumberByParentIdAndLastPublished(journalsDto.getParentId());
+                journals.setAllReleasesNumber(allReleaseNumber + 1);
+                Optional<Integer> optionalInteger = journalsRepository.findDatePublicationByParentIdAndDeletedTrueAndDatePublication(journalsDto.getParentId(), year, journalsDto.getTitle());
+                if (optionalInteger.isPresent()) {
+                    journals.setDatePublication(optionalInteger.get());
+                    Optional<Integer> integerOptional = journalsRepository.findByReleaseNumberOfThisYear(journalsDto.getParentId(), year, journalsDto.getTitle());
+                    if (integerOptional.isPresent())
+                        journals.setReleaseNumberOfThisYear(integerOptional.get() + 1);
+                    else
+                        journals.setReleaseNumberOfThisYear(1);
+                } else
+                    journals.setDatePublication(year);
+            } else {
+                journals.setReleaseNumberOfThisYear(1);
+                journals.setAllReleasesNumber(1);
+                journals.setDateOfPublication(cal.getTime());
+            }
+
+            if ( journalsDto.getParentId() != null&&journalsDto.getTitle().equals("")) {
                 Journals jour = journalsRepository.getByIdAndDeletedTrue(journalsDto.getParentId());
-                journals.setTitle(jour.getTitle());
                 journals.setParentId(journalsDto.getParentId());
                 journals.setCategory(categoryRepository.getByIdAndDeletedTrue(jour.getCategory().getId()));
-                System.out.println(jour.getCategory().getId());
-                System.out.println("   id   " + journalsDto.getParentId());
+                journals.setTitle(jour.getTitle());
             } else {
                 journals.setTitle(journalsDto.getTitle());
                 journals.setParentId(journalsDto.getParentId());
@@ -94,33 +100,14 @@ public class JournalsService {
             }
             journals.setFile(attachmentService.upload1(file));
             journals.setCover(attachmentService.upload1(cover));
-
-
-            System.out.println(" create add  " + journalsDto.getCreatedDate());
-            System.out.println(" titile  " + journalsDto.getTitle());
-            System.out.println(" category  " + journalsDto.getCategoryId());
-
-            journals.setCategory(categoryRepository.findByIdAndDeletedTrue(journalsDto.getCategoryId()).get());
-            journals.setJournalsStatus(JournalsStatus.valueOf(journalsDto.getStatus()).toString());
-
-
             journals.setDescription(journalsDto.getDescription());
-            if (journalsDto.getPrintedDate() == 0) {
-                journals.setPrintedDate(10);
-            } else {
-                journals.setPrintedDate(journalsDto.getPrintedDate());
-            }
-
-
             journals.setISSN(journalsDto.getIssn());
             journals.setISBN(journalsDto.getIsbn());
             journals.setCertificateNumber(journalsDto.getCertificateNumber());
-
             journals.setDeleted(true);
             journalsRepository.save(journals);
             return new ApiResponse("Muvaffaqiyatli bajarildi", true);
         } catch (Exception r) {
-            System.out.println("xatoda    " + file);
             return new ApiResponse("Xatolik yuz berdi, qaytadan urinib ko`ring", false);
         }
     }
@@ -136,33 +123,31 @@ public class JournalsService {
     public ApiResponse edit(UUID id, JournalsPayload journalsDto, MultipartFile cover, MultipartFile file) {
         try {
             Journals journals = journalsRepository.findByIdAndDeletedTrue(id);
-            System.out.println(" journals  " + journals);
             String date = journalsDto.getDeadline();
             Date deadline = new SimpleDateFormat("yyyy-MM-dd").parse(date);
             if (deadline.getTime() <= System.currentTimeMillis())
                 return new ApiResponse("Maqola qabul qilish muddati hozirgi vaqtdan keyingi vaqt bo`lishi kerak!", true);
-            if (journalsDto.getParentId() != null) {
-                journals.setParentId(journalsDto.getParentId());
-            }
+//            if (journalsDto.getParentId() != null) {
+//                journals.setParentId(journalsDto.getParentId());
+//            }
             journals.setCategory(String.valueOf(journalsDto.getCategoryId()).equals("") ? journals.getCategory() : categoryRepository.findByDeletedTrueAndActiveTrueAndId(journalsDto.getCategoryId()));
             journals.setTitle(journalsDto.getTitle().equals("") ? journals.getTitle() : journalsDto.getTitle());
             if (journalsDto.getStatus().equals("PUBLISHED")) {
-                Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("Asia/Tashkent"));
-                int year = cal.get(Calendar.YEAR);
-                journals.setDatePublication(year);
+//                Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("Asia/Tashkent"));
+//                int year = cal.get(Calendar.YEAR);
+//                journals.setDatePublication(year);
                 journals.setJournalsStatus(JournalsStatus.PUBLISHED.name());
-                journals.setDateOfPublication(cal.getTime());
+//                journals.setDateOfPublication(cal.getTime());
             } else {
                 journals.setDatePublication(0);
             }
-//            journals.setReleaseNumberOfThisYear();
-            if (journals.getParentId() == null) {
-                journals.setAllReleasesNumber(1);
-                journals.setReleaseNumberOfThisYear(1);
-            } else {
-                journals.setAllReleasesNumber(journalsRepository.findAllReleaseNumberByParentIdAndLastPublished(journals.getParentId()) + 1);
-//                journals.setReleaseNumberOfThisYear(journalsRepository.findByReleaseNumberOfThisYear(journals.getParentId(), Calendar.getInstance(TimeZone.getTimeZone("Asia/Tashkent")).get(Calendar.YEAR), journals.getTitle()) );
-            }
+//            if (journals.getParentId() == null) {
+//                journals.setAllReleasesNumber(1);
+//                journals.setReleaseNumberOfThisYear(1);
+//            } else {
+//                journals.setAllReleasesNumber(journalsRepository.findAllReleaseNumberByParentIdAndLastPublished(journals.getParentId()) + 1);
+////                journals.setReleaseNumberOfThisYear(journalsRepository.findByReleaseNumberOfThisYear(journals.getParentId(), Calendar.getInstance(TimeZone.getTimeZone("Asia/Tashkent")).get(Calendar.YEAR), journals.getTitle()) );
+//            }
             journals.setDeadline(deadline);
             journals.setDescription(journalsDto.getDescription());
             journals.setPrintedDate(journalsDto.getPrintedDate() == 0 ? 10 : journalsDto.getPrintedDate());
@@ -458,7 +443,7 @@ public class JournalsService {
 
     public Set<JournalsDir> getJournalsCategories() {
         Set<JournalsDir> journalDirectionsSet = journalsRepository.findAllByJournalsStatusAndParentIdIsNull();
-       System.out.println("====>"+"-----"+journalDirectionsSet);
-        return journalDirectionsSet.size()!=0?journalDirectionsSet:new HashSet<>();
+        System.out.println("====>" + "-----" + journalDirectionsSet);
+        return journalDirectionsSet.size() != 0 ? journalDirectionsSet : new HashSet<>();
     }
 }

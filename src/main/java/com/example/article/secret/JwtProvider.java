@@ -48,7 +48,7 @@ public class JwtProvider {
 
     public String generateJwtToken(User user) {
         Date date = new Date();
-        long tokenExpireTime = 604800000L;
+        long tokenExpireTime =86_400_000L;
         long l = date.getTime() + tokenExpireTime;
         Date expireDate = new Date(l);
 

@@ -395,10 +395,10 @@ public class ArticleService {
             if (roleId == 777) {
                 if (article.getArticleStatusName().equals(ArticleStatusName.START)) {
                     roleId = 3;
-                    users = userRepository.findAllByEnabledTrueAndActiveTrueAndRolesIdAndCategoriesIdAndDeleteFalse(roleId, categoryId);
+                    users = userRepository.findAllByEnabledTrueAndActiveTrueAndRolesIdAndCategoriesIdAndDeleteFalseAndLanguages(roleId, categoryId,getUsersRoleId.getLanguageId());
                 } else if ((article.getArticleStatusName().equals(ArticleStatusName.BEGIN_CHECK))) {
                     roleId = 2;
-                    users = userRepository.findAllByEnabledTrueAndActiveTrueAndRolesIdAndDeleteFalse(roleId);
+                    users = userRepository.findAllByEnabledTrueAndActiveTrueAndRolesIdAndDeleteFalseAndLanguageId(roleId,getUsersRoleId.getLanguageId());
                 } else if (article.getArticleStatusName().toString().equals("null")) {
                     roleId = getUsersRoleId.getRoleId();
                 }
