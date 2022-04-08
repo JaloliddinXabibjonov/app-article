@@ -777,7 +777,7 @@ public class ArticleService {
             articleRepository.save(article);
             smsService.sendSms(user.getPhoneNumber(), notification);
             notificationFromUserRepository.save(new NotificationFromUser(user.getId(), false, notification));
-            informationArticleRepository.save(new InformationArticle(user1, article, new Date(), notification));
+            informationArticleRepository.save(new InformationArticle(user1, article,statusDto.getStatus(), new Date(), notification));
         }else if(statusDto.getStatus().toString().equals("NULL")){
             smsService.sendSms(user.getPhoneNumber(), notification);
         }

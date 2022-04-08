@@ -56,9 +56,10 @@ public class InformationArticle extends AbsEntity {  //bu articldi kim va qachon
     @OneToOne
     private Attachment attachFile;
 
-    public InformationArticle(User user, Article article, Date date, String description) {
+    public InformationArticle(User user, Article article, ArticleStatusName articleStatusName,Date date, String description) {
         this.chekUser = user;
         this.article = article;
+        this.articleStatusName=articleStatusName;
         this.whenAndWho = date;
         this.description = description;
     }
