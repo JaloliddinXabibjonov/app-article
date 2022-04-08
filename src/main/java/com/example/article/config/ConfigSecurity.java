@@ -77,7 +77,7 @@ public class ConfigSecurity extends WebSecurityConfigurerAdapter {
                         "/swagger-ui/**",
                         "/webjars/**")
                 .permitAll()
-                .antMatchers("/api/webhook","/api/users/login","/api/auth/**","/api/excel/**","/api/attechment/**","/api/users/all")
+                .antMatchers("/api/webhook","/api/article/viewsCountingTheArticle/*","/api/users/login","/api/auth/**","/api/excel/**","/api/attechment/**","/api/users/all")
                 .permitAll()
 //                .antMatchers("/api/users/save").hasAuthority("ADD_EMPLOYEE")
                 .antMatchers("/api/**","/api/user/register","/api/user/login", "/api/journals/getActiveJournals","/api/journals/getCategoryJournals/{id}")

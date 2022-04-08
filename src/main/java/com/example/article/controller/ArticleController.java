@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -33,6 +34,7 @@ public class ArticleController {
     @Autowired
     StatusArticleService statusArticleService;
 
+    @PreAuthorize(value = "hasAuthority('ROLE_USER')")
     /** YANGI MAQOLA QO`SHISH */
     @PostMapping(value = "/addArticle")
     public HttpEntity<ApiResponse> save(@ModelAttribute AddArticleDto dto, @CurrentUser User user, @RequestPart MultipartFile file) throws IOException {
@@ -41,6 +43,7 @@ public class ArticleController {
         return ResponseEntity.status(apiResponse.isSuccess() ? 201 : 409).body(apiResponse);
     }
 
+//    @PreAuthorize(value = "hasAuthority('ROLE_USER')")
     /** MAQOLANI TAHRIRLASH */
     @PostMapping("/edit")
     public HttpEntity<ApiResponse> editArticle(@ModelAttribute ArticleDto articleDto,@RequestPart(required = false) MultipartFile file  ) throws IOException {
@@ -48,19 +51,23 @@ public class ArticleController {
         return ResponseEntity.status(apiResponse.isSuccess()?202:409).body(apiResponse);
     }
 
+
     /** O'ZI YUKLAGAN MAQOLALARNI OLIB KELISH */
+    @PreAuthorize(value = "hasAuthority('ROLE_USER')")
     @GetMapping("/getMyArticle")
     public HttpEntity<?> getMyArticle(@CurrentUser User user) {
         return ResponseEntity.ok(articleService.getMyArticle(user));
     }
 
     /**adminstratorlar uchun articlelarni statusiga qarab get qilish */
+    @PreAuthorize(value = "hasAuthority('ROLE_ADMINISTRATOR')")
     @PostMapping("/newMyArticle")
     public ApiResponse newMyArticle(@CurrentUser User user, @RequestBody ArticleStatusInAdmins articleStatusInAdmins) {
         return articleService.newMyArticle(user, articleStatusInAdmins);
     }
 
     /**MAQOLANI ID SI ORQALI ORQALI O`CHIRISH*/
+    @PreAuthorize(value = "hasAnyAuthority('ROLE_USER','ROLE_ADMINISTRATOR')")
     @DeleteMapping("/deleteArticle/{id}")
     public HttpEntity<?> deleteMyArticle(@PathVariable UUID id) {
         ApiResponse apiResponse = articleService.deleteArticle(id);
@@ -68,6 +75,7 @@ public class ArticleController {
     }
 
     /**MAQOLANI ADMIN TOMONIDAN REDACTOR VA REVIEWER LARGA BIRIKTIRISH*/
+    @PreAuthorize(value = "hasAuthority('ROLE_ADMINISTRATOR')")
     @PostMapping("/addAndRemoveRedactor")
     public HttpEntity<ApiResponse> addAndRemoveRedactor(@CurrentUser User user, @RequestBody AddRedactorDto addRedactorDto) {
         ApiResponse apiResponse = articleService.addAndRemoveRedactor(user, addRedactorDto);
@@ -75,6 +83,7 @@ public class ArticleController {
     }
 
     /**REVIEWER VA REDACTORLAR TOMONIDAN MAQOLALARNI QABUL QILISH */
+    @PreAuthorize(value = "hasAnyAuthority('ROLE_REVIEWER','ROLE_REDACTOR')")
     @PostMapping("/reviewerAcceptTheArticle")
     public HttpEntity<ApiResponse> reviewerAcceptTheArticle(@CurrentUser User user, @RequestBody ReviewerAndRedactorResponseDto redactorResponseDto) {
         ApiResponse apiResponse = articleService.reviewerAcceptTheArticle(user, redactorResponseDto);
@@ -105,24 +114,28 @@ public class ArticleController {
 
 
     /**ADMIN PANELIDAGI TAQSIMLANGAN MAQOLALAR BO`LIMIGA MAQOLALARNI KIMLARGA TAQSIMLANGANINI KO`RSATISH UCHUN*/
+    @PreAuthorize(value = "hasAuthority('ROLE_ADMINISTRATOR')")
     @GetMapping("/distributed")
     public List<Article> getDistributedArticles(@CurrentUser User user) {
         return articleService.getDistributeds(user);
     }
 
     /**ADMIN TOMONIDAN MAQOLALARNI BIRIKTIRISH UCHUN REDACTOR VA REVIEWERLARNI OLIB KELISH UCHUN */
+    @PreAuthorize(value = "hasAuthority('ROLE_ADMINISTRATOR')")
     @PostMapping("/getReviewerAndRedactorRandom")
     public ApiResponse getReviewerAndRedactorRandom(@RequestBody GetUsersRoleId getUsersRoleId) {
         return articleService.getReviewerAndRedactorRandom(getUsersRoleId);
     }
 
     /** ADMINGA YANGI QO`SHILGAN MAQOLALARNI OLIB KELISH UCHUN */
+    @PreAuthorize(value = "hasAuthority('ROLE_ADMINISTRATOR')")
     @GetMapping("/getNewAllArticle")
     public ApiResponse getNewOllArticle() {
         return articleService.getNewOllArticle();
     }
 
     /**ADMINGA NECHTA YANGI MAQOLA QO`SHILGANLIGINI QAYTARADI */
+    @PreAuthorize(value = "hasAuthority('ROLE_ADMINISTRATOR')")
     @GetMapping("/newArticlesNumber")
     public HttpEntity<?> newArticles() {
         Integer integer = articleService.getNumberNewArticles();
@@ -130,6 +143,7 @@ public class ArticleController {
     }
 
     /** REDACTOR VA REVIEWERLAR TEKSHIRAYOTGAN MAQOLALARNI OLIB KELISH UCHUN*/
+    @PreAuthorize(value = "hasAnyAuthority('ROLE_REVIEWER','ROLE_REDACTOR')")
     @PostMapping("/myDuties")
     public HttpEntity<?> myDuties(@CurrentUser User user) {
         ApiResponse apiResponse = articleService.myDuties(user);
@@ -137,6 +151,7 @@ public class ArticleController {
     }
 
     /**REDACTOR VA REVIEWERLARGA BIRIKTIRILGAN YANGI MAQOLALARNI OLIB KELISH UCHUN */
+    @PreAuthorize(value = "hasAnyAuthority('ROLE_REVIEWER','ROLE_REDACTOR')")
     @PostMapping("/myNewArticles")
     public HttpEntity<?> myNewArticles(@CurrentUser User user) {
         return ResponseEntity.ok(articleService.myNewArticles(user));
@@ -149,6 +164,7 @@ public class ArticleController {
 //    }
 
     /** ADMIN TOMONIDAN MAQOLAGA STATUS BERISH */
+    @PreAuthorize(value = "hasAuthority('ROLE_ADMINISTRATOR')")
     @PostMapping("/givenStatus")
     public HttpEntity<?> statusesGivenToTheArticleByTheEditors(@RequestParam UUID userId, @RequestParam(required = false) String description, @RequestParam UUID articleId, @RequestParam String status, @RequestPart(required = false) MultipartFile file) {
         ApiResponse apiResponse = articleService.statusesGivenToTheArticleByTheEditors(userId, description, articleId, status, file);
@@ -156,6 +172,7 @@ public class ArticleController {
     }
 
     /**  */
+    @PreAuthorize(value = "hasAuthority('ROLE_ADMINISTRATOR')")
     @PostMapping("/articleInformation")
     public ApiResponse articleInformation(@RequestBody ReviewerAndRedactorResponseDto responseDto) {
         return new ApiResponse("ok", true, articleService.informationArticle(responseDto));
@@ -174,6 +191,7 @@ public class ArticleController {
     }
 
     /** ADMIN TOMONIDAN MAQOLAGA STATUS BERISH */
+    @PreAuthorize(value = "hasAuthority('ROLE_ADMINISTRATOR')")
     @PostMapping(value = "/giveStatus")
     public HttpEntity<?> giveStatus(@CurrentUser User user, @ModelAttribute GiveStatusDto statusDto, @RequestPart(required = false) MultipartFile file) {
         ApiResponse apiResponse = articleService.giveStatus(user, statusDto, file);
@@ -181,18 +199,21 @@ public class ArticleController {
     }
 
     /** BARCHA MAQOLALARNI OLIB KELISH UCHUN */
+    @PreAuthorize(value = "hasAuthority('ROLE_ADMINISTRATOR')")
     @GetMapping("/all")
     public List<Article> getAll() {
         return articleService.getAll();
     }
 
     /** ADMIN UCHUN SHU ID LI MAQOLAGA REDACTOR VA REVIEWERLAR TOMONIDAN QANDAY STATUSLAR BERILGANLIGI HAQIDA MA'LUMOT OLIB KELISH UCHUN */
+    @PreAuthorize(value = "hasAuthority('ROLE_ADMINISTRATOR')")
     @GetMapping("/articleInfoForAdmin/{id}")
     public ArticleInfo getArticleInfoForAdmin(@PathVariable UUID id) {
         return articleService.getArticleInfoForAdmin(id);
     }
 
     /** ADMINGA SHU ID LI MAQOLAGA QANDAY STATUSLAR BERGANLIGI HAQIDA MA'LUMOT OLIB KELISH UCHUN */
+    @PreAuthorize(value = "hasAuthority('ROLE_ADMINISTRATOR')")
     @GetMapping("/getArticleInfoAdmin/{id}")
     public List<ArticleAdminInfo> getArticleInfoAdmin(@PathVariable UUID id){
         return articleService.getArticleInfoAdmin(id);

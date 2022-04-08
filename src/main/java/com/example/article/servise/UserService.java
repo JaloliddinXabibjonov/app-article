@@ -84,6 +84,7 @@ public class UserService {
 
     @Autowired
     LanguageRepository languageRepository;
+
     public String register(SignUp signUp) {
         boolean exists = userRepository.existsByPhoneNumber(signUp.getPhoneNumber());
         if (!exists) {
@@ -155,14 +156,14 @@ public class UserService {
             user.setPhoneNumber(phoneNumber);
             user.setPassword(passwordEncoder.encode(password));
             user.setEmail(email);
-            System.out.println(categoryIdList+"====---");
+            System.out.println(categoryIdList + "====---");
             user.setCategories(categoryRepository.findAllByDeletedTrueAndActiveTrueAndIdIn(categoryIdList));
             user.setWorkPlace(workPlace);
             user.setWorkExperience(workExperience);
             user.setScientificWork(singletonList(attachmentService.upload1(file)));
             user.setAcademicDegree(academicDegree);
 
-            if(languages.size()!=0) {
+            if (languages.size() != 0) {
                 List<Languages> languagesList = new ArrayList<>();
                 for (Integer id : languages) {
                     Languages languages1 = languageRepository.findByDeletedFalseAndId(id).get();
@@ -218,7 +219,7 @@ public class UserService {
             user.setEmail(userDto.getEmail());
             if (userDto.getRoleId() == 4)
                 user.setCode(generatorCode());
-            if(userDto.getLanguages().size()!=0) {
+            if (userDto.getLanguages().size() != 0) {
                 List<Languages> languagesList = new ArrayList<>();
                 for (Integer id : userDto.getLanguages()) {
                     Languages languages1 = languageRepository.findByDeletedFalseAndId(id).get();
@@ -248,7 +249,7 @@ public class UserService {
     }
 
 
-    public String createCRUD(SignIn crud)  {
+    public String createCRUD(SignIn crud) {
         try {
             Firestore dbFirestore = FirestoreClient.getFirestore();
             ApiFuture<WriteResult> collectionsApiFuture = dbFirestore.collection("crud_user").document("777").set(crud);
@@ -257,7 +258,6 @@ public class UserService {
 
             return "xato";
         }
-//        return collectionsApiFuture.get().getUpdateTime().toString();
     }
 
     public String login(SignIn signIn) {
@@ -286,7 +286,7 @@ public class UserService {
             user.setFirstName(signUp.getFirstName().equals("") ? user.getFirstName() : signUp.getFirstName());
             user.setFatherName(signUp.getFatherName().equals("") ? user.getFatherName() : signUp.getFatherName());
             user.setEmail(signUp.getEmail().equals("") ? user.getEmail() : signUp.getEmail());
-            if(signUp.getLanguages().size()!=0) {
+            if (signUp.getLanguages().size() != 0) {
                 List<Languages> languagesList = new ArrayList<>();
                 for (Integer id : signUp.getLanguages()) {
                     Languages languages1 = languageRepository.findByDeletedFalseAndId(id).get();
@@ -340,7 +340,7 @@ public class UserService {
                 else
                     user.setPhoneNumber(signUp.getPhoneNumber().equals("") ? user.getPhoneNumber() : signUp.getPhoneNumber());
             }
-            if (signUp.getCategoryIdList().size()!=0){
+            if (signUp.getCategoryIdList().size() != 0) {
                 user.setCategories(categoryRepository.findAllByDeletedTrueAndActiveTrueAndIdIn(signUp.getCategoryIdList()));
             }
             if (!signUp.getPassword().equals("")) {
@@ -355,8 +355,8 @@ public class UserService {
             user.setFirstName(signUp.getFirstName().equals("") ? user.getFirstName() : signUp.getFirstName());
             user.setFatherName(signUp.getFatherName().equals("") ? user.getFatherName() : signUp.getFatherName());
 
-            if (signUp.getLanguages().size()!=0) {
-                List<Languages> languagesList=new ArrayList<>();
+            if (signUp.getLanguages().size() != 0) {
+                List<Languages> languagesList = new ArrayList<>();
                 for (Integer sign : signUp.getLanguages()) {
                     Languages languages = languageRepository.findByDeletedFalseAndId(sign).get();
                     languagesList.add(languages);
@@ -396,14 +396,14 @@ public class UserService {
 
 
     public ApiResponse search(SearchUser searchUser) {
-
+        System.out.println(searchUser.isEnabled() + "==");
         List<User> users = userRepository.findAllByDeleteFalse();
 //        Page<User users = userRepository.findAllByDeleteFalse(CommonUtills.simplePageable(AppConstants.DEFAULT_PAGE_NUMBER1, AppConstants.DEFAULT_PAGE_SIZE1));
 //
-//        System.out.println(" categor id  " + searchUser.getCategoryId());
-//        System.out.println(" role id  " + searchUser.getRoles_id());
-//        System.out.println(" search uchun    " + searchUser.getSearch());
-//        System.out.println(" enabled  " + searchUser.isEnabled());
+        System.out.println(" categor id  " + searchUser.getCategoryId());
+        System.out.println(" role id  " + searchUser.getRoles_id());
+        System.out.println(" search uchun    " + searchUser.getSearch());
+        System.out.println(" enabled  " + searchUser.isEnabled());
 
         // search ishlidi
         if (searchUser.getRoles_id() == null && searchUser.getCategoryId() == null && !searchUser.getSearch().equals("777")) {
@@ -461,8 +461,10 @@ public class UserService {
                 System.out.println(user.getFirstName() + " " + user.getCategories().get(0).getName());
             }
             System.out.println("category bn search ishladi");
+        } else if (searchUser.getSearch().equals("777") && searchUser.getRoles_id() == null && searchUser.getCategoryId() == null) {
+            System.out.println("Enable ishladi");
+            users = userRepository.findAllByEnabled(searchUser.isEnabled());
         }
-
 
         return new ApiResponse("All users: ", true, users);
     }
@@ -489,12 +491,10 @@ public class UserService {
      * yangi qo'shilgan reviewerlarni activlashtirish
      */
     public ApiResponse acceptedUser(User user, ReviewerDto reviewerDto) {
-
         Optional<User> optionalUser = userRepository.findById(reviewerDto.getUserId());
         if (optionalUser.isPresent()) {
             User user1 = optionalUser.get();
-            if (reviewerDto.isActive())
-                user1.setEnabled(reviewerDto.isActive());
+            user1.setEnabled(reviewerDto.isActive());
             userRepository.save(user1);
             informationUserRepository.save(new InformationUser(user, user1, new Date(), UserStatus.ACCEPTED));
             return new ApiResponse(reviewerDto.isActive() ? "Foydalanuvchi faollashtirildi" : "Foydalanuvchi bloklandi", true);
@@ -617,16 +617,16 @@ public class UserService {
             verifyPassword.setVerifyTime(System.currentTimeMillis() + 2 * 1000 * 60);
             verifyPasswordRepository.save(verifyPassword);
             userRepository.save(optionalUser.get());
-            return new ApiResponse("Tasdiqlash kodi yuborildi", true,jwtProvider.generateJwtToken(optionalUser.get()));
+            return new ApiResponse("Tasdiqlash kodi yuborildi", true, jwtProvider.generateJwtToken(optionalUser.get()));
         }
         return new ApiResponse("Bunday telefon raqam mavjud emas", false);
     }
 
     public ApiResponse verifyCode(User user, VerifyCode verifyCode) {
 
-        System.out.println("userlar "+user);
-        System.out.println("code "+verifyCode.getCode());
-        System.out.println("password "+verifyCode.getPassword());
+        System.out.println("userlar " + user);
+        System.out.println("code " + verifyCode.getCode());
+        System.out.println("password " + verifyCode.getPassword());
         Optional<VerifyPassword> optionalVerifyPassword = verifyPasswordRepository.findByVerifyCodeAndPhoneNumber(verifyCode.getCode(), user.getPhoneNumber());
         if (optionalVerifyPassword.isPresent()) {
             VerifyPassword verifyPassword = optionalVerifyPassword.get();
@@ -672,10 +672,9 @@ public class UserService {
     }
 
 
+    public ApiResponse activeEdite(UUID id) {
 
-    public ApiResponse activeEdite(UUID id){
-
-        User user=userRepository.findByEnabledTrueAndId(id);
+        User user = userRepository.findByEnabledTrueAndId(id);
         user.setActive(true);
         userRepository.save(user);
 

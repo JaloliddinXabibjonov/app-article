@@ -47,8 +47,8 @@ public class JournalsService {
     InformationArticleRepository informationArticleRepository;
     @Autowired
     InformationArticleService informationArticleService;
-
-    public ApiResponse addNewJournal(JournalsPayload journalsDto, MultipartFile cover, MultipartFile file) throws IOException {
+//, MultipartFile file
+    public ApiResponse addNewJournal(JournalsPayload journalsDto, MultipartFile cover) throws IOException {
 
 
         try {
@@ -72,6 +72,7 @@ public class JournalsService {
             if (journalsDto.getParentId() != null) {
                 int allReleaseNumber = journalsRepository.findAllReleaseNumberByParentIdAndLastPublished(journalsDto.getParentId());
                 journals.setAllReleasesNumber(allReleaseNumber + 1);
+                journalsRepository.findDateOfPublicationByIdAndDeletedTrue(journalsDto.getParentId());
                 Optional<Integer> optionalInteger = journalsRepository.findDatePublicationByParentIdAndDeletedTrueAndDatePublication(journalsDto.getParentId(), year, journalsDto.getTitle());
                 if (optionalInteger.isPresent()) {
                     journals.setDatePublication(optionalInteger.get());
@@ -98,7 +99,7 @@ public class JournalsService {
                 journals.setParentId(journalsDto.getParentId());
                 journals.setCategory(categoryRepository.getByDeletedTrueAndActiveTrueAndId(journalsDto.getCategoryId()));
             }
-            journals.setFile(attachmentService.upload1(file));
+//            journals.setFile(attachmentService.upload1(file));
             journals.setCover(attachmentService.upload1(cover));
             journals.setDescription(journalsDto.getDescription());
             journals.setISSN(journalsDto.getIssn());
@@ -427,7 +428,7 @@ public class JournalsService {
         else
             uuid = journals1.getId();
         List<ActiveJournalsDto> activeJournalsDtoList = new ArrayList<>();
-        List<Journals> journalsList = journalsRepository.findAllByDeletedTrueAndDatePublicationAndIdAndJournalsStatusOrDeletedTrueAndDatePublicationAndParentIdAndJournalsStatus(year, uuid, JournalsStatus.PUBLISHED.name(), year, uuid, JournalsStatus.PUBLISHED.name());
+        List<Journals> journalsList = journalsRepository.findAllByDeletedTrueAndDatePublicationAndIdAndJournalsStatusOrDeletedTrueAndDatePublicationAndParentIdAndJournalsStatusOrderByDatePublication(year, uuid, JournalsStatus.PUBLISHED.name(), year, uuid, JournalsStatus.PUBLISHED.name());
         for (Journals journals : journalsList) {
             ActiveJournalsDto activeJournalsDto = new ActiveJournalsDto();
             activeJournalsDto.setTitle(journals.getTitle());

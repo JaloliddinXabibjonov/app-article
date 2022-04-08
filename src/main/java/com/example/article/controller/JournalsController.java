@@ -30,11 +30,11 @@ public class JournalsController {
      * YANGI JURNAL QO`SHISH
      */
     @PostMapping("/addJournals")
-    public HttpEntity<ApiResponse> addJournals(@ModelAttribute JournalsPayload journalsPayload, @RequestPart(required = false) MultipartFile cover, @RequestPart(required = false) MultipartFile file) throws IOException {
-        ApiResponse apiResponse = journalsService.addNewJournal(journalsPayload, cover, file);
+    public HttpEntity<ApiResponse> addJournals(@ModelAttribute JournalsPayload journalsPayload, @RequestPart(required = false) MultipartFile cover) throws IOException {
+        ApiResponse apiResponse = journalsService.addNewJournal(journalsPayload, cover);
         return ResponseEntity.status(apiResponse.isSuccess() ? 201 : 409).body(apiResponse);
     }
-
+//, file, @RequestPart(required = false) MultipartFile file
     /**
      * JURNALNI TAHRIRLASH
      */
