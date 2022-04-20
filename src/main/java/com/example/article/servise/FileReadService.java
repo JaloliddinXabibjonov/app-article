@@ -37,8 +37,6 @@ public class FileReadService {
 //                    .contentType(MediaType.parseMediaType(one.getContentType()))
 //                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + one.getOriginalName() + "\"")
 //                    .body(Files.readAllBytes(Paths.get(one.getContentType())));
-
-
 //        } catch (Exception e) {
 //
             return ResponseEntity.ok().body("oxshamadi");

@@ -22,4 +22,5 @@ public class AddArticleDto {
     private int sertifikatSoni;
     private boolean doi;
     private double price;
+    private int languageId;
 }

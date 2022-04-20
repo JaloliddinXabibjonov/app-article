@@ -12,6 +12,7 @@ import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -30,22 +31,21 @@ public class UserController {
     UserRepository userRepository;
 
 
-    @GetMapping("/fetchAllUser")
-    public Set<String> fetchAll() {
-        return UserStorage.getInstance().getUsers();
-    }
-
+//    @GetMapping("/fetchAllUser")
+//    public Set<String> fetchAll() {
+//        return UserStorage.getInstance().getUsers();
+//    }
 
     @PostMapping("/register")
     public HttpEntity<?> userAdd(@RequestBody SignUp signUp) {
         return ResponseEntity.ok(userService.register(signUp));
     }
 
+//    @PreAuthorize(value = "hasAuthority('ROLE_ADMINISTRATOR')")
     @PostMapping("/registerAdmin")
     public HttpEntity<?> registerAdmin(@RequestBody SignUp signUp) {
         return ResponseEntity.ok(userService.registerAdmin(signUp));
     }
-
 
     /**
      * REVIEWERLARNI ADMIN TOMONIDAN RO`YXATDAN O`TKAZISH
@@ -76,6 +76,7 @@ public class UserController {
     /**
      * ADMIN TOMONIDAN USERLARNI EDIT QILISH
      */
+//    @PreAuthorize(value = "hasAuthority('ROLE_ADMINISTRATOR')")
     @PostMapping("/editUserFromAdmin")
     public HttpEntity<ApiResponse> editUserFromAdmin(@CurrentUser User currentUser, @RequestBody SignUp userDto) {
         ApiResponse apiResponse = userService.editUserFromAdmin(currentUser, userDto);
@@ -91,6 +92,7 @@ public class UserController {
     /**
      * USERLARNI ADMIN TOMONIDAN O'CHIRIB TASHLASH
      */
+//    @PreAuthorize(value = "hasAuthority('ROLE_ADMINISTRATOR')")
     @DeleteMapping("/delete/{id}")
     public HttpEntity<?> delete(@PathVariable UUID id) {
         ApiResponse apiResponse = userService.delete(id);
@@ -107,6 +109,7 @@ public class UserController {
     /**
      * ADMIN TOMONIDAN TIZIMGA XODIM QO`SHISH
      */
+//    @PreAuthorize(value = "hasAuthority('ROLE_ADMINISTRATOR')")
     @PostMapping("/addEmployee")
     public HttpEntity<ApiResponse> addEmployee(@RequestBody UserDto userDto) throws ExecutionException, IllegalAccessException {
         ApiResponse apiResponse = userService.addEmployee(userDto);
@@ -144,6 +147,7 @@ public class UserController {
     /**
      * ADMIN TOMONIDAN TIZIM FOYDALANUVCHILARINI QIDIRISH
      */
+//    @PreAuthorize(value = "hasAuthority('ROLE_ADMINISTRATOR')")
     @PostMapping("/search")
     public HttpEntity<?> search(@RequestBody SearchUser searchUser) throws IllegalAccessException {
         ApiResponse apiResponse = userService.search(searchUser);
@@ -153,6 +157,7 @@ public class UserController {
     /**
      * YANGI QO`SHILGAN REVIEWERLARNI OLIB KELISH
      */
+//    @PreAuthorize(value = "hasAuthority('ROLE_ADMINISTRATOR')")
     @GetMapping("/getNewReviewer")
     public ApiResponse getNewReviewer() {
         return new ApiResponse("Yangi qo'shilgan reviewerlar", true, userService.getNewReviewer());
@@ -161,6 +166,7 @@ public class UserController {
     /**
      * TIZIMGA YANGI QO`SHILGAN REVIEWERLAR SONINI OLIB KELISH
      */
+//    @PreAuthorize(value = "hasAuthority('ROLE_ADMINISTRATOR')")
     @GetMapping("/getNewReviewerCount")
     public Integer getNewReviewerCount() {
         return userService.getNewReviewerCount();
@@ -169,6 +175,7 @@ public class UserController {
     /**
      * USERNI TIZIMDA ISHLASHI UCHUN RUXSAT BERISH
      */
+//    @PreAuthorize(value = "hasAuthority('ROLE_ADMINISTRATOR')")
     @PostMapping("/acceptedUser")
     public HttpEntity<?> acceptedUser(@CurrentUser User user, @RequestBody ReviewerDto reviewerDto) {
         ApiResponse apiResponse = userService.acceptedUser(user, reviewerDto);
@@ -178,6 +185,7 @@ public class UserController {
     /**
      * MA'LUM VAQT ORALIG'IDAGI RO`YXATDAN O`TGAN USERLARNI OLIB KELISH UCHUN
      */
+//    @PreAuthorize(value = "hasAuthority('ROLE_ADMINISTRATOR')")
     @GetMapping("/numberOfRegistredUsersBetween")
     public Integer numberOfUsersBetween(@RequestParam Long start, @RequestParam Long end) {
         return userService.numberOfRegistredUsers(start, end);
@@ -186,6 +194,7 @@ public class UserController {
     /**
      * DASHBOARD UCHUN
      */
+//    @PreAuthorize(value = "hasAuthority('ROLE_ADMINISTRATOR')")
     @GetMapping("/dashboard")
     public HttpEntity<?> dashboard() {
         return ResponseEntity.ok(userService.dashboard());
@@ -194,6 +203,7 @@ public class UserController {
     /**
      * adminstratorlar defoult deadline beradi
      */
+//    @PreAuthorize(value = "hasAuthority('ROLE_ADMINISTRATOR')")
     @PostMapping("/defaultDeadlineAddAdministrator")
     public HttpEntity<?> defaultDeadlineAddAdministrator(@RequestBody DeadlineAdministratorDto defaultDeadlineAddAdministrator) {
         ApiResponse apiResponse = userService.defaultDeadlineAddAdministrator(defaultDeadlineAddAdministrator);
@@ -204,6 +214,7 @@ public class UserController {
     /**
      * USERNI BERILGAN VAQT ORALIG'IDAGI QABUL QILGAN MAQOLALARI
      */
+//    @PreAuthorize(value = "hasAuthority('ROLE_ADMINISTRATOR')")
     @GetMapping("/getAcceptedArticlesByUsersBetween")
     public List<Article> getAcceptedArticlesByUsersBetween(@RequestBody TimeBetween timeBetween) {
         return userService.getAcceptedArticlesByUsersBetween(timeBetween);

@@ -1,20 +1,16 @@
 package com.example.article.servise;
 
 import com.example.article.entity.Article;
-import com.example.article.entity.InformationArticle;
 import com.example.article.entity.Journals;
 import com.example.article.entity.enums.ArticleStatusName;
 import com.example.article.entity.enums.JournalsStatus;
 import com.example.article.payload.*;
 import com.example.article.repository.*;
-import org.hibernate.criterion.Order;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -49,11 +45,11 @@ public class JournalsService {
     InformationArticleService informationArticleService;
 //, MultipartFile file
     public ApiResponse addNewJournal(JournalsPayload journalsDto, MultipartFile cover) throws IOException {
-
-
         try {
-//            if (deadline.getTime() <= System.currentTimeMillis())
-//                return new ApiResponse("Maqola qabul qilish muddati hozirgi vaqtdan keyingi vaqt bo`lishi kerak!", true);
+            String date = journalsDto.getDeadline();
+            Date deadline = new SimpleDateFormat("yyyy-MM-dd").parse(date);
+            if (deadline.getTime() <= System.currentTimeMillis())
+                return new ApiResponse("Maqola qabul qilish muddati hozirgi vaqtdan keyingi vaqt bo`lishi kerak!", true);
             Journals journals = new Journals();
             if (journalsDto.getPrintedDate() == 0) {
                 journals.setPrintedDate(10);
@@ -62,8 +58,6 @@ public class JournalsService {
             }
             journals.setJournalsStatus(JournalsStatus.NEW_JOURNALS.name());
             Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("Asia/Tashkent"));
-            String date = journalsDto.getDeadline();
-            Date deadline = new SimpleDateFormat("yyyy-MM-dd").parse(date);
             journals.setDeadline(deadline);
             long dead = deadline.getTime() + journalsDto.getPrintedDate() * 1000 * 3600 * 24L;
             cal.setTimeInMillis(dead);
@@ -360,7 +354,6 @@ public class JournalsService {
     }
 
     public JournalInfo getJournalInfoForUsers(UUID id) {
-        System.out.println("juuuurrrrrrrnaaaaall" + id);
         JournalInfo journalInfo = new JournalInfo();
         Journals journals = journalsRepository.findByIdAndDeletedTrue(id);
         List<Article> articles = articleRepository.journalArticlesForJournals(id);

@@ -76,7 +76,8 @@ public class Article extends AbsEntity {
     @OneToOne
     private Attachment certificate;
 
-    private String language;
+    @ManyToOne
+    private Languages language;
 
     @OneToMany
     private  List<ArticleEditArxiv>articleEditArxiv;

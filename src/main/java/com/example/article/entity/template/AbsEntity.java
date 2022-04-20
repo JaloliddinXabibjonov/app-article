@@ -1,6 +1,5 @@
 package com.example.article.entity.template;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
@@ -19,9 +18,6 @@ import java.util.UUID;
 @MappedSuperclass
 @EntityListeners({AuditingEntityListener.class})
 public abstract class AbsEntity {
-//    @Id
-//    @Type(type = "org.hibernate.type.PostgresUUIDType")
-//    @GenericGenerator(name = "uuid2",strategy ="org.hibernate.id.UUIDGenerator" )
     @Id
     @Type(type = "org.hibernate.type.PostgresUUIDType")
     @GeneratedValue(generator = "uuid2")

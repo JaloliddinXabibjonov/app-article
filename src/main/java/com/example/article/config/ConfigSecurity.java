@@ -77,15 +77,23 @@ public class ConfigSecurity extends WebSecurityConfigurerAdapter {
                         "/swagger-ui/**",
                         "/webjars/**")
                 .permitAll()
-                .antMatchers("/api/webhook","/api/article/viewsCountingTheArticle/*","/api/users/login","/api/auth/**","/api/excel/**","/api/attechment/**","/api/users/all")
-                .permitAll()
-//                .antMatchers("/api/users/save").hasAuthority("ADD_EMPLOYEE")
-                .antMatchers("/api/**","/api/user/register","/api/user/login", "/api/journals/getActiveJournals","/api/journals/getCategoryJournals/{id}")
-                .permitAll()
-                .antMatchers("/api/user/registration/{userName}","/api/user/fetchAllUser","/char/{id}","/api/user/createNewPassword/{phoneNumber}","/api/journals/getJournalInfo/*","/api/fileRead/getFile/{id}")
-                .permitAll()
-        ;
-        http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+                .antMatchers("/api/article/viewsCountingTheArticle/*",
+                        "/api/attachment/**",
+                        "/api/users/login",
+                        "/api/user/register",
+                        "/api/user/me",
+                        "/api/user/registerReviewer",
+                        "/api/user/login",
+                        "/api/user/createNewPassword/{phoneNumber}",
+                        "/api/journals/getActiveJournals",
+                        "/api/journals/getCategoryJournals/{id}",
+                        "/api/journals/getJournalInfo/*",
+                        "/api/fileRead/getFile/{id}",
+                        "/api/article/readArticle/{id}"
 
+
+                        )
+                .permitAll();
+        http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
     }
 }

@@ -44,7 +44,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     //    @Query(value = "select * from users inner join users_roles on users.id = users_roles.users_id and users_roles.roles_id=?1 inner join users_categories uc on users.id=uc.users_id and uc.categories_id=?2 and users.delete=false",nativeQuery = true)
 //    List<User> findAllByEnabledTrueAndRolesIdAndCategoriesIdAndDeleteFalse(Integer roleId, Integer categories_id);
-    @Query(value = "select u.* from users u inner join users_languages ul on u.id = ul.users_id and ul.languages_id=?3 and u.enabled=true and active=true inner join users_roles ur on u.id = ur.users_id and ur.roles_id=?1 inner join users_categories uc on u.id = uc.users_id and uc.categories_id=?2 ",nativeQuery = true)
+    @Query(value = "select * from users u inner join users_languages ul on u.id = ul.users_id and ul.languages_id=?3 and u.enabled=true and active=true inner join users_roles ur on u.id = ur.users_id and ur.roles_id=?1 inner join users_categories uc on u.id = uc.users_id and uc.categories_id=?2 ",nativeQuery = true)
     List<User> findAllByEnabledTrueAndActiveTrueAndRolesIdAndCategoriesIdAndDeleteFalseAndLanguages(Integer roleId, Integer categories_id, Integer languageId);
 
 

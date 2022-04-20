@@ -12,5 +12,5 @@ public class GetUsersRoleId {
     private Integer roleId;
     private UUID articleId;
     private Integer languageId;
-private  boolean confirm;
+    private boolean confirm;
 }

@@ -108,7 +108,6 @@ public class User extends AbsEntity implements UserDetails {
 
     private boolean active;
 
-
     private boolean accountNonExpired = true;
 
     private boolean accountNonLocked = true;
